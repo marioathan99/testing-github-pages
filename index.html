@@ -1,66 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Neuroscience Course</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Social: Open Graph tags -->
-  <meta property="og:title" content="Neuroscience Course Notes – Duke University">
-  <meta property="og:description" content="Follow along as I progress through Duke University's neuroscience course!">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
-  <meta property="og:url" content="https://marioathan99.github.io/testing-github-pages/">
-  <meta name="twitter:card" content="summary_large_image" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2em;
-      background: #f5f6fa;
-    }
-    .container {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 2em;
-      border-radius: 8px;
-      box-shadow: 0 0 16px #dde;
-    }
-    h1 { color: #1d3557; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 1em 0; }
-    a { color: #457b9d; text-decoration: none; font-weight: bold; }
-    a:hover { text-decoration: underline; }
-    img {
-      width: 100%;
-      max-width: 700px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 15px #dde;
-      height: auto;
-    }
-    /* Responsive styles */
-    @media (max-width: 800px) {
-      body { margin: 0.5em; }
-      .container { max-width: 100vw; padding: 1em; border-radius: 0; box-shadow: none; }
-      img { max-width: 100vw; border-radius: 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuroscience Learning Journey | Duke University Course</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 25%;
+            animation: progressAnimation 2s ease-out;
+        }
+        
+        @keyframes progressAnimation {
+            from { width: 0%; }
+            to { width: 25%; }
+        }
+        
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .chapter-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chapter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .chapter-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .chapter-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .chapter-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .chapter-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .completed {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+        
+        .in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .upcoming {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .brain-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-  <main class="container">
-    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" 
-         alt="Nature landscape as a calming neuroscience banner" loading="lazy">
-    <h1>Welcome to the Neuroscience Course</h1>
-    <p>
-      This site hosts my notes and chapters as I work through Duke University's neuroscience course.<br>
-      New content will be added as I complete each chapter. Start learning below!
-    </p>
-    <h2>Contents</h2>
-    <ul>
-      <li>
-        <a href="chapter1.html">Chapter 1: Introduction to Functional Microanatomy of Neurons</a>
-      </li>
-      <!-- Add more chapters as you progress -->
-    </ul>
-  </main>
+    <div class="container">
+        <div class="header">
+            <div class="brain-icon">🧠</div>
+            <h1>Neuroscience Learning Journey</h1>
+            <p class="subtitle">Duke University Course Notes & Interactive Learning</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <p>Progress: Chapter 1 of 12 Complete</p>
+        </div>
+        
+        <div class="chapters-grid">
+            <div class="chapter-card" onclick="window.location.href='FunctionalMicroanatomyofNeurons.html'">
+                <div class="chapter-number">01</div>
+                <div class="chapter-title">Functional Microanatomy of Neurons</div>
+                <div class="chapter-description">
+                    Explore the fundamental building blocks of the nervous system. Learn about neuron structure, signal transmission, and the differences between gray and white matter through interactive simulations.
+                </div>
+                <span class="chapter-status completed">✓ Completed</span>
+            </div>
+            
+            <div class="chapter-card">
+                <div class="chapter-number">02</div>
+                <div class="chapter-title">Neural Communication</div>
+                <div class="chapter-description">
+                    Discover how neurons communicate through electrical and chemical signals. Understanding action potentials, synapses, and neurotransmitters.
+                </div>
+                <span class="chapter-status in-progress">🔄 In Progress</span>
+            </div>
+            
+            <div class="chapter-card">
+                <div class="chapter-number">03</div>
+                <div class="chapter-title">Brain Development</div>
+                <div class="chapter-description">
+                    Learn about how the brain develops from embryonic stages to adulthood, including neuroplasticity and critical periods.
+                </div>
+                <span class="chapter-status upcoming">📋 Upcoming</span>
+            </div>
+            
+            <div class="chapter-card">
+                <div class="chapter-number">04</div>
+                <div class="chapter-title">Sensory Systems</div>
+                <div class="chapter-description">
+                    Explore how we perceive the world through our senses: vision, hearing, touch, taste, and smell.
+                </div>
+                <span class="chapter-status upcoming">📋 Upcoming</span>
+            </div>
+            
+            <div class="chapter-card">
+                <div class="chapter-number">05</div>
+                <div class="chapter-title">Motor Systems</div>
+                <div class="chapter-description">
+                    Understanding how the brain controls movement, from simple reflexes to complex voluntary actions.
+                </div>
+                <span class="chapter-status upcoming">📋 Upcoming</span>
+            </div>
+            
+            <div class="chapter-card">
+                <div class="chapter-number">06</div>
+                <div class="chapter-title">Learning & Memory</div>
+                <div class="chapter-description">
+                    Dive into the mechanisms of learning and memory formation, storage, and retrieval in the brain.
+                </div>
+                <span class="chapter-status upcoming">📋 Upcoming</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h3>Join the Learning Journey</h3>
+            <p>New chapters added regularly as I progress through the Duke University neuroscience course.</p>
+            <a href="#" class="cta-button">Follow Progress on LinkedIn</a>
+        </div>
+    </div>
 </body>
 </html>
