@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neuroglia Interactive Simulation</title>
-    <meta name="description" content="Interactive simulation and notes on glial cells (astrocytes, oligodendrocytes, microglia) and brain injury for neuroscience students.">
+    <meta name="description"
+        content="Interactive simulation and notes on glial cells (astrocytes, oligodendrocytes, microglia) and brain injury for neuroscience students.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -13,26 +15,26 @@
             height: 300px;
             width: 100%;
         }
-        
+
         .tab-content {
             display: none;
         }
-        
+
         .tab-content.active {
             display: block;
         }
-        
+
         .cell {
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        
+
         .simulation-container {
             position: relative;
             height: 400px;
             border: 1px solid #e2e8f0;
             overflow: hidden;
         }
-        
+
         .neuron {
             position: absolute;
             width: 40px;
@@ -41,14 +43,14 @@
             border-radius: 50%;
             z-index: 10;
         }
-        
+
         .axon {
             position: absolute;
             height: 6px;
             background-color: #4299e1;
             z-index: 5;
         }
-        
+
         .myelin {
             position: absolute;
             height: 14px;
@@ -57,7 +59,7 @@
             border-radius: 7px;
             z-index: 6;
         }
-        
+
         .node {
             position: absolute;
             height: 10px;
@@ -65,7 +67,7 @@
             background-color: #4299e1;
             z-index: 7;
         }
-        
+
         .astrocyte {
             position: absolute;
             width: 30px;
@@ -74,7 +76,7 @@
             border-radius: 30%;
             z-index: 8;
         }
-        
+
         .oligodendrocyte {
             position: absolute;
             width: 25px;
@@ -83,7 +85,7 @@
             border-radius: 5px;
             z-index: 8;
         }
-        
+
         .microglia {
             position: absolute;
             width: 20px;
@@ -92,12 +94,12 @@
             border-radius: 50%;
             z-index: 8;
         }
-        
+
         .microglia.activated {
             background-color: #dd6b20;
             transform: scale(1.3);
         }
-        
+
         .blood-vessel {
             position: absolute;
             height: 20px;
@@ -105,7 +107,7 @@
             border-radius: 10px;
             z-index: 4;
         }
-        
+
         .debris {
             position: absolute;
             width: 15px;
@@ -115,7 +117,7 @@
             opacity: 0.7;
             z-index: 7;
         }
-        
+
         .scar {
             position: absolute;
             width: 50px;
@@ -125,7 +127,7 @@
             z-index: 6;
             opacity: 0;
         }
-        
+
         .signal {
             position: absolute;
             width: 12px;
@@ -135,7 +137,7 @@
             z-index: 20;
             box-shadow: 0 0 8px 4px rgba(66, 153, 225, 0.6);
         }
-        
+
         .tooltip {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.8);
@@ -148,80 +150,103 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-        
+
         @media (max-width: 800px) {
             .container {
                 padding: 1em;
                 border-radius: 0;
                 box-shadow: none;
             }
+
             .simulation-container {
                 height: 250px;
             }
+
             h1 {
                 font-size: 1.4em;
             }
+
             h2 {
                 font-size: 1.1em;
             }
         }
     </style>
 </head>
+
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 class="text-3xl font-bold text-center mb-2">Neuroglia: The Supporting Cast of the Brain</h1>
-        <p class="text-center text-gray-600 mb-8">An interactive exploration of non-neuronal cells in the central nervous system</p>
-        
+        <div class="mb-8 text-center relative">
+            <a href="index.html" class="text-gray-500 hover:text-blue-600 text-sm absolute left-4 top-4">← Home</a>
+            <h1 class="text-3xl font-bold text-blue-800 mb-2">Neuroglia: The Supporting Cast of the Brain</h1>
+            <p class="text-lg text-gray-600">An interactive exploration of non-neuronal cells in the central nervous
+                system</p>
+        </div>
+
         <!-- Hook Question -->
         <div class="bg-blue-100 p-4 rounded-lg mb-8 shadow">
             <h2 class="text-xl font-semibold mb-2">What if neurons weren't the only important cells in your brain?</h2>
-            <p>While neurons get most of the attention, they make up less than half of the cells in your brain. The rest are glial cells - the unsung heroes that support, protect, and even enhance neuronal function. Explore this interactive simulation to discover how these cells work together and what happens when the brain is injured.</p>
+            <p>While neurons get most of the attention, they make up less than half of the cells in your brain. The rest
+                are glial cells - the unsung heroes that support, protect, and even enhance neuronal function. Explore
+                this interactive simulation to discover how these cells work together and what happens when the brain is
+                injured.</p>
         </div>
-        
+
         <!-- Main Tabs -->
         <div class="mb-8">
             <div class="flex border-b border-gray-200">
-                <button id="tab-overview" aria-label="Overview Tab" class="tab-button px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600">Overview</button>
-                <button id="tab-astrocytes" aria-label="Astrocytes Tab" class="tab-button px-4 py-2 font-medium text-gray-500">Astrocytes</button>
-                <button id="tab-oligodendrocytes" aria-label="Oligodendrocytes Tab" class="tab-button px-4 py-2 font-medium text-gray-500">Oligodendrocytes</button>
-                <button id="tab-microglia" aria-label="Microglia Tab" class="tab-button px-4 py-2 font-medium text-gray-500">Microglia</button>
-                <button id="tab-stroke" aria-label="Stroke Simulation Tab" class="tab-button px-4 py-2 font-medium text-gray-500">Stroke Simulation</button>
+                <button id="tab-overview" aria-label="Overview Tab"
+                    class="tab-button px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600">Overview</button>
+                <button id="tab-astrocytes" aria-label="Astrocytes Tab"
+                    class="tab-button px-4 py-2 font-medium text-gray-500">Astrocytes</button>
+                <button id="tab-oligodendrocytes" aria-label="Oligodendrocytes Tab"
+                    class="tab-button px-4 py-2 font-medium text-gray-500">Oligodendrocytes</button>
+                <button id="tab-microglia" aria-label="Microglia Tab"
+                    class="tab-button px-4 py-2 font-medium text-gray-500">Microglia</button>
+                <button id="tab-stroke" aria-label="Stroke Simulation Tab"
+                    class="tab-button px-4 py-2 font-medium text-gray-500">Stroke Simulation</button>
             </div>
-            
+
             <!-- Overview Tab Content -->
             <div id="content-overview" class="tab-content active p-4 bg-white rounded-b-lg shadow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Cells of the Central Nervous System</h3>
-                        <p class="mb-4">The brain contains billions of cells that work together to create our thoughts, memories, and actions. These cells can be divided into two main categories:</p>
-                        
+                        <p class="mb-4">The brain contains billions of cells that work together to create our thoughts,
+                            memories, and actions. These cells can be divided into two main categories:</p>
+
                         <div class="mb-4">
                             <h4 class="font-medium text-lg">Neurons</h4>
-                            <p>The electrically excitable cells that transmit information through electrical and chemical signals.</p>
+                            <p>The electrically excitable cells that transmit information through electrical and
+                                chemical signals.</p>
                         </div>
-                        
+
                         <div class="mb-4">
                             <h4 class="font-medium text-lg">Neuroglia (Glial Cells)</h4>
-                            <p>The support cells that maintain homeostasis, form myelin, and provide support and protection for neurons.</p>
+                            <p>The support cells that maintain homeostasis, form myelin, and provide support and
+                                protection for neurons.</p>
                         </div>
-                        
+
                         <div class="mt-6">
                             <h4 class="font-medium text-lg">Major Types of Glial Cells:</h4>
                             <ul class="list-disc pl-5 space-y-2 mt-2">
-                                <li><span class="font-medium text-green-600">Astrocytes</span>: Support neurons, regulate extracellular environment, contribute to blood-brain barrier</li>
-                                <li><span class="font-medium text-yellow-600">Oligodendrocytes</span>: Form myelin sheaths around axons in the CNS</li>
-                                <li><span class="font-medium text-orange-600">Microglia</span>: Immune defense, phagocytosis of cellular debris</li>
-                                <li><span class="font-medium text-purple-600">Ependymal Cells</span>: Line ventricles, assist in CSF circulation</li>
+                                <li><span class="font-medium text-green-600">Astrocytes</span>: Support neurons,
+                                    regulate extracellular environment, contribute to blood-brain barrier</li>
+                                <li><span class="font-medium text-yellow-600">Oligodendrocytes</span>: Form myelin
+                                    sheaths around axons in the CNS</li>
+                                <li><span class="font-medium text-orange-600">Microglia</span>: Immune defense,
+                                    phagocytosis of cellular debris</li>
+                                <li><span class="font-medium text-purple-600">Ependymal Cells</span>: Line ventricles,
+                                    assist in CSF circulation</li>
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Cell Distribution in the CNS</h3>
                         <div class="chart-container">
                             <canvas id="cellDistributionChart"></canvas>
                         </div>
-                        
+
                         <div class="mt-8">
                             <h3 class="text-xl font-semibold mb-4">Functions of Glial Cells</h3>
                             <div class="chart-container">
@@ -230,16 +255,17 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold mb-4">Interactive CNS Environment</h3>
-                    <p class="mb-2">This simplified model shows how neurons and glial cells interact in the central nervous system. Click on cells to learn more about them.</p>
-                    
+                    <p class="mb-2">This simplified model shows how neurons and glial cells interact in the central
+                        nervous system. Click on cells to learn more about them.</p>
+
                     <div id="overview-simulation" class="simulation-container bg-gray-50 rounded-lg">
                         <!-- Elements will be added by JavaScript -->
                         <div class="tooltip"></div>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
                         <div class="flex items-center">
                             <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
@@ -260,14 +286,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Astrocytes Tab Content -->
             <div id="content-astrocytes" class="tab-content p-4 bg-white rounded-b-lg shadow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Astrocytes: The Stars of the Brain</h3>
-                        <p class="mb-4">Astrocytes are star-shaped glial cells that are the most abundant cells in the human brain. They perform numerous essential functions:</p>
-                        
+                        <p class="mb-4">Astrocytes are star-shaped glial cells that are the most abundant cells in the
+                            human brain. They perform numerous essential functions:</p>
+
                         <ul class="list-disc pl-5 space-y-2 mb-6">
                             <li>Maintain ionic balance in the extracellular fluid</li>
                             <li>Remove and recycle neurotransmitters from synaptic clefts</li>
@@ -276,13 +303,17 @@
                             <li>Assist in synaptogenesis (formation of new synapses)</li>
                             <li>Form scar tissue after CNS injury</li>
                         </ul>
-                        
+
                         <h4 class="font-medium text-lg mb-2">Blood-Brain Barrier</h4>
-                        <p class="mb-4">Astrocytes extend "end feet" processes that wrap around blood vessels, contributing to the blood-brain barrier that protects the brain from harmful substances while allowing essential nutrients to pass through.</p>
-                        
+                        <p class="mb-4">Astrocytes extend "end feet" processes that wrap around blood vessels,
+                            contributing to the blood-brain barrier that protects the brain from harmful substances
+                            while allowing essential nutrients to pass through.</p>
+
                         <div class="mt-6">
-                            <label for="astrocyte-function" class="block text-sm font-medium text-gray-700 mb-1">Select Astrocyte Function to Visualize:</label>
-                            <select id="astrocyte-function" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                            <label for="astrocyte-function" class="block text-sm font-medium text-gray-700 mb-1">Select
+                                Astrocyte Function to Visualize:</label>
+                            <select id="astrocyte-function"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
                                 <option value="ionic">Ionic Balance Regulation</option>
                                 <option value="neurotransmitter">Neurotransmitter Recycling</option>
                                 <option value="bbb">Blood-Brain Barrier</option>
@@ -290,31 +321,33 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="chart-container mb-6">
                             <canvas id="astrocyteFunctionsChart"></canvas>
                         </div>
-                        
+
                         <div class="mt-4">
                             <h4 class="font-medium text-lg mb-2">Astrocyte Distribution</h4>
-                            <p>Astrocytes are found primarily in gray matter, where they closely associate with neuronal cell bodies, dendrites, and synapses.</p>
+                            <p>Astrocytes are found primarily in gray matter, where they closely associate with neuronal
+                                cell bodies, dendrites, and synapses.</p>
                             <div class="chart-container mt-4">
                                 <canvas id="astrocyteDistributionChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold mb-4">Astrocyte Interactive Simulation</h3>
-                    <p class="mb-2">This simulation demonstrates how astrocytes interact with neurons and blood vessels. The selected function will be highlighted.</p>
-                    
+                    <p class="mb-2">This simulation demonstrates how astrocytes interact with neurons and blood vessels.
+                        The selected function will be highlighted.</p>
+
                     <div id="astrocyte-simulation" class="simulation-container bg-gray-50 rounded-lg">
                         <!-- Elements will be added by JavaScript -->
                         <div class="tooltip"></div>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <h4 class="font-medium mb-2">Adjust Astrocyte Activity:</h4>
@@ -324,7 +357,7 @@
                                 <span>High</span>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h4 class="font-medium mb-2">Neurotransmitter Concentration:</h4>
                             <input type="range" id="neurotransmitter-level" min="1" max="10" value="5" class="w-full">
@@ -336,14 +369,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Oligodendrocytes Tab Content -->
             <div id="content-oligodendrocytes" class="tab-content p-4 bg-white rounded-b-lg shadow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Oligodendrocytes: The Myelin Makers</h3>
-                        <p class="mb-4">Oligodendrocytes are specialized glial cells responsible for creating myelin sheaths around axons in the central nervous system. Their key functions include:</p>
-                        
+                        <p class="mb-4">Oligodendrocytes are specialized glial cells responsible for creating myelin
+                            sheaths around axons in the central nervous system. Their key functions include:</p>
+
                         <ul class="list-disc pl-5 space-y-2 mb-6">
                             <li>Forming myelin sheaths that insulate axons</li>
                             <li>Increasing the speed of action potential propagation</li>
@@ -351,12 +385,15 @@
                             <li>Providing trophic support to axons</li>
                             <li>Influencing axonal outgrowth during development</li>
                         </ul>
-                        
+
                         <h4 class="font-medium text-lg mb-2">Myelin and Signal Propagation</h4>
-                        <p class="mb-4">Myelin acts as an insulator, reducing the electrical "leakiness" of axons. This allows action potentials to jump from one node of Ranvier to the next (saltatory conduction), dramatically increasing signal speed while reducing energy consumption.</p>
-                        
+                        <p class="mb-4">Myelin acts as an insulator, reducing the electrical "leakiness" of axons. This
+                            allows action potentials to jump from one node of Ranvier to the next (saltatory
+                            conduction), dramatically increasing signal speed while reducing energy consumption.</p>
+
                         <div class="mt-6">
-                            <label for="myelination-level" class="block text-sm font-medium text-gray-700 mb-1">Adjust Myelination Level:</label>
+                            <label for="myelination-level" class="block text-sm font-medium text-gray-700 mb-1">Adjust
+                                Myelination Level:</label>
                             <input type="range" id="myelination-level" min="0" max="10" value="7" class="w-full">
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>Unmyelinated</span>
@@ -364,37 +401,41 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="chart-container mb-6">
                             <canvas id="conductionSpeedChart"></canvas>
                         </div>
-                        
+
                         <div class="mt-4">
                             <h4 class="font-medium text-lg mb-2">Oligodendrocyte Distribution</h4>
-                            <p>Oligodendrocytes are found primarily in white matter, where they myelinate multiple axon segments.</p>
+                            <p>Oligodendrocytes are found primarily in white matter, where they myelinate multiple axon
+                                segments.</p>
                             <div class="chart-container mt-4">
                                 <canvas id="oligodendrocyteDistributionChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold mb-4">Myelination Interactive Simulation</h3>
-                    <p class="mb-2">This simulation demonstrates how myelination affects signal propagation speed. Adjust the myelination level to see the difference in conduction velocity.</p>
-                    
+                    <p class="mb-2">This simulation demonstrates how myelination affects signal propagation speed.
+                        Adjust the myelination level to see the difference in conduction velocity.</p>
+
                     <div id="oligodendrocyte-simulation" class="simulation-container bg-gray-50 rounded-lg">
                         <!-- Elements will be added by JavaScript -->
                         <div class="tooltip"></div>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <button id="send-signal" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Send Signal</button>
+                            <button id="send-signal"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Send
+                                Signal</button>
                             <span id="conduction-time" class="ml-4">Conduction time: -- ms</span>
                         </div>
-                        
+
                         <div class="text-right">
                             <div class="inline-flex items-center">
                                 <div class="w-4 h-4 rounded bg-yellow-500 mr-2"></div>
@@ -408,28 +449,33 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Microglia Tab Content -->
             <div id="content-microglia" class="tab-content p-4 bg-white rounded-b-lg shadow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Microglia: The Brain's Immune Cells</h3>
-                        <p class="mb-4">Microglia are the resident immune cells of the central nervous system. They constantly survey their environment and respond rapidly to injury or infection:</p>
-                        
+                        <p class="mb-4">Microglia are the resident immune cells of the central nervous system. They
+                            constantly survey their environment and respond rapidly to injury or infection:</p>
+
                         <ul class="list-disc pl-5 space-y-2 mb-6">
                             <li>Exist in two states: ramified (resting) and amoeboid (activated)</li>
                             <li>Continuously monitor the brain environment for threats</li>
                             <li>Phagocytose cellular debris after injury</li>
                             <li>Release cytokines to modulate inflammatory responses</li>
                             <li>Participate in synaptic pruning during development</li>
-                            <li>Derived from hematopoietic precursor cells that migrate into the brain during development</li>
+                            <li>Derived from hematopoietic precursor cells that migrate into the brain during
+                                development</li>
                         </ul>
-                        
+
                         <h4 class="font-medium text-lg mb-2">Microglial Activation</h4>
-                        <p class="mb-4">When the brain is injured or infected, microglia transform from their ramified (resting) state to an amoeboid (activated) state. In this activated state, they can move toward the site of injury, phagocytose debris, and release inflammatory mediators.</p>
-                        
+                        <p class="mb-4">When the brain is injured or infected, microglia transform from their ramified
+                            (resting) state to an amoeboid (activated) state. In this activated state, they can move
+                            toward the site of injury, phagocytose debris, and release inflammatory mediators.</p>
+
                         <div class="mt-6">
-                            <label for="injury-level" class="block text-sm font-medium text-gray-700 mb-1">Simulate Brain Injury:</label>
+                            <label for="injury-level" class="block text-sm font-medium text-gray-700 mb-1">Simulate
+                                Brain Injury:</label>
                             <input type="range" id="injury-level" min="0" max="10" value="0" class="w-full">
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>Healthy</span>
@@ -437,12 +483,12 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="chart-container mb-6">
                             <canvas id="microgliaActivityChart"></canvas>
                         </div>
-                        
+
                         <div class="mt-4">
                             <h4 class="font-medium text-lg mb-2">Microglial Response Timeline</h4>
                             <p>After injury, microglia respond in a coordinated sequence of events.</p>
@@ -452,22 +498,26 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold mb-4">Microglia Response Simulation</h3>
-                    <p class="mb-2">This simulation demonstrates how microglia respond to injury. Adjust the injury level to see how microglia transform and respond.</p>
-                    
+                    <p class="mb-2">This simulation demonstrates how microglia respond to injury. Adjust the injury
+                        level to see how microglia transform and respond.</p>
+
                     <div id="microglia-simulation" class="simulation-container bg-gray-50 rounded-lg">
                         <!-- Elements will be added by JavaScript -->
                         <div class="tooltip"></div>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <button id="create-injury" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Create Focal Injury</button>
-                            <button id="reset-microglia" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition ml-2">Reset</button>
+                            <button id="create-injury"
+                                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Create Focal
+                                Injury</button>
+                            <button id="reset-microglia"
+                                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition ml-2">Reset</button>
                         </div>
-                        
+
                         <div class="text-right">
                             <div class="inline-flex items-center">
                                 <div class="w-4 h-4 rounded-full bg-orange-500 mr-2"></div>
@@ -481,35 +531,42 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Stroke Simulation Tab Content -->
             <div id="content-stroke" class="tab-content p-4 bg-white rounded-b-lg shadow">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Stroke Response Simulation</h3>
-                        <p class="mb-4">This simulation demonstrates the sequence of events following a stroke in the brain, highlighting the roles of different glial cells in the response to injury.</p>
-                        
+                        <p class="mb-4">This simulation demonstrates the sequence of events following a stroke in the
+                            brain, highlighting the roles of different glial cells in the response to injury.</p>
+
                         <h4 class="font-medium text-lg mb-2">Stroke Response Timeline</h4>
                         <ol class="list-decimal pl-5 space-y-2 mb-6">
                             <li><strong>Initial Injury</strong>: Blood flow is interrupted, causing neuronal damage</li>
-                            <li><strong>Microglial Activation</strong>: Microglia transform from ramified to amoeboid state</li>
+                            <li><strong>Microglial Activation</strong>: Microglia transform from ramified to amoeboid
+                                state</li>
                             <li><strong>Debris Clearance</strong>: Activated microglia phagocytose cellular debris</li>
-                            <li><strong>Astrocyte Response</strong>: Astrocytes form a glial scar to contain the damaged area</li>
-                            <li><strong>Potential Regeneration</strong>: Glial stem cells may attempt to repopulate the area</li>
+                            <li><strong>Astrocyte Response</strong>: Astrocytes form a glial scar to contain the damaged
+                                area</li>
+                            <li><strong>Potential Regeneration</strong>: Glial stem cells may attempt to repopulate the
+                                area</li>
                         </ol>
-                        
+
                         <div class="mt-6">
                             <h4 class="font-medium text-lg mb-2">Study Question</h4>
-                            <p class="mb-2">Consider a person with a stroke that caused a small region of brain damage. Which happened first?</p>
-                            
+                            <p class="mb-2">Consider a person with a stroke that caused a small region of brain damage.
+                                Which happened first?</p>
+
                             <div class="space-y-2 mt-4">
                                 <div class="flex items-start">
                                     <input type="radio" id="answer-a" name="stroke-answer" value="A" class="mt-1 mr-2">
-                                    <label for="answer-a">A. Microglia were stimulated to convert from ramified to amoeboid states.</label>
+                                    <label for="answer-a">A. Microglia were stimulated to convert from ramified to
+                                        amoeboid states.</label>
                                 </div>
                                 <div class="flex items-start">
                                     <input type="radio" id="answer-b" name="stroke-answer" value="B" class="mt-1 mr-2">
-                                    <label for="answer-b">B. Astrocytes formed scar tissue to fill-in space vacated by damaged tissue.</label>
+                                    <label for="answer-b">B. Astrocytes formed scar tissue to fill-in space vacated by
+                                        damaged tissue.</label>
                                 </div>
                                 <div class="flex items-start">
                                     <input type="radio" id="answer-c" name="stroke-answer" value="C" class="mt-1 mr-2">
@@ -517,49 +574,58 @@
                                 </div>
                                 <div class="flex items-start">
                                     <input type="radio" id="answer-d" name="stroke-answer" value="D" class="mt-1 mr-2">
-                                    <label for="answer-d">D. Glial stem cells repopulated region of damage neural tissue.</label>
+                                    <label for="answer-d">D. Glial stem cells repopulated region of damage neural
+                                        tissue.</label>
                                 </div>
                             </div>
-                            
-                            <button id="check-answer" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Check Answer</button>
+
+                            <button id="check-answer"
+                                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Check
+                                Answer</button>
                             <div id="answer-feedback" class="mt-2 p-3 rounded hidden"></div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="chart-container mb-6">
                             <canvas id="strokeTimelineChart"></canvas>
                         </div>
-                        
+
                         <div class="mt-4">
                             <h4 class="font-medium text-lg mb-2">Simulation Controls</h4>
                             <div class="flex items-center mb-4">
-                                <button id="start-stroke" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Simulate Stroke</button>
-                                <button id="reset-stroke" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition ml-2">Reset</button>
+                                <button id="start-stroke"
+                                    class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Simulate
+                                    Stroke</button>
+                                <button id="reset-stroke"
+                                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition ml-2">Reset</button>
                                 <div class="ml-4">
-                                    <label for="simulation-speed" class="block text-sm font-medium text-gray-700">Speed:</label>
-                                    <select id="simulation-speed" class="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border">
+                                    <label for="simulation-speed"
+                                        class="block text-sm font-medium text-gray-700">Speed:</label>
+                                    <select id="simulation-speed"
+                                        class="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border">
                                         <option value="slow">Slow</option>
                                         <option value="medium" selected>Medium</option>
                                         <option value="fast">Fast</option>
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div id="timeline-indicator" class="w-full h-2 bg-gray-200 rounded overflow-hidden">
-                                <div id="timeline-progress" class="h-full bg-blue-600 w-0 transition-all duration-300"></div>
+                                <div id="timeline-progress" class="h-full bg-blue-600 w-0 transition-all duration-300">
+                                </div>
                             </div>
                             <div id="current-phase" class="text-center mt-2 font-medium">Ready to start simulation</div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <div id="stroke-simulation" class="simulation-container bg-gray-50 rounded-lg">
                         <!-- Elements will be added by JavaScript -->
                         <div class="tooltip"></div>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
                         <div class="flex items-center">
                             <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
@@ -581,10 +647,11 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Footer -->
         <div class="mt-8 text-center text-gray-600 text-sm">
-            <p>This interactive simulation is designed for educational purposes to explore the roles of glial cells in the central nervous system.</p>
+            <p>This interactive simulation is designed for educational purposes to explore the roles of glial cells in
+                the central nervous system.</p>
             <p class="mt-2">© 2023 Medical Neuroscience Interactive Learning</p>
         </div>
     </div>
@@ -595,24 +662,24 @@
         let simulations = {};
         let currentTab = 'overview';
         let tooltip = document.querySelector('.tooltip');
-        
+
         // Utility functions
         function showTooltip(element, text) {
             try {
                 const rect = element.getBoundingClientRect();
                 const container = element.closest('.simulation-container');
                 const containerRect = container.getBoundingClientRect();
-                
+
                 tooltip = container.querySelector('.tooltip');
                 tooltip.textContent = text;
-                tooltip.style.left = (rect.left - containerRect.left + rect.width/2) + 'px';
+                tooltip.style.left = (rect.left - containerRect.left + rect.width / 2) + 'px';
                 tooltip.style.top = (rect.top - containerRect.top - 30) + 'px';
                 tooltip.style.opacity = '1';
             } catch (error) {
                 console.error("Error showing tooltip:", error);
             }
         }
-        
+
         function hideTooltip() {
             try {
                 const tooltips = document.querySelectorAll('.tooltip');
@@ -623,14 +690,14 @@
                 console.error("Error hiding tooltip:", error);
             }
         }
-        
+
         function getRandomPosition(container, elementWidth, elementHeight) {
             try {
                 if (!container) return { x: 0, y: 0 };
-                
+
                 const width = container.clientWidth;
                 const height = container.clientHeight;
-                
+
                 return {
                     x: Math.random() * (width - elementWidth),
                     y: Math.random() * (height - elementHeight)
@@ -640,13 +707,13 @@
                 return { x: 0, y: 0 };
             }
         }
-        
+
         // Tab switching functionality
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 try {
                     const tabId = button.id.replace('tab-', '');
-                    
+
                     // Update active tab button
                     document.querySelectorAll('.tab-button').forEach(btn => {
                         btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
@@ -654,15 +721,15 @@
                     });
                     button.classList.remove('text-gray-500');
                     button.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-                    
+
                     // Update active content
                     document.querySelectorAll('.tab-content').forEach(content => {
                         content.classList.remove('active');
                     });
                     document.getElementById(`content-${tabId}`).classList.add('active');
-                    
+
                     currentTab = tabId;
-                    
+
                     // Initialize or update charts and simulations for the current tab
                     setTimeout(() => {
                         initializeTabContent(tabId);
@@ -672,10 +739,10 @@
                 }
             });
         });
-        
+
         function initializeTabContent(tabId) {
             try {
-                switch(tabId) {
+                switch (tabId) {
                     case 'overview':
                         initializeOverviewTab();
                         break;
@@ -696,7 +763,7 @@
                 console.error(`Error initializing ${tabId} tab:`, error);
             }
         }
-        
+
         // Overview Tab Initialization
         function initializeOverviewTab() {
             try {
@@ -742,7 +809,7 @@
                         }
                     });
                 }
-                
+
                 // Glial Functions Chart
                 if (!charts.glialFunctions) {
                     const ctx = document.getElementById('glialFunctionsChart').getContext('2d');
@@ -806,12 +873,12 @@
                         }
                     });
                 }
-                
+
                 // Overview Simulation
                 if (!simulations.overview) {
                     const container = document.getElementById('overview-simulation');
                     container.innerHTML = '<div class="tooltip"></div>'; // Reset
-                    
+
                     // Create neurons
                     for (let i = 0; i < 3; i++) {
                         const neuron = document.createElement('div');
@@ -824,7 +891,7 @@
                         });
                         neuron.addEventListener('mouseleave', hideTooltip);
                         container.appendChild(neuron);
-                        
+
                         // Create axon for each neuron
                         const axonLength = 100 + Math.random() * 150;
                         const axonAngle = Math.random() * Math.PI * 2;
@@ -837,7 +904,7 @@
                         axon.style.transformOrigin = '0 0';
                         container.appendChild(axon);
                     }
-                    
+
                     // Create astrocytes
                     for (let i = 0; i < 5; i++) {
                         const astrocyte = document.createElement('div');
@@ -851,7 +918,7 @@
                         astrocyte.addEventListener('mouseleave', hideTooltip);
                         container.appendChild(astrocyte);
                     }
-                    
+
                     // Create oligodendrocytes
                     for (let i = 0; i < 3; i++) {
                         const oligo = document.createElement('div');
@@ -865,7 +932,7 @@
                         oligo.addEventListener('mouseleave', hideTooltip);
                         container.appendChild(oligo);
                     }
-                    
+
                     // Create microglia
                     for (let i = 0; i < 4; i++) {
                         const microglia = document.createElement('div');
@@ -879,7 +946,7 @@
                         microglia.addEventListener('mouseleave', hideTooltip);
                         container.appendChild(microglia);
                     }
-                    
+
                     // Create blood vessel
                     const vessel = document.createElement('div');
                     vessel.className = 'blood-vessel';
@@ -891,14 +958,14 @@
                     });
                     vessel.addEventListener('mouseleave', hideTooltip);
                     container.appendChild(vessel);
-                    
+
                     simulations.overview = true;
                 }
             } catch (error) {
                 console.error("Error initializing overview tab:", error);
             }
         }
-        
+
         // Astrocytes Tab Initialization
         function initializeAstrocytesTab() {
             try {
@@ -957,7 +1024,7 @@
                         }
                     });
                 }
-                
+
                 // Astrocyte Distribution Chart
                 if (!charts.astrocyteDistribution) {
                     const ctx = document.getElementById('astrocyteDistributionChart').getContext('2d');
@@ -994,12 +1061,12 @@
                         }
                     });
                 }
-                
+
                 // Astrocyte Simulation
                 if (!simulations.astrocytes) {
                     const container = document.getElementById('astrocyte-simulation');
                     container.innerHTML = '<div class="tooltip"></div>'; // Reset
-                    
+
                     // Create neurons
                     for (let i = 0; i < 2; i++) {
                         const neuron = document.createElement('div');
@@ -1012,7 +1079,7 @@
                         neuron.addEventListener('mouseleave', hideTooltip);
                         container.appendChild(neuron);
                     }
-                    
+
                     // Create axon connecting neurons
                     const axon = document.createElement('div');
                     axon.className = 'axon';
@@ -1020,7 +1087,7 @@
                     axon.style.top = '170px';
                     axon.style.width = '180px';
                     container.appendChild(axon);
-                    
+
                     // Create astrocytes
                     const astrocyte1 = document.createElement('div');
                     astrocyte1.className = 'astrocyte';
@@ -1031,7 +1098,7 @@
                     });
                     astrocyte1.addEventListener('mouseleave', hideTooltip);
                     container.appendChild(astrocyte1);
-                    
+
                     // Create blood vessel
                     const vessel = document.createElement('div');
                     vessel.className = 'blood-vessel';
@@ -1043,7 +1110,7 @@
                     });
                     vessel.addEventListener('mouseleave', hideTooltip);
                     container.appendChild(vessel);
-                    
+
                     // Create astrocyte near blood vessel (for BBB)
                     const astrocyte2 = document.createElement('div');
                     astrocyte2.className = 'astrocyte';
@@ -1054,7 +1121,7 @@
                     });
                     astrocyte2.addEventListener('mouseleave', hideTooltip);
                     container.appendChild(astrocyte2);
-                    
+
                     simulations.astrocytes = {
                         container: container,
                         elements: {
@@ -1064,17 +1131,17 @@
                         },
                         currentFunction: 'ionic'
                     };
-                    
+
                     // Add event listeners for controls
-                    document.getElementById('astrocyte-function').addEventListener('change', function(e) {
+                    document.getElementById('astrocyte-function').addEventListener('change', function (e) {
                         try {
                             updateAstrocyteSimulation(e.target.value);
                         } catch (error) {
                             console.error("Error updating astrocyte function:", error);
                         }
                     });
-                    
-                    document.getElementById('astrocyte-activity').addEventListener('input', function(e) {
+
+                    document.getElementById('astrocyte-activity').addEventListener('input', function (e) {
                         try {
                             const activity = parseInt(e.target.value);
                             updateAstrocyteActivity(activity);
@@ -1082,8 +1149,8 @@
                             console.error("Error updating astrocyte activity:", error);
                         }
                     });
-                    
-                    document.getElementById('neurotransmitter-level').addEventListener('input', function(e) {
+
+                    document.getElementById('neurotransmitter-level').addEventListener('input', function (e) {
                         try {
                             const level = parseInt(e.target.value);
                             updateNeurotransmitterLevel(level);
@@ -1091,7 +1158,7 @@
                             console.error("Error updating neurotransmitter level:", error);
                         }
                     });
-                    
+
                     // Initialize with default function
                     updateAstrocyteSimulation('ionic');
                 }
@@ -1099,33 +1166,33 @@
                 console.error("Error initializing astrocytes tab:", error);
             }
         }
-        
+
         function updateAstrocyteSimulation(functionType) {
             try {
                 if (!simulations.astrocytes) return;
-                
+
                 const container = simulations.astrocytes.container;
-                
+
                 // Remove any existing function-specific elements
                 const functionElements = container.querySelectorAll('.function-element');
                 functionElements.forEach(el => el.remove());
-                
+
                 simulations.astrocytes.currentFunction = functionType;
-                
+
                 // Reset astrocyte appearance
                 const astrocytes = simulations.astrocytes.elements.astrocytes;
                 astrocytes.forEach(a => {
                     a.style.boxShadow = 'none';
                     a.style.transform = 'scale(1)';
                 });
-                
-                switch(functionType) {
+
+                switch (functionType) {
                     case 'ionic':
                         // Show ionic regulation
                         astrocytes.forEach(a => {
                             a.style.boxShadow = '0 0 10px rgba(66, 153, 225, 0.8)';
                         });
-                        
+
                         // Add K+ ions around astrocytes
                         for (let i = 0; i < 10; i++) {
                             const ion = document.createElement('div');
@@ -1137,36 +1204,36 @@
                             ion.style.backgroundColor = '#4299e1';
                             ion.style.opacity = '0.7';
                             ion.style.zIndex = '9';
-                            
+
                             const astrocyte = astrocytes[Math.floor(Math.random() * astrocytes.length)];
                             const rect = astrocyte.getBoundingClientRect();
                             const containerRect = container.getBoundingClientRect();
-                            
+
                             const angle = Math.random() * Math.PI * 2;
                             const distance = 20 + Math.random() * 30;
-                            
-                            const x = (rect.left - containerRect.left) + rect.width/2 + Math.cos(angle) * distance;
-                            const y = (rect.top - containerRect.top) + rect.height/2 + Math.sin(angle) * distance;
-                            
+
+                            const x = (rect.left - containerRect.left) + rect.width / 2 + Math.cos(angle) * distance;
+                            const y = (rect.top - containerRect.top) + rect.height / 2 + Math.sin(angle) * distance;
+
                             ion.style.left = `${x}px`;
                             ion.style.top = `${y}px`;
-                            
+
                             ion.addEventListener('mouseenter', () => {
                                 showTooltip(ion, 'K+ ion: Astrocytes regulate extracellular potassium concentration');
                             });
                             ion.addEventListener('mouseleave', hideTooltip);
-                            
+
                             container.appendChild(ion);
-                            
+
                             // Animate ions moving toward astrocytes
                             setTimeout(() => {
                                 ion.style.transition = 'left 3s, top 3s';
-                                ion.style.left = `${(rect.left - containerRect.left) + rect.width/2}px`;
-                                ion.style.top = `${(rect.top - containerRect.top) + rect.height/2}px`;
+                                ion.style.left = `${(rect.left - containerRect.left) + rect.width / 2}px`;
+                                ion.style.top = `${(rect.top - containerRect.top) + rect.height / 2}px`;
                             }, 100 + i * 200);
                         }
                         break;
-                        
+
                     case 'neurotransmitter':
                         // Show neurotransmitter recycling
                         // Add neurotransmitter particles in synaptic cleft
@@ -1180,17 +1247,17 @@
                             nt.style.backgroundColor = '#805ad5';
                             nt.style.opacity = '0.8';
                             nt.style.zIndex = '9';
-                            
+
                             nt.style.left = `${220 + Math.random() * 40}px`;
                             nt.style.top = `${160 + Math.random() * 20}px`;
-                            
+
                             nt.addEventListener('mouseenter', () => {
                                 showTooltip(nt, 'Neurotransmitter: Astrocytes remove and recycle neurotransmitters from synaptic clefts');
                             });
                             nt.addEventListener('mouseleave', hideTooltip);
-                            
+
                             container.appendChild(nt);
-                            
+
                             // Animate neurotransmitters moving toward astrocyte
                             setTimeout(() => {
                                 nt.style.transition = 'left 2s, top 2s';
@@ -1199,12 +1266,12 @@
                             }, 500 + i * 100);
                         }
                         break;
-                        
+
                     case 'bbb':
                         // Show blood-brain barrier
                         const astrocyte = simulations.astrocytes.elements.astrocytes[1]; // The one near the vessel
                         astrocyte.style.boxShadow = '0 0 15px rgba(72, 187, 120, 0.8)';
-                        
+
                         // Add astrocyte end-feet
                         for (let i = 0; i < 5; i++) {
                             const foot = document.createElement('div');
@@ -1215,18 +1282,18 @@
                             foot.style.borderRadius = '50%';
                             foot.style.backgroundColor = 'rgba(72, 187, 120, 0.7)';
                             foot.style.zIndex = '7';
-                            
+
                             foot.style.left = `${100 + i * 50}px`;
                             foot.style.top = '290px';
-                            
+
                             foot.addEventListener('mouseenter', () => {
                                 showTooltip(foot, 'Astrocyte End-Foot: Forms part of the blood-brain barrier');
                             });
                             foot.addEventListener('mouseleave', hideTooltip);
-                            
+
                             container.appendChild(foot);
                         }
-                        
+
                         // Add molecules trying to cross BBB
                         for (let i = 0; i < 8; i++) {
                             const molecule = document.createElement('div');
@@ -1238,30 +1305,30 @@
                             molecule.style.backgroundColor = i < 4 ? '#38b2ac' : '#f56565';
                             molecule.style.opacity = '0.8';
                             molecule.style.zIndex = '5';
-                            
+
                             molecule.style.left = `${80 + i * 30}px`;
                             molecule.style.top = '320px';
-                            
+
                             molecule.addEventListener('mouseenter', () => {
-                                const text = molecule.style.backgroundColor.includes('f56565') ? 
-                                    'Harmful Molecule: Blocked by blood-brain barrier' : 
+                                const text = molecule.style.backgroundColor.includes('f56565') ?
+                                    'Harmful Molecule: Blocked by blood-brain barrier' :
                                     'Nutrient Molecule: Allowed through blood-brain barrier';
                                 showTooltip(molecule, text);
                             });
                             molecule.addEventListener('mouseleave', hideTooltip);
-                            
+
                             container.appendChild(molecule);
-                            
+
                             // Animate molecules trying to cross BBB
                             setTimeout(() => {
                                 molecule.style.transition = 'top 2s';
                                 // Nutrients (blue) pass through, toxins (red) don't
-                                molecule.style.top = molecule.style.backgroundColor.includes('f56565') ? 
+                                molecule.style.top = molecule.style.backgroundColor.includes('f56565') ?
                                     '320px' : '260px';
                             }, 500 + i * 200);
                         }
                         break;
-                        
+
                     case 'synapse':
                         // Show synapse formation
                         // Highlight the space between neurons
@@ -1276,14 +1343,14 @@
                         synapse.style.zIndex = '4';
                         synapse.style.left = '215px';
                         synapse.style.top = '155px';
-                        
+
                         synapse.addEventListener('mouseenter', () => {
                             showTooltip(synapse, 'Synapse: Astrocytes assist in synapse formation and maintenance');
                         });
                         synapse.addEventListener('mouseleave', hideTooltip);
-                        
+
                         container.appendChild(synapse);
-                        
+
                         // Show astrocyte processes extending to synapse
                         const process = document.createElement('div');
                         process.className = 'function-element';
@@ -1296,9 +1363,9 @@
                         process.style.top = '135px';
                         process.style.transform = 'rotate(45deg)';
                         process.style.transformOrigin = '0 0';
-                        
+
                         container.appendChild(process);
-                        
+
                         // Animate astrocyte
                         const astrocyte1 = simulations.astrocytes.elements.astrocytes[0];
                         astrocyte1.style.boxShadow = '0 0 15px rgba(72, 187, 120, 0.8)';
@@ -1309,26 +1376,26 @@
                 console.error("Error updating astrocyte simulation:", error);
             }
         }
-        
+
         function updateAstrocyteActivity(activity) {
             try {
                 if (!simulations.astrocytes) return;
-                
+
                 const astrocytes = simulations.astrocytes.elements.astrocytes;
                 astrocytes.forEach(a => {
                     const scale = 0.8 + (activity / 10) * 0.6;
                     a.style.transform = `scale(${scale})`;
-                    
+
                     const intensity = Math.floor((activity / 10) * 255);
-                    a.style.boxShadow = `0 0 ${5 + activity}px rgba(72, 187, 120, ${activity/10})`;
+                    a.style.boxShadow = `0 0 ${5 + activity}px rgba(72, 187, 120, ${activity / 10})`;
                 });
-                
+
                 // If in neurotransmitter mode, adjust recycling speed
                 if (simulations.astrocytes.currentFunction === 'neurotransmitter') {
                     const nts = document.querySelectorAll('#astrocyte-simulation .function-element');
                     nts.forEach(nt => {
                         if (nt.style.backgroundColor.includes('805ad5')) {
-                            nt.style.transition = `left ${3 - (activity/5)}s, top ${3 - (activity/5)}s`;
+                            nt.style.transition = `left ${3 - (activity / 5)}s, top ${3 - (activity / 5)}s`;
                         }
                     });
                 }
@@ -1336,11 +1403,11 @@
                 console.error("Error updating astrocyte activity:", error);
             }
         }
-        
+
         function updateNeurotransmitterLevel(level) {
             try {
                 if (!simulations.astrocytes || simulations.astrocytes.currentFunction !== 'neurotransmitter') return;
-                
+
                 // Remove existing neurotransmitters
                 const existingNTs = document.querySelectorAll('#astrocyte-simulation .function-element');
                 existingNTs.forEach(nt => {
@@ -1348,11 +1415,11 @@
                         nt.remove();
                     }
                 });
-                
+
                 // Add new neurotransmitters based on level
                 const container = simulations.astrocytes.container;
                 const count = level * 2;
-                
+
                 for (let i = 0; i < count; i++) {
                     const nt = document.createElement('div');
                     nt.className = 'function-element';
@@ -1363,16 +1430,16 @@
                     nt.style.backgroundColor = '#805ad5';
                     nt.style.opacity = '0.8';
                     nt.style.zIndex = '9';
-                    
+
                     nt.style.left = `${220 + Math.random() * 40}px`;
                     nt.style.top = `${160 + Math.random() * 20}px`;
-                    
+
                     container.appendChild(nt);
-                    
+
                     // Get astrocyte activity level
                     const activityLevel = parseInt(document.getElementById('astrocyte-activity').value);
-                    const speed = 3 - (activityLevel/5);
-                    
+                    const speed = 3 - (activityLevel / 5);
+
                     // Animate neurotransmitters moving toward astrocyte
                     setTimeout(() => {
                         nt.style.transition = `left ${speed}s, top ${speed}s`;
@@ -1384,7 +1451,7 @@
                 console.error("Error updating neurotransmitter level:", error);
             }
         }
-        
+
         // Oligodendrocytes Tab Initialization
         function initializeOligodendrocytesTab() {
             try {
@@ -1435,7 +1502,7 @@
                         }
                     });
                 }
-                
+
                 // Oligodendrocyte Distribution Chart
                 if (!charts.oligodendrocyteDistribution) {
                     const ctx = document.getElementById('oligodendrocyteDistributionChart').getContext('2d');
@@ -1472,25 +1539,25 @@
                         }
                     });
                 }
-                
+
                 // Oligodendrocyte Simulation
                 if (!simulations.oligodendrocytes) {
                     const container = document.getElementById('oligodendrocyte-simulation');
                     container.innerHTML = '<div class="tooltip"></div>'; // Reset
-                    
+
                     // Create neuron cell bodies
                     const neuron1 = document.createElement('div');
                     neuron1.className = 'neuron';
                     neuron1.style.left = '50px';
                     neuron1.style.top = '200px';
                     container.appendChild(neuron1);
-                    
+
                     const neuron2 = document.createElement('div');
                     neuron2.className = 'neuron';
                     neuron2.style.left = '350px';
                     neuron2.style.top = '200px';
                     container.appendChild(neuron2);
-                    
+
                     // Create axon
                     const axon = document.createElement('div');
                     axon.className = 'axon';
@@ -1498,11 +1565,11 @@
                     axon.style.top = '220px';
                     axon.style.width = '260px';
                     container.appendChild(axon);
-                    
+
                     // Create oligodendrocytes
                     const oligoPositions = [120, 180, 240, 300];
                     const oligos = [];
-                    
+
                     for (let i = 0; i < 4; i++) {
                         const oligo = document.createElement('div');
                         oligo.className = 'oligodendrocyte';
@@ -1515,15 +1582,15 @@
                         container.appendChild(oligo);
                         oligos.push(oligo);
                     }
-                    
+
                     // Create myelin segments
                     const myelinSegments = [];
                     const nodePositions = [135, 195, 255];
-                    
+
                     for (let i = 0; i < 4; i++) {
-                        const start = i === 0 ? 90 : nodePositions[i-1] + 6;
+                        const start = i === 0 ? 90 : nodePositions[i - 1] + 6;
                         const end = i === 3 ? 350 : nodePositions[i];
-                        
+
                         const myelin = document.createElement('div');
                         myelin.className = 'myelin';
                         myelin.style.left = `${start}px`;
@@ -1536,10 +1603,10 @@
                         container.appendChild(myelin);
                         myelinSegments.push(myelin);
                     }
-                    
+
                     // Create nodes of Ranvier
                     const nodes = [];
-                    
+
                     for (let i = 0; i < 3; i++) {
                         const node = document.createElement('div');
                         node.className = 'node';
@@ -1552,7 +1619,7 @@
                         container.appendChild(node);
                         nodes.push(node);
                     }
-                    
+
                     simulations.oligodendrocytes = {
                         container: container,
                         elements: {
@@ -1565,9 +1632,9 @@
                         myelinationLevel: 7,
                         signalActive: false
                     };
-                    
+
                     // Add event listeners for controls
-                    document.getElementById('myelination-level').addEventListener('input', function(e) {
+                    document.getElementById('myelination-level').addEventListener('input', function (e) {
                         try {
                             const level = parseInt(e.target.value);
                             updateMyelinationLevel(level);
@@ -1575,8 +1642,8 @@
                             console.error("Error updating myelination level:", error);
                         }
                     });
-                    
-                    document.getElementById('send-signal').addEventListener('click', function() {
+
+                    document.getElementById('send-signal').addEventListener('click', function () {
                         try {
                             if (!simulations.oligodendrocytes.signalActive) {
                                 sendSignal();
@@ -1585,7 +1652,7 @@
                             console.error("Error sending signal:", error);
                         }
                     });
-                    
+
                     // Initialize with default myelination level
                     updateMyelinationLevel(7);
                 }
@@ -1593,31 +1660,31 @@
                 console.error("Error initializing oligodendrocytes tab:", error);
             }
         }
-        
+
         function updateMyelinationLevel(level) {
             try {
                 if (!simulations.oligodendrocytes) return;
-                
+
                 simulations.oligodendrocytes.myelinationLevel = level;
-                
+
                 // Update myelin thickness based on level
                 const myelinSegments = simulations.oligodendrocytes.elements.myelinSegments;
                 const opacity = 0.2 + (level / 10) * 0.8;
                 const height = 8 + (level / 10) * 12;
-                
+
                 myelinSegments.forEach(segment => {
                     segment.style.opacity = opacity.toString();
                     segment.style.height = `${height}px`;
-                    segment.style.top = `${220 - height/2}px`;
-                    segment.style.borderWidth = `${1 + level/5}px`;
+                    segment.style.top = `${220 - height / 2}px`;
+                    segment.style.borderWidth = `${1 + level / 5}px`;
                 });
-                
+
                 // Update oligodendrocyte visibility
                 const oligos = simulations.oligodendrocytes.elements.oligodendrocytes;
                 oligos.forEach(oligo => {
                     oligo.style.opacity = (level / 10).toString();
                 });
-                
+
                 // Update conduction time display
                 const baseTime = 100; // ms for unmyelinated
                 const myelinatedTime = 10; // ms for fully myelinated
@@ -1627,39 +1694,39 @@
                 console.error("Error updating myelination level:", error);
             }
         }
-        
+
         function sendSignal() {
             try {
                 if (!simulations.oligodendrocytes || simulations.oligodendrocytes.signalActive) return;
-                
+
                 simulations.oligodendrocytes.signalActive = true;
                 const container = simulations.oligodendrocytes.container;
                 const myelinationLevel = simulations.oligodendrocytes.myelinationLevel;
-                
+
                 // Create signal
                 const signal = document.createElement('div');
                 signal.className = 'signal';
                 signal.style.left = '70px';
                 signal.style.top = '220px';
                 container.appendChild(signal);
-                
+
                 // Calculate speed based on myelination
                 const baseSpeed = 300; // ms to travel full distance unmyelinated
                 const myelinatedSpeed = 30; // ms to travel full distance fully myelinated
                 const totalTime = baseSpeed - ((myelinationLevel / 10) * (baseSpeed - myelinatedSpeed));
-                
+
                 // If myelinated, jump between nodes, otherwise smooth movement
                 if (myelinationLevel > 3) {
                     // Saltatory conduction (jumping between nodes)
                     const nodePositions = [135, 195, 255, 330];
                     let currentNode = 0;
-                    
+
                     const moveToNextNode = () => {
                         if (currentNode < nodePositions.length) {
                             const segmentTime = totalTime / nodePositions.length;
                             signal.style.transition = `left ${segmentTime * 0.8}ms ease`;
                             signal.style.left = `${nodePositions[currentNode]}px`;
-                            
+
                             currentNode++;
                             setTimeout(moveToNextNode, segmentTime);
                         } else {
@@ -1668,13 +1735,13 @@
                             simulations.oligodendrocytes.signalActive = false;
                         }
                     };
-                    
+
                     moveToNextNode();
                 } else {
                     // Continuous conduction (unmyelinated)
                     signal.style.transition = `left ${totalTime}ms linear`;
                     signal.style.left = '330px';
-                    
+
                     setTimeout(() => {
                         if (container.contains(signal)) {
                             container.removeChild(signal);
@@ -1687,7 +1754,7 @@
                 simulations.oligodendrocytes.signalActive = false;
             }
         }
-        
+
         // Microglia Tab Initialization
         function initializeMicrogliaTab() {
             try {
@@ -1747,7 +1814,7 @@
                         }
                     });
                 }
-                
+
                 // Microglia Timeline Chart
                 if (!charts.microgliaTimeline) {
                     const ctx = document.getElementById('microgliaTimelineChart').getContext('2d');
@@ -1755,6 +1822,7 @@
                         type: 'line',
                         data: {
                             labels: ['0h', '6h', '12h', '24h', '48h', '72h', '1wk', '2wk'],
+
                             datasets: [
                                 {
                                     label: 'Activation Level',
@@ -1806,12 +1874,12 @@
                         }
                     });
                 }
-                
+
                 // Microglia Simulation
                 if (!simulations.microglia) {
                     const container = document.getElementById('microglia-simulation');
                     container.innerHTML = '<div class="tooltip"></div>'; // Reset
-                    
+
                     // Create neurons
                     for (let i = 0; i < 3; i++) {
                         const neuron = document.createElement('div');
@@ -1821,7 +1889,7 @@
                         neuron.style.top = `${pos.y}px`;
                         container.appendChild(neuron);
                     }
-                    
+
                     // Create microglia
                     const microglia = [];
                     for (let i = 0; i < 8; i++) {
@@ -1831,8 +1899,8 @@
                         cell.style.left = `${pos.x}px`;
                         cell.style.top = `${pos.y}px`;
                         cell.addEventListener('mouseenter', () => {
-                            const state = cell.classList.contains('activated') ? 
-                                'Activated (Amoeboid) Microglia: Mobile, phagocytic, and releases inflammatory mediators' : 
+                            const state = cell.classList.contains('activated') ?
+                                'Activated (Amoeboid) Microglia: Mobile, phagocytic, and releases inflammatory mediators' :
                                 'Resting (Ramified) Microglia: Constantly surveys the environment';
                             showTooltip(cell, state);
                         });
@@ -1840,7 +1908,7 @@
                         container.appendChild(cell);
                         microglia.push(cell);
                     }
-                    
+
                     simulations.microglia = {
                         container: container,
                         elements: {
@@ -1851,9 +1919,9 @@
                         injuryActive: false,
                         debris: []
                     };
-                    
+
                     // Add event listeners for controls
-                    document.getElementById('injury-level').addEventListener('input', function(e) {
+                    document.getElementById('injury-level').addEventListener('input', function (e) {
                         try {
                             const level = parseInt(e.target.value);
                             updateInjuryLevel(level);
@@ -1861,16 +1929,16 @@
                             console.error("Error updating injury level:", error);
                         }
                     });
-                    
-                    document.getElementById('create-injury').addEventListener('click', function() {
+
+                    document.getElementById('create-injury').addEventListener('click', function () {
                         try {
                             createFocalInjury();
                         } catch (error) {
                             console.error("Error creating focal injury:", error);
                         }
                     });
-                    
-                    document.getElementById('reset-microglia').addEventListener('click', function() {
+
+                    document.getElementById('reset-microglia').addEventListener('click', function () {
                         try {
                             resetMicrogliaSimulation();
                         } catch (error) {
@@ -1882,29 +1950,29 @@
                 console.error("Error initializing microglia tab:", error);
             }
         }
-        
+
         function updateInjuryLevel(level) {
             try {
                 if (!simulations.microglia) return;
-                
+
                 simulations.microglia.injuryLevel = level;
-                
+
                 // Update microglia state based on injury level
                 const microglia = simulations.microglia.elements.microglia;
                 const activationThreshold = 3; // Level at which microglia start to activate
-                
+
                 microglia.forEach((cell, index) => {
                     // Determine if this cell should be activated based on injury level and random chance
-                    const shouldActivate = level > activationThreshold && 
-                                          Math.random() < (level - activationThreshold) / (10 - activationThreshold);
-                    
+                    const shouldActivate = level > activationThreshold &&
+                        Math.random() < (level - activationThreshold) / (10 - activationThreshold);
+
                     if (shouldActivate && !cell.classList.contains('activated')) {
                         cell.classList.add('activated');
                     } else if (!shouldActivate && cell.classList.contains('activated')) {
                         cell.classList.remove('activated');
                     }
                 });
-                
+
                 // If injury level is high enough, create some debris
                 if (level > 5 && !simulations.microglia.injuryActive) {
                     const debrisCount = Math.floor((level - 5) * 2);
@@ -1914,14 +1982,14 @@
                 console.error("Error updating injury level:", error);
             }
         }
-        
+
         function createFocalInjury() {
             try {
                 if (!simulations.microglia || simulations.microglia.injuryActive) return;
-                
+
                 simulations.microglia.injuryActive = true;
                 const container = simulations.microglia.container;
-                
+
                 // Create injury site
                 const injurySite = document.createElement('div');
                 injurySite.className = 'injury-site';
@@ -1932,79 +2000,79 @@
                 injurySite.style.backgroundColor = 'rgba(245, 101, 101, 0.3)';
                 injurySite.style.border = '2px dashed #f56565';
                 injurySite.style.zIndex = '3';
-                
+
                 const pos = getRandomPosition(container, 80, 80);
                 injurySite.style.left = `${pos.x}px`;
                 injurySite.style.top = `${pos.y}px`;
-                
+
                 injurySite.addEventListener('mouseenter', () => {
                     showTooltip(injurySite, 'Injury Site: Area of tissue damage that triggers microglial response');
                 });
                 injurySite.addEventListener('mouseleave', hideTooltip);
-                
+
                 container.appendChild(injurySite);
-                
+
                 // Create debris at injury site
                 for (let i = 0; i < 10; i++) {
                     const debris = document.createElement('div');
                     debris.className = 'debris';
-                    
+
                     // Position debris within injury site
                     const angle = Math.random() * Math.PI * 2;
                     const distance = Math.random() * 30;
                     const x = pos.x + 40 + Math.cos(angle) * distance;
                     const y = pos.y + 40 + Math.sin(angle) * distance;
-                    
+
                     debris.style.left = `${x}px`;
                     debris.style.top = `${y}px`;
-                    
+
                     debris.addEventListener('mouseenter', () => {
                         showTooltip(debris, 'Cellular Debris: Damaged cell components that microglia will phagocytose');
                     });
                     debris.addEventListener('mouseleave', hideTooltip);
-                    
+
                     container.appendChild(debris);
                     simulations.microglia.debris.push(debris);
                 }
-                
+
                 // Activate nearby microglia
                 const microglia = simulations.microglia.elements.microglia;
                 microglia.forEach(cell => {
                     const cellRect = cell.getBoundingClientRect();
                     const injuryRect = injurySite.getBoundingClientRect();
-                    
-                    const cellX = cellRect.left + cellRect.width/2;
-                    const cellY = cellRect.top + cellRect.height/2;
-                    const injuryX = injuryRect.left + injuryRect.width/2;
-                    const injuryY = injuryRect.top + injuryRect.height/2;
-                    
+
+                    const cellX = cellRect.left + cellRect.width / 2;
+                    const cellY = cellRect.top + cellRect.height / 2;
+                    const injuryX = injuryRect.left + injuryRect.width / 2;
+                    const injuryY = injuryRect.top + injuryRect.height / 2;
+
                     const distance = Math.sqrt(
-                        Math.pow(cellX - injuryX, 2) + 
+                        Math.pow(cellX - injuryX, 2) +
                         Math.pow(cellY - injuryY, 2)
                     );
-                    
+
                     // Activate microglia near injury site
                     if (distance < 200) {
                         cell.classList.add('activated');
-                        
+
                         // Move microglia toward injury site
                         setTimeout(() => {
                             const containerRect = container.getBoundingClientRect();
-                            const targetX = injuryRect.left - containerRect.left + injuryRect.width/2 - cellRect.width/2;
-                            const targetY = injuryRect.top - containerRect.top + injuryRect.height/2 - cellRect.height/2;
-                            
+                            const targetX = injuryRect.left - containerRect.left + injuryRect.width / 2 - cellRect.width / 2;
+                            const targetY = injuryRect.top - containerRect.top + injuryRect.height / 2 - cellRect.height / 2;
+
                             cell.style.transition = 'left 3s, top 3s';
                             cell.style.left = `${targetX}px`;
                             cell.style.top = `${targetY}px`;
                         }, 500 + Math.random() * 1000);
                     }
                 });
-                
+
                 // Remove debris as microglia phagocytose it
                 setTimeout(() => {
                     const debris = simulations.microglia.debris;
                     let i = 0;
-                    
+
                     const removeDebris = () => {
                         if (i < debris.length) {
                             debris[i].style.opacity = '0';
@@ -2017,15 +2085,15 @@
                             }, 500);
                         }
                     };
-                    
+
                     removeDebris();
                 }, 5000);
-                
+
                 // Fade out injury site after a while
                 setTimeout(() => {
                     injurySite.style.transition = 'opacity 2s';
                     injurySite.style.opacity = '0';
-                    
+
                     setTimeout(() => {
                         if (container.contains(injurySite)) {
                             container.removeChild(injurySite);
@@ -2038,13 +2106,13 @@
                 simulations.microglia.injuryActive = false;
             }
         }
-        
+
         function createDebris(count) {
             try {
                 if (!simulations.microglia) return;
-                
+
                 const container = simulations.microglia.container;
-                
+
                 // Remove existing debris
                 simulations.microglia.debris.forEach(d => {
                     if (container.contains(d)) {
@@ -2052,7 +2120,7 @@
                     }
                 });
                 simulations.microglia.debris = [];
-                
+
                 // Create new debris
                 for (let i = 0; i < count; i++) {
                     const debris = document.createElement('div');
@@ -2060,12 +2128,12 @@
                     const pos = getRandomPosition(container, 15, 15);
                     debris.style.left = `${pos.x}px`;
                     debris.style.top = `${pos.y}px`;
-                    
+
                     debris.addEventListener('mouseenter', () => {
                         showTooltip(debris, 'Cellular Debris: Damaged cell components that microglia will phagocytose');
                     });
                     debris.addEventListener('mouseleave', hideTooltip);
-                    
+
                     container.appendChild(debris);
                     simulations.microglia.debris.push(debris);
                 }
@@ -2073,29 +2141,29 @@
                 console.error("Error creating debris:", error);
             }
         }
-        
+
         function resetMicrogliaSimulation() {
             try {
                 if (!simulations.microglia) return;
-                
+
                 const container = simulations.microglia.container;
-                
+
                 // Reset injury slider
                 document.getElementById('injury-level').value = 0;
-                
+
                 // Remove injury site and debris
                 const injurySite = container.querySelector('.injury-site');
                 if (injurySite) {
                     container.removeChild(injurySite);
                 }
-                
+
                 simulations.microglia.debris.forEach(d => {
                     if (container.contains(d)) {
                         container.removeChild(d);
                     }
                 });
                 simulations.microglia.debris = [];
-                
+
                 // Reset microglia state and position
                 const microglia = simulations.microglia.elements.microglia;
                 microglia.forEach(cell => {
@@ -2105,14 +2173,14 @@
                     cell.style.left = `${pos.x}px`;
                     cell.style.top = `${pos.y}px`;
                 });
-                
+
                 simulations.microglia.injuryActive = false;
                 simulations.microglia.injuryLevel = 0;
             } catch (error) {
                 console.error("Error resetting microglia simulation:", error);
             }
         }
-        
+
         // Stroke Simulation Tab Initialization
         function initializeStrokeTab() {
             try {
@@ -2190,12 +2258,12 @@
                         }
                     });
                 }
-                
+
                 // Stroke Simulation
                 if (!simulations.stroke) {
                     const container = document.getElementById('stroke-simulation');
                     container.innerHTML = '<div class="tooltip"></div>'; // Reset
-                    
+
                     // Create neurons
                     for (let i = 0; i < 5; i++) {
                         const neuron = document.createElement('div');
@@ -2205,7 +2273,7 @@
                         neuron.style.top = `${pos.y}px`;
                         container.appendChild(neuron);
                     }
-                    
+
                     // Create astrocytes
                     const astrocytes = [];
                     for (let i = 0; i < 4; i++) {
@@ -2217,7 +2285,7 @@
                         container.appendChild(astrocyte);
                         astrocytes.push(astrocyte);
                     }
-                    
+
                     // Create oligodendrocytes
                     const oligos = [];
                     for (let i = 0; i < 3; i++) {
@@ -2229,7 +2297,7 @@
                         container.appendChild(oligo);
                         oligos.push(oligo);
                     }
-                    
+
                     // Create microglia
                     const microglia = [];
                     for (let i = 0; i < 6; i++) {
@@ -2241,7 +2309,7 @@
                         container.appendChild(cell);
                         microglia.push(cell);
                     }
-                    
+
                     // Create blood vessel
                     const vessel = document.createElement('div');
                     vessel.className = 'blood-vessel';
@@ -2249,7 +2317,7 @@
                     vessel.style.top = '350px';
                     vessel.style.width = '300px';
                     container.appendChild(vessel);
-                    
+
                     simulations.stroke = {
                         container: container,
                         elements: {
@@ -2265,9 +2333,9 @@
                         debris: [],
                         scar: null
                     };
-                    
+
                     // Add event listeners for controls
-                    document.getElementById('start-stroke').addEventListener('click', function() {
+                    document.getElementById('start-stroke').addEventListener('click', function () {
                         try {
                             if (!simulations.stroke.active) {
                                 startStrokeSimulation();
@@ -2276,25 +2344,25 @@
                             console.error("Error starting stroke simulation:", error);
                         }
                     });
-                    
-                    document.getElementById('reset-stroke').addEventListener('click', function() {
+
+                    document.getElementById('reset-stroke').addEventListener('click', function () {
                         try {
                             resetStrokeSimulation();
                         } catch (error) {
                             console.error("Error resetting stroke simulation:", error);
                         }
                     });
-                    
-                    document.getElementById('simulation-speed').addEventListener('change', function(e) {
+
+                    document.getElementById('simulation-speed').addEventListener('change', function (e) {
                         try {
                             simulations.stroke.speed = e.target.value;
                         } catch (error) {
                             console.error("Error changing simulation speed:", error);
                         }
                     });
-                    
+
                     // Add event listener for study question
-                    document.getElementById('check-answer').addEventListener('click', function() {
+                    document.getElementById('check-answer').addEventListener('click', function () {
                         try {
                             checkStrokeAnswer();
                         } catch (error) {
@@ -2306,29 +2374,29 @@
                 console.error("Error initializing stroke tab:", error);
             }
         }
-        
+
         function startStrokeSimulation() {
             try {
                 if (!simulations.stroke || simulations.stroke.active) return;
-                
+
                 simulations.stroke.active = true;
                 simulations.stroke.phase = 0;
-                
+
                 const container = simulations.stroke.container;
                 const elements = simulations.stroke.elements;
-                
+
                 // Get speed multiplier
                 let speedMultiplier;
-                switch(simulations.stroke.speed) {
+                switch (simulations.stroke.speed) {
                     case 'slow': speedMultiplier = 2; break;
                     case 'fast': speedMultiplier = 0.5; break;
                     default: speedMultiplier = 1;
                 }
-                
+
                 // Define stroke location
                 const strokeX = 200;
                 const strokeY = 200;
-                
+
                 // Phase durations in milliseconds
                 const phaseDurations = [
                     3000 * speedMultiplier,  // Initial injury
@@ -2337,20 +2405,20 @@
                     6000 * speedMultiplier,  // Astrocyte response
                     4000 * speedMultiplier   // Potential regeneration
                 ];
-                
+
                 // Total simulation time
                 const totalTime = phaseDurations.reduce((a, b) => a + b, 0);
-                
+
                 // Update timeline indicator
                 const updateTimeline = (phase, progress) => {
                     const timeElapsed = phaseDurations.slice(0, phase).reduce((a, b) => a + b, 0) + progress * phaseDurations[phase];
                     const percentage = (timeElapsed / totalTime) * 100;
                     document.getElementById('timeline-progress').style.width = `${percentage}%`;
                 };
-                
+
                 // Phase 1: Initial Injury
                 updatePhaseIndicator(0, "Initial Injury: Blood flow is interrupted");
-                
+
                 // Create stroke area
                 const strokeArea = document.createElement('div');
                 strokeArea.className = 'injury-site';
@@ -2364,47 +2432,47 @@
                 strokeArea.style.left = `${strokeX - 50}px`;
                 strokeArea.style.top = `${strokeY - 50}px`;
                 container.appendChild(strokeArea);
-                
+
                 // Damage neurons in stroke area
                 elements.neurons.forEach(neuron => {
                     const rect = neuron.getBoundingClientRect();
                     const containerRect = container.getBoundingClientRect();
-                    
-                    const neuronX = rect.left - containerRect.left + rect.width/2;
-                    const neuronY = rect.top - containerRect.top + rect.height/2;
-                    
+
+                    const neuronX = rect.left - containerRect.left + rect.width / 2;
+                    const neuronY = rect.top - containerRect.top + rect.height / 2;
+
                     const distance = Math.sqrt(
-                        Math.pow(neuronX - strokeX, 2) + 
+                        Math.pow(neuronX - strokeX, 2) +
                         Math.pow(neuronY - strokeY, 2)
                     );
-                    
+
                     if (distance < 60) {
                         // Damage neuron
                         setTimeout(() => {
                             neuron.style.transition = 'opacity 1s, transform 1s';
                             neuron.style.opacity = '0.3';
                             neuron.style.transform = 'scale(0.8)';
-                            
+
                             // Create debris
                             for (let i = 0; i < 3; i++) {
                                 const debris = document.createElement('div');
                                 debris.className = 'debris';
-                                
+
                                 const angle = Math.random() * Math.PI * 2;
                                 const debrisDistance = Math.random() * 20;
                                 const x = neuronX + Math.cos(angle) * debrisDistance;
                                 const y = neuronY + Math.sin(angle) * debrisDistance;
-                                
+
                                 debris.style.left = `${x - 7.5}px`;
                                 debris.style.top = `${y - 7.5}px`;
-                                
+
                                 container.appendChild(debris);
                                 simulations.stroke.debris.push(debris);
                             }
                         }, 1000 * speedMultiplier);
                     }
                 });
-                
+
                 // Update timeline during phase 1
                 let phase1Timer = 0;
                 const phase1Interval = setInterval(() => {
@@ -2414,46 +2482,46 @@
                         clearInterval(phase1Interval);
                     }
                 }, 100);
-                
+
                 // Phase 2: Microglial Activation
                 setTimeout(() => {
                     updatePhaseIndicator(1, "Microglial Activation: Microglia transform to amoeboid state");
-                    
+
                     // Activate microglia
                     elements.microglia.forEach(cell => {
                         const rect = cell.getBoundingClientRect();
                         const containerRect = container.getBoundingClientRect();
-                        
-                        const cellX = rect.left - containerRect.left + rect.width/2;
-                        const cellY = rect.top - containerRect.top + rect.height/2;
-                        
+
+                        const cellX = rect.left - containerRect.left + rect.width / 2;
+                        const cellY = rect.top - containerRect.top + rect.height / 2;
+
                         const distance = Math.sqrt(
-                            Math.pow(cellX - strokeX, 2) + 
+                            Math.pow(cellX - strokeX, 2) +
                             Math.pow(cellY - strokeY, 2)
                         );
-                        
+
                         if (distance < 150) {
                             // Activate microglia
                             setTimeout(() => {
                                 cell.classList.add('activated');
-                                
+
                                 // Move toward stroke area
                                 setTimeout(() => {
                                     cell.style.transition = 'left 2s, top 2s';
-                                    
+
                                     // Calculate position near stroke area
                                     const angle = Math.atan2(cellY - strokeY, cellX - strokeX);
                                     const targetDistance = 40 + Math.random() * 20;
                                     const targetX = strokeX + Math.cos(angle) * targetDistance;
                                     const targetY = strokeY + Math.sin(angle) * targetDistance;
-                                    
+
                                     cell.style.left = `${targetX - 10}px`;
                                     cell.style.top = `${targetY - 10}px`;
                                 }, 500 * speedMultiplier);
                             }, Math.random() * 1000 * speedMultiplier);
                         }
                     });
-                    
+
                     // Update timeline during phase 2
                     let phase2Timer = 0;
                     const phase2Interval = setInterval(() => {
@@ -2464,20 +2532,20 @@
                         }
                     }, 100);
                 }, phaseDurations[0]);
-                
+
                 // Phase 3: Debris Clearance
                 setTimeout(() => {
                     updatePhaseIndicator(2, "Debris Clearance: Activated microglia phagocytose cellular debris");
-                    
+
                     // Microglia phagocytose debris
                     const debris = simulations.stroke.debris;
                     let i = 0;
-                    
+
                     const removeDebris = () => {
                         if (i < debris.length) {
                             debris[i].style.transition = 'opacity 1s';
                             debris[i].style.opacity = '0';
-                            
+
                             setTimeout(() => {
                                 if (container.contains(debris[i])) {
                                     container.removeChild(debris[i]);
@@ -2489,9 +2557,9 @@
                             }, 1000 * speedMultiplier);
                         }
                     };
-                    
+
                     setTimeout(removeDebris, 1000 * speedMultiplier);
-                    
+
                     // Update timeline during phase 3
                     let phase3Timer = 0;
                     const phase3Interval = setInterval(() => {
@@ -2502,42 +2570,42 @@
                         }
                     }, 100);
                 }, phaseDurations[0] + phaseDurations[1]);
-                
+
                 // Phase 4: Astrocyte Response
                 setTimeout(() => {
                     updatePhaseIndicator(3, "Astrocyte Response: Astrocytes form a glial scar");
-                    
+
                     // Astrocytes form scar
                     elements.astrocytes.forEach(astrocyte => {
                         const rect = astrocyte.getBoundingClientRect();
                         const containerRect = container.getBoundingClientRect();
-                        
-                        const astrocyteX = rect.left - containerRect.left + rect.width/2;
-                        const astrocyteY = rect.top - containerRect.top + rect.height/2;
-                        
+
+                        const astrocyteX = rect.left - containerRect.left + rect.width / 2;
+                        const astrocyteY = rect.top - containerRect.top + rect.height / 2;
+
                         const distance = Math.sqrt(
-                            Math.pow(astrocyteX - strokeX, 2) + 
+                            Math.pow(astrocyteX - strokeX, 2) +
                             Math.pow(astrocyteY - strokeY, 2)
                         );
-                        
+
                         if (distance < 150) {
                             // Move astrocyte toward stroke area
                             setTimeout(() => {
                                 astrocyte.style.transition = 'left 3s, top 3s, transform 2s';
                                 astrocyte.style.transform = 'scale(1.2)';
-                                
+
                                 // Calculate position near stroke area
                                 const angle = Math.atan2(astrocyteY - strokeY, astrocyteX - strokeX);
                                 const targetDistance = 30 + Math.random() * 20;
                                 const targetX = strokeX + Math.cos(angle) * targetDistance;
                                 const targetY = strokeY + Math.sin(angle) * targetDistance;
-                                
+
                                 astrocyte.style.left = `${targetX - 15}px`;
                                 astrocyte.style.top = `${targetY - 15}px`;
                             }, Math.random() * 2000 * speedMultiplier);
                         }
                     });
-                    
+
                     // Create glial scar
                     setTimeout(() => {
                         const scar = document.createElement('div');
@@ -2548,12 +2616,12 @@
                         scar.style.opacity = '0';
                         container.appendChild(scar);
                         simulations.stroke.scar = scar;
-                        
+
                         setTimeout(() => {
                             scar.style.opacity = '0.7';
                         }, 100);
                     }, 3000 * speedMultiplier);
-                    
+
                     // Update timeline during phase 4
                     let phase4Timer = 0;
                     const phase4Interval = setInterval(() => {
@@ -2564,17 +2632,17 @@
                         }
                     }, 100);
                 }, phaseDurations[0] + phaseDurations[1] + phaseDurations[2]);
-                
+
                 // Phase 5: Potential Regeneration
                 setTimeout(() => {
                     updatePhaseIndicator(4, "Potential Regeneration: Glial stem cells attempt to repopulate the area");
-                    
+
                     // Some microglia return to resting state
                     elements.microglia.forEach(cell => {
                         if (Math.random() < 0.5) {
                             setTimeout(() => {
                                 cell.classList.remove('activated');
-                                
+
                                 // Move away from stroke area
                                 cell.style.transition = 'left 3s, top 3s';
                                 const pos = getRandomPosition(container, 20, 20);
@@ -2583,7 +2651,7 @@
                             }, Math.random() * 2000 * speedMultiplier);
                         }
                     });
-                    
+
                     // Update timeline during phase 5
                     let phase5Timer = 0;
                     const phase5Interval = setInterval(() => {
@@ -2591,7 +2659,7 @@
                         updateTimeline(4, phase5Timer / phaseDurations[4]);
                         if (phase5Timer >= phaseDurations[4]) {
                             clearInterval(phase5Interval);
-                            
+
                             // Simulation complete
                             updatePhaseIndicator(5, "Simulation complete - Stroke response sequence finished");
                             simulations.stroke.active = false;
@@ -2604,7 +2672,7 @@
                 updatePhaseIndicator(0, "Simulation error - Please reset and try again");
             }
         }
-        
+
         function updatePhaseIndicator(phase, text) {
             try {
                 simulations.stroke.phase = phase;
@@ -2613,22 +2681,22 @@
                 console.error("Error updating phase indicator:", error);
             }
         }
-        
+
         function resetStrokeSimulation() {
             try {
                 if (!simulations.stroke) return;
-                
+
                 simulations.stroke.active = false;
                 simulations.stroke.phase = 0;
-                
+
                 const container = simulations.stroke.container;
-                
+
                 // Remove stroke area
                 const strokeArea = container.querySelector('.injury-site');
                 if (strokeArea) {
                     container.removeChild(strokeArea);
                 }
-                
+
                 // Remove debris
                 simulations.stroke.debris.forEach(d => {
                     if (container.contains(d)) {
@@ -2636,13 +2704,13 @@
                     }
                 });
                 simulations.stroke.debris = [];
-                
+
                 // Remove scar
                 if (simulations.stroke.scar && container.contains(simulations.stroke.scar)) {
                     container.removeChild(simulations.stroke.scar);
                 }
                 simulations.stroke.scar = null;
-                
+
                 // Reset neurons
                 const neurons = simulations.stroke.elements.neurons;
                 neurons.forEach(neuron => {
@@ -2650,7 +2718,7 @@
                     neuron.style.opacity = '1';
                     neuron.style.transform = 'scale(1)';
                 });
-                
+
                 // Reset microglia
                 const microglia = simulations.stroke.elements.microglia;
                 microglia.forEach(cell => {
@@ -2660,7 +2728,7 @@
                     cell.style.left = `${pos.x}px`;
                     cell.style.top = `${pos.y}px`;
                 });
-                
+
                 // Reset astrocytes
                 const astrocytes = simulations.stroke.elements.astrocytes;
                 astrocytes.forEach(astrocyte => {
@@ -2670,7 +2738,7 @@
                     astrocyte.style.left = `${pos.x}px`;
                     astrocyte.style.top = `${pos.y}px`;
                 });
-                
+
                 // Reset timeline
                 document.getElementById('timeline-progress').style.width = '0';
                 document.getElementById('current-phase').textContent = 'Ready to start simulation';
@@ -2678,19 +2746,19 @@
                 console.error("Error resetting stroke simulation:", error);
             }
         }
-        
+
         function checkStrokeAnswer() {
             try {
                 const selectedAnswer = document.querySelector('input[name="stroke-answer"]:checked');
                 const feedback = document.getElementById('answer-feedback');
-                
+
                 if (!selectedAnswer) {
                     feedback.textContent = "Please select an answer.";
                     feedback.className = "mt-2 p-3 rounded bg-yellow-100 text-yellow-800";
                     feedback.style.display = "block";
                     return;
                 }
-                
+
                 if (selectedAnswer.value === 'A') {
                     feedback.textContent = "Correct! Microglia activation is the first response to brain injury. They rapidly transform from ramified (resting) to amoeboid (activated) states to begin the immune response.";
                     feedback.className = "mt-2 p-3 rounded bg-green-100 text-green-800";
@@ -2698,39 +2766,42 @@
                     feedback.textContent = "Incorrect. The first response to brain injury is the activation of microglia, which transform from ramified to amoeboid states. This happens before debris clearance, scar formation, or stem cell activity.";
                     feedback.className = "mt-2 p-3 rounded bg-red-100 text-red-800";
                 }
-                
+
                 feedback.style.display = "block";
             } catch (error) {
                 console.error("Error checking answer:", error);
             }
         }
-        
+
         // Initialize the default tab
         initializeTabContent('overview');
     </script>
-<script>window.parent.postMessage({ action: "ready" }, "*"); 
- 
-window.console = new Proxy(console, {
-  get(target, prop) {
-    if (['log', 'warn', 'error'].includes(prop)) {
-      return new Proxy(target[prop], {
-        apply(fn, thisArg, args) {
-          fn.apply(thisArg, args);
-          window.parent.postMessage({ action: 'console', 
-            type: prop, 
-            args: args.map((arg) => {
-              try {
-                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
-              } catch (e) {
-                return arg;
-              }
-            }) 
-          }, '*');
-        }
-      });
-    }
-    return target[prop];
-  }
-});
-</script></body>
+    <script>window.parent.postMessage({ action: "ready" }, "*");
+
+        window.console = new Proxy(console, {
+            get(target, prop) {
+                if (['log', 'warn', 'error'].includes(prop)) {
+                    return new Proxy(target[prop], {
+                        apply(fn, thisArg, args) {
+                            fn.apply(thisArg, args);
+                            window.parent.postMessage({
+                                action: 'console',
+                                type: prop,
+                                args: args.map((arg) => {
+                                    try {
+                                        return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+                                    } catch (e) {
+                                        return arg;
+                                    }
+                                })
+                            }, '*');
+                        }
+                    });
+                }
+                return target[prop];
+            }
+        });
+    </script>
+</body>
+
 </html>
