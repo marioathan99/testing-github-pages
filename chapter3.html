@@ -15,6 +15,44 @@
             margin: 0 auto;
         }
 
+        @media (max-width: 800px) {
+            .brain-model {
+                height: 220px;
+                min-width: 0;
+            }
+
+            .container {
+                padding: 0.5em !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            h1 {
+                font-size: 1.4em !important;
+            }
+
+            h2 {
+                font-size: 1.1em !important;
+            }
+
+            .tab-button,
+            .plane-button,
+            .direction-button {
+                font-size: 0.95em !important;
+                padding: 0.5em 0.7em !important;
+            }
+
+            .grid-cols-3,
+            .md\:grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+
+            .flex,
+            .md\:flex-row {
+                flex-direction: column !important;
+            }
+        }
+
         .brain-part {
             position: absolute;
             transition: all 0.3s ease;
@@ -71,20 +109,6 @@
             width: 100%;
             position: relative;
         }
-
-        @media (max-width: 800px) {
-            .brain-model {
-                height: 220px;
-            }
-
-            h1 {
-                font-size: 1.4em;
-            }
-
-            h2 {
-                font-size: 1.1em;
-            }
-        }
     </style>
 </head>
 
@@ -95,95 +119,78 @@
             nervous system</p>
         <a href="index.html" class="text-gray-500 hover:text-blue-600 text-sm absolute left-4 top-4">← Home</a>
     </header>
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">The Challenge of CNS Orientation</h2>
-            <p class="text-gray-700 mb-4">
+    <div class="container mx-auto px-2 py-4 max-w-6xl">
+        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+            <h2 class="text-2xl font-bold text-blue-700 mb-2">The Challenge of CNS Orientation</h2>
+            <p class="text-gray-700 mb-2">
                 <span class="font-bold">What if the brain wasn't aligned with the body?</span> Unlike most body systems,
                 the central nervous system has a flexure (bend) that creates a unique challenge for describing locations
                 and directions.
             </p>
-            <p class="text-gray-700 mb-4">
+            <p class="text-gray-700 mb-2">
                 This simulation will help you understand how directional terms change meaning across different parts of
                 the CNS, and how the three standard planes of section intersect the brain.
             </p>
-            <div class="text-blue-700 text-sm mb-2">Click a direction or plane to highlight it on the model.</div>
+            <div class="text-blue-700 text-sm mb-1">Click a direction or plane to highlight it on the model.</div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-lg p-6 col-span-1 md:col-span-2">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Interactive CNS Model</h2>
-                <div class="flex mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-4 col-span-1 md:col-span-2">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Interactive CNS Model</h2>
+                <div class="flex mb-2 flex-wrap gap-2">
                     <button id="viewToggle"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2">
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2 mb-2">
                         Toggle View (Side/Front)
                     </button>
-                    <button id="resetView" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                    <button id="resetView"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mb-2">
                         Reset View
                     </button>
                 </div>
-
-                <div class="brain-model border border-gray-300 rounded-lg bg-gray-50" id="brainContainer">
-                    <!-- Brain parts will be added by JavaScript -->
-                </div>
-
-                <div class="mt-4 flex flex-wrap gap-2">
+                <div class="brain-model border border-gray-300 rounded-lg bg-gray-50" id="brainContainer"></div>
+                <div class="mt-2 flex flex-wrap gap-2">
                     <button
                         class="plane-button bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="horizontal">
-                        Horizontal/Axial Plane
-                    </button>
+                        data-plane="horizontal">Horizontal/Axial Plane</button>
                     <button
                         class="plane-button bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="coronal">
-                        Coronal/Frontal Plane
-                    </button>
+                        data-plane="coronal">Coronal/Frontal Plane</button>
                     <button
                         class="plane-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="sagittal">
-                        Sagittal Plane
-                    </button>
+                        data-plane="sagittal">Sagittal Plane</button>
                     <button
                         class="plane-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="none">
-                        Hide Planes
-                    </button>
+                        data-plane="none">Hide Planes</button>
                 </div>
             </div>
-
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Direction Controls</h2>
-                <p class="text-gray-700 mb-4">Select a directional term to highlight its orientation in the CNS:</p>
-
-                <div class="grid grid-cols-2 gap-2 mb-4">
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Direction Controls</h2>
+                <p class="text-gray-700 mb-2">Select a directional term to highlight its orientation in the CNS:</p>
+                <div class="grid grid-cols-2 gap-2 mb-2">
                     <button
                         class="direction-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-3 rounded"
                         data-direction="anterior">Anterior</button>
                     <button
                         class="direction-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-3 rounded"
                         data-direction="posterior">Posterior</button>
-
                     <button
                         class="direction-button bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 px-3 rounded"
                         data-direction="rostral">Rostral</button>
                     <button
                         class="direction-button bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 px-3 rounded"
                         data-direction="caudal">Caudal</button>
-
                     <button
                         class="direction-button bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium py-2 px-3 rounded"
                         data-direction="superior">Superior</button>
                     <button
                         class="direction-button bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium py-2 px-3 rounded"
                         data-direction="inferior">Inferior</button>
-
                     <button
                         class="direction-button bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 px-3 rounded"
                         data-direction="dorsal">Dorsal</button>
                     <button
                         class="direction-button bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 px-3 rounded"
                         data-direction="ventral">Ventral</button>
-
                     <button
                         class="direction-button bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium py-2 px-3 rounded"
                         data-direction="medial">Medial</button>
@@ -191,7 +198,6 @@
                         class="direction-button bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium py-2 px-3 rounded"
                         data-direction="lateral">Lateral</button>
                 </div>
-
                 <button id="clearDirections"
                     class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
                     Clear All Directions
@@ -199,7 +205,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Learning Modules</h2>
 
             <div class="mb-4">
@@ -480,7 +486,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Key Takeaways</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -508,7 +514,7 @@
         </div>
     </div>
 
-    <footer class="text-center text-gray-500 text-xs mt-12 mb-2">
+    <footer class="text-center text-gray-500 text-xs mt-8 mb-2">
         Made by Mario Athanasiou • <a href="https://www.linkedin.com/in/mario-athanasiou/"
             class="text-blue-600 hover:underline">Connect on LinkedIn</a>
     </footer>
