@@ -153,21 +153,49 @@
 
         @media (max-width: 800px) {
             .container {
-                padding: 1em;
-                border-radius: 0;
-                box-shadow: none;
+                padding: 0.5em !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
             }
 
             .simulation-container {
-                height: 250px;
+                height: 200px !important;
+                min-width: 0 !important;
             }
 
             h1 {
-                font-size: 1.4em;
+                font-size: 1.4em !important;
             }
 
-            h2 {
-                font-size: 1.1em;
+            h2,
+            h3 {
+                font-size: 1.1em !important;
+            }
+
+            .tab-button,
+            .plane-button,
+            .direction-button,
+            select,
+            input[type="range"],
+            button {
+                font-size: 0.95em !important;
+                padding: 0.5em 0.7em !important;
+            }
+
+            .grid-cols-2,
+            .md\:grid-cols-2,
+            .grid-cols-4,
+            .md\:grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
+
+            .flex,
+            .md\:flex-row {
+                flex-direction: column !important;
+            }
+
+            .chart-container {
+                height: 180px !important;
             }
         }
     </style>
