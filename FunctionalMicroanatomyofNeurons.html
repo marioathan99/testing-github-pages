@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Functional Microanatomy of Neurons | Interactive Learning</title>
+    <title>Functional Microanatomy of Neurons | Medical Neuroscience</title>
     <style>
         * {
             margin: 0;
@@ -13,49 +13,51 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c7dae 0%, #1e6091 100%);
             min-height: 100vh;
             color: #333;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
         
         .header {
             text-align: center;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
             margin-bottom: 30px;
+            border-top: 5px solid #0077be;
         }
         
         .header h1 {
             font-size: 2.2em;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #0077be, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
         .neuron-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(44, 125, 174, 0.15);
+            border-top: 4px solid #0077be;
         }
         
         .neuron-diagram {
             position: relative;
             width: 100%;
-            height: 400px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
+            height: 500px;
+            background: linear-gradient(135deg, #f8fdff 0%, #e8f4f8 100%);
+            border: 2px solid #4ecdc4;
             border-radius: 15px;
             margin: 20px 0;
             overflow: hidden;
@@ -72,70 +74,195 @@
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 0.85em;
+            text-align: center;
         }
         
         .neuron-part:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
             z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
+        /* Neuron components with medical blue-green palette */
         .cell-body {
-            width: 80px;
-            height: 80px;
-            background: #ff6b6b;
-            top: 160px;
-            left: 200px;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #0077be, #005a8b);
+            top: 200px;
+            left: 300px;
         }
         
-        .dendrites {
+        .nucleus {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #4ecdc4, #3db5a5);
+            top: 230px;
+            left: 330px;
+            font-size: 0.7em;
+        }
+        
+        .dendrites-1 {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #2c7dae, #1e6091);
+            top: 120px;
+            left: 180px;
+        }
+        
+        .dendrites-2 {
             width: 60px;
             height: 60px;
-            background: #4ecdc4;
-            top: 100px;
+            background: linear-gradient(45deg, #2c7dae, #1e6091);
+            top: 160px;
             left: 120px;
+        }
+        
+        .axon-hillock {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #0077be, #4ecdc4);
+            top: 280px;
+            left: 380px;
         }
         
         .axon {
             width: 60px;
             height: 60px;
-            background: #45b7d1;
+            background: linear-gradient(45deg, #4ecdc4, #3db5a5);
+            top: 250px;
+            left: 500px;
+        }
+        
+        .myelin-1 {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #87ceeb, #6bb8d6);
             top: 200px;
-            left: 320px;
+            left: 580px;
+        }
+        
+        .myelin-2 {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #87ceeb, #6bb8d6);
+            top: 200px;
+            left: 650px;
+        }
+        
+        .node-ranvier {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(45deg, #ff6b9d, #e55a87);
+            top: 207px;
+            left: 620px;
+            font-size: 0.6em;
         }
         
         .axon-terminals {
             width: 50px;
             height: 50px;
-            background: #96ceb4;
-            top: 240px;
-            left: 420px;
+            background: linear-gradient(45deg, #96ceb4, #7fb89a);
+            top: 280px;
+            left: 720px;
         }
         
-        .myelin {
-            width: 40px;
-            height: 40px;
-            background: #ffeaa7;
-            top: 150px;
-            left: 380px;
+        .synapse-1 {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(45deg, #ffa726, #ff8f00);
+            top: 350px;
+            left: 750px;
+            font-size: 0.7em;
+        }
+        
+        .synapse-2 {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(45deg, #ffa726, #ff8f00);
+            top: 320px;
+            left: 780px;
+            font-size: 0.7em;
+        }
+        
+        /* Connection lines */
+        .connection-line {
+            position: absolute;
+            background: #0077be;
+            border-radius: 2px;
+        }
+        
+        .dendrite-line-1 {
+            width: 80px;
+            height: 4px;
+            top: 155px;
+            left: 250px;
+            transform: rotate(15deg);
+        }
+        
+        .dendrite-line-2 {
+            width: 60px;
+            height: 4px;
+            top: 185px;
+            left: 180px;
+            transform: rotate(25deg);
+        }
+        
+        .axon-line-1 {
+            width: 120px;
+            height: 6px;
+            top: 270px;
+            left: 430px;
+        }
+        
+        .axon-line-2 {
+            width: 140px;
+            height: 6px;
+            top: 270px;
+            left: 550px;
+        }
+        
+        .terminal-line-1 {
+            width: 60px;
+            height: 4px;
+            top: 300px;
+            left: 770px;
+            transform: rotate(30deg);
+        }
+        
+        .terminal-line-2 {
+            width: 60px;
+            height: 4px;
+            top: 330px;
+            left: 770px;
+            transform: rotate(-30deg);
         }
         
         .signal {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #fd79a8;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #ff6b9d, #e55a87);
             border-radius: 50%;
             display: none;
-            z-index: 15;
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.7);
+            animation: signalPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes signalPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
         
         .info-panel {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 25px;
             margin: 20px 0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #0077be;
             display: none;
+            box-shadow: 0 5px 15px rgba(44, 125, 174, 0.1);
         }
         
         .info-panel.active {
@@ -154,7 +281,7 @@
         }
         
         .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #0077be, #4ecdc4);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -163,11 +290,13 @@
             cursor: pointer;
             margin: 0 10px;
             transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 119, 190, 0.3);
         }
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 119, 190, 0.4);
+            background: linear-gradient(45deg, #005a8b, #3db5a5);
         }
         
         .matter-comparison {
@@ -178,15 +307,16 @@
         }
         
         .matter-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(44, 125, 174, 0.15);
             transition: all 0.3s ease;
         }
         
         .matter-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(44, 125, 174, 0.2);
         }
         
         .gray-matter {
@@ -194,23 +324,24 @@
         }
         
         .white-matter {
-            border-top: 4px solid #f8f9fa;
+            border-top: 4px solid #87ceeb;
         }
         
         .quiz-section {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 20px;
             padding: 30px;
             margin-top: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(44, 125, 174, 0.15);
+            border-top: 4px solid #4ecdc4;
         }
         
         .quiz-question {
-            background: #f8f9fa;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+            border-radius: 15px;
             padding: 20px;
             margin: 15px 0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #0077be;
         }
         
         .quiz-options {
@@ -220,99 +351,245 @@
         .quiz-option {
             display: block;
             margin: 10px 0;
-            padding: 10px;
+            padding: 15px;
             background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         .quiz-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: #0077be;
+            background: #f0f8ff;
+            transform: translateX(5px);
         }
         
         .quiz-option.correct {
-            background: #d4edda;
-            border-color: #28a745;
+            background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+            border-color: #38a169;
+            color: #22543d;
         }
         
         .quiz-option.incorrect {
-            background: #f8d7da;
-            border-color: #dc3545;
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+            border-color: #e53e3e;
+            color: #742a2a;
         }
         
         .back-button {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #0077be;
+            padding: 12px 18px;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 119, 190, 0.2);
             transition: all 0.3s ease;
+            color: #0077be;
         }
         
         .back-button:hover {
-            background: white;
+            background: #0077be;
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 119, 190, 0.3);
+        }
+        
+        .detailed-info {
+            background: linear-gradient(135d, #f0f8ff 0%, #e6f3ff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #87ceeb;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4ecdc4;
+            box-shadow: 0 3px 10px rgba(78, 205, 196, 0.1);
         }
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.location.href='index.html'">← Back to Chapters</button>
+    <button class="back-button" onclick="window.location.href='index.html'">← Back to Modules</button>
     
     <div class="container">
         <div class="header">
             <h1>🧠 Functional Microanatomy of Neurons</h1>
-            <p>Discover how neurons are structured and how signals flow through their specialized parts</p>
+            <p>Duke University Medical Neuroscience - Week 1, Module 2</p>
+            <p>Explore the specialized cellular architecture that enables neural communication</p>
         </div>
         
         <div class="neuron-container">
-            <h2>Interactive Neuron Diagram</h2>
-            <p>Click on any part of the neuron to learn more about its function:</p>
+            <h2>Complete Neuron Interactive Simulation</h2>
+            <p>Click on any component of the neuron to learn about its specialized function in neural communication:</p>
             
             <div class="neuron-diagram">
-                <div class="neuron-part cell-body" data-info="cell-body">Cell Body</div>
-                <div class="neuron-part dendrites" data-info="dendrites">Dendrites</div>
+                <!-- Connection lines -->
+                <div class="connection-line dendrite-line-1"></div>
+                <div class="connection-line dendrite-line-2"></div>
+                <div class="connection-line axon-line-1"></div>
+                <div class="connection-line axon-line-2"></div>
+                <div class="connection-line terminal-line-1"></div>
+                <div class="connection-line terminal-line-2"></div>
+                
+                <!-- Neuron components -->
+                <div class="neuron-part dendrites-1" data-info="dendrites">Dendrites</div>
+                <div class="neuron-part dendrites-2" data-info="dendrites">Dendrites</div>
+                <div class="neuron-part cell-body" data-info="cell-body">Cell Body (Soma)</div>
+                <div class="neuron-part nucleus" data-info="nucleus">Nucleus</div>
+                <div class="neuron-part axon-hillock" data-info="axon-hillock">Axon Hillock</div>
                 <div class="neuron-part axon" data-info="axon">Axon</div>
-                <div class="neuron-part axon-terminals" data-info="axon-terminals">Terminals</div>
-                <div class="neuron-part myelin" data-info="myelin">Myelin</div>
+                <div class="neuron-part myelin-1" data-info="myelin">Myelin</div>
+                <div class="neuron-part myelin-2" data-info="myelin">Myelin</div>
+                <div class="neuron-part node-ranvier" data-info="node-ranvier">Node</div>
+                <div class="neuron-part axon-terminals" data-info="axon-terminals">Axon Terminals</div>
+                <div class="neuron-part synapse-1" data-info="synapse">Synapse</div>
+                <div class="neuron-part synapse-2" data-info="synapse">Synapse</div>
+                
                 <div class="signal" id="signal"></div>
             </div>
             
             <div class="controls">
-                <button class="btn" onclick="startSignal()">Start Signal Transmission</button>
-                <button class="btn" onclick="resetDiagram()">Reset</button>
+                <button class="btn" onclick="startSignalTransmission()">🚀 Start Action Potential</button>
+                <button class="btn" onclick="showSignalIntegration()">⚡ Show Signal Integration</button>
+                <button class="btn" onclick="resetSimulation()">🔄 Reset Simulation</button>
+            </div>
+            
+            <!-- Detailed Information Panels -->
+            <div id="dendrites" class="info-panel">
+                <h3>🌿 Dendrites - The Input Receivers</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Structure</h4>
+                        <p>Branch-like extensions from the cell body, like tree branches. Can have thousands of dendritic spines.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Function</h4>
+                        <p>Receive neurotransmitter signals from other neurons and convert them to electrical signals.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Signal Processing</h4>
+                        <p>Integrate multiple inputs through temporal and spatial summation before sending to soma.</p>
+                    </div>
+                </div>
             </div>
             
             <div id="cell-body" class="info-panel">
-                <h3>🔴 Cell Body (Soma)</h3>
-                <p>Contains the nucleus and most organelles. This is where most cellular metabolism occurs and where the cell integrates incoming signals from dendrites.</p>
+                <h3>🔴 Cell Body (Soma) - The Control Center</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Contains</h4>
+                        <p>Nucleus, mitochondria, endoplasmic reticulum, Golgi apparatus, and other organelles.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Function</h4>
+                        <p>Metabolic center, integrates incoming signals, and decides whether to generate action potential.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Size Range</h4>
+                        <p>Typically 5-100 micrometers in diameter, varying by neuron type and function.</p>
+                    </div>
+                </div>
             </div>
             
-            <div id="dendrites" class="info-panel">
-                <h3>🌿 Dendrites</h3>
-                <p>Branch-like extensions that receive signals from other neurons. They act like antennae, collecting information from multiple sources.</p>
+            <div id="nucleus" class="info-panel">
+                <h3>🟢 Nucleus - The Genetic Command Center</h3>
+                <div class="detailed-info">
+                    <p><strong>Contains:</strong> DNA, nucleolus, nuclear envelope with pores</p>
+                    <p><strong>Functions:</strong> Gene expression control, protein synthesis regulation, cell division control</p>
+                    <p><strong>Clinical Relevance:</strong> Nuclear dysfunction linked to neurodegenerative diseases</p>
+                </div>
+            </div>
+            
+            <div id="axon-hillock" class="info-panel">
+                <h3>🔵 Axon Hillock - The Decision Point</h3>
+                <div class="detailed-info">
+                    <p><strong>Location:</strong> Junction between cell body and axon</p>
+                    <p><strong>Function:</strong> Site of action potential initiation - where electrical threshold is reached</p>
+                    <p><strong>Mechanism:</strong> High concentration of voltage-gated sodium channels</p>
+                    <p><strong>Threshold:</strong> Typically -55mV in mammalian neurons</p>
+                </div>
             </div>
             
             <div id="axon" class="info-panel">
-                <h3>🔵 Axon</h3>
-                <p>Long projection that carries electrical signals away from the cell body. Can be very short or over a meter long in humans!</p>
-            </div>
-            
-            <div id="axon-terminals" class="info-panel">
-                <h3>🌱 Axon Terminals</h3>
-                <p>End points of the axon that release neurotransmitters to communicate with other neurons, muscles, or glands.</p>
+                <h3>🔵 Axon - The Information Highway</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Structure</h4>
+                        <p>Long projection from cell body. Can be millimeters to over a meter long in humans.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Function</h4>
+                        <p>Conducts action potentials away from cell body at speeds up to 120 m/s.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Specializations</h4>
+                        <p>Contains specialized ion channels, cytoskeleton, and transport mechanisms.</p>
+                    </div>
+                </div>
             </div>
             
             <div id="myelin" class="info-panel">
-                <h3>🟡 Myelin Sheath</h3>
-                <p>Fatty insulation around the axon that speeds up signal transmission. Like insulation on electrical wires!</p>
+                <h3>🟡 Myelin Sheath - The Speed Booster</h3>
+                <div class="detailed-info">
+                    <p><strong>Composition:</strong> 70% lipids, 30% proteins - primarily phospholipids and cholesterol</p>
+                    <p><strong>Formation:</strong> Oligodendrocytes (CNS) and Schwann cells (PNS) wrap around axons</p>
+                    <p><strong>Function:</strong> Increases conduction velocity by 10-100 times through saltatory conduction</p>
+                    <p><strong>Clinical Significance:</strong> Demyelinating diseases like Multiple Sclerosis affect signal transmission</p>
+                </div>
+            </div>
+            
+            <div id="node-ranvier" class="info-panel">
+                <h3>🔴 Nodes of Ranvier - The Signal Boosters</h3>
+                <div class="detailed-info">
+                    <p><strong>Structure:</strong> Gaps in myelin sheath every 1-2mm along axon</p>
+                    <p><strong>Function:</strong> Sites of action potential regeneration during saltatory conduction</p>
+                    <p><strong>Ion Channels:</strong> High density of voltage-gated sodium and potassium channels</p>
+                    <p><strong>Speed Advantage:</strong> Allows signal to "jump" between nodes at 120 m/s vs 1-2 m/s in unmyelinated axons</p>
+                </div>
+            </div>
+            
+            <div id="axon-terminals" class="info-panel">
+                <h3>🌱 Axon Terminals - The Signal Transmitters</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Structure</h4>
+                        <p>Bulbous endings containing synaptic vesicles filled with neurotransmitters.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Function</h4>
+                        <p>Convert electrical signals to chemical signals through neurotransmitter release.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Vesicle Types</h4>
+                        <p>Small clear vesicles (classical NTs) and large dense-core vesicles (neuropeptides).</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="synapse" class="info-panel">
+                <h3>🟠 Synapses - The Communication Junctions</h3>
+                <div class="detailed-info">
+                    <p><strong>Types:</strong> Chemical synapses (most common) and electrical synapses (gap junctions)</p>
+                    <p><strong>Components:</strong> Presynaptic terminal, synaptic cleft (20-40nm), postsynaptic membrane</p>
+                    <p><strong>Neurotransmitters:</strong> Acetylcholine, dopamine, serotonin, GABA, glutamate, and many others</p>
+                    <p><strong>Plasticity:</strong> Synaptic strength can change - basis of learning and memory</p>
+                    <p><strong>Number:</strong> Average neuron has 1,000-10,000 synaptic connections</p>
+                </div>
             </div>
         </div>
         
@@ -321,55 +598,74 @@
                 <h3>🧠 Gray Matter</h3>
                 <p><strong>Contains:</strong></p>
                 <ul>
-                    <li>Cell bodies (soma)</li>
-                    <li>Dendrites</li>
+                    <li>Neuronal cell bodies (soma)</li>
+                    <li>Dendrites and dendritic spines</li>
                     <li>Unmyelinated axons</li>
-                    <li>Synapses</li>
+                    <li>Synaptic connections</li>
+                    <li>Glial cells (astrocytes, microglia)</li>
+                    <li>Blood capillaries</li>
                 </ul>
-                <p><strong>Function:</strong> Information processing and computation</p>
-                <p><strong>Location:</strong> Cerebral cortex, brain nuclei</p>
+                <p><strong>Function:</strong> Information processing, integration, and computation</p>
+                <p><strong>Location:</strong> Cerebral cortex, basal ganglia, thalamic nuclei</p>
+                <p><strong>Appearance:</strong> Darker due to cell bodies and blood vessels</p>
             </div>
             
             <div class="matter-card white-matter">
                 <h3>🤍 White Matter</h3>
                 <p><strong>Contains:</strong></p>
                 <ul>
-                    <li>Myelinated axons</li>
-                    <li>Oligodendrocytes</li>
+                    <li>Myelinated axon tracts</li>
+                    <li>Oligodendrocytes (myelin-producing cells)</li>
                     <li>Few cell bodies</li>
+                    <li>Astrocytes and microglia</li>
+                    <li>Blood vessels</li>
                 </ul>
-                <p><strong>Function:</strong> Information transmission between brain regions</p>
+                <p><strong>Function:</strong> Rapid information transmission between brain regions</p>
+                <p><strong>Location:</strong> Corpus callosum, internal capsule, brain stem tracts</p>
                 <p><strong>Appearance:</strong> Lighter due to fatty myelin sheaths</p>
             </div>
         </div>
         
         <div class="quiz-section">
-            <h2>🎯 Test Your Knowledge</h2>
+            <h2>🎯 Advanced Neuron Knowledge Check</h2>
             
             <div class="quiz-question">
-                <h3>1. How does information typically flow through a neuron?</h3>
+                <h3>1. Where are action potentials typically initiated in a neuron?</h3>
                 <div class="quiz-options">
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">Axon → Cell Body → Dendrites → Axon Terminals</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, true)">Dendrites → Cell Body → Axon → Axon Terminals</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">Cell Body → Dendrites → Axon → Axon Terminals</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">At the dendrites where signals are received</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, true)">At the axon hillock where voltage-gated channels are concentrated</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">At the axon terminals where neurotransmitters are released</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">At the nucleus where genetic information is stored</div>
                 </div>
             </div>
             
             <div class="quiz-question">
-                <h3>2. What gives white matter its lighter appearance?</h3>
+                <h3>2. What is the primary advantage of myelination?</h3>
                 <div class="quiz-options">
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">High concentration of cell bodies</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, true)">Fatty myelin sheaths around axons</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">Dense network of dendrites</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Increases the amplitude of action potentials</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, true)">Increases conduction velocity through saltatory conduction</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Provides structural support to the axon</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Prevents action potentials from occurring</div>
                 </div>
             </div>
             
             <div class="quiz-question">
-                <h3>3. What is the primary function of dendrites?</h3>
+                <h3>3. Which cellular components are primarily found in gray matter?</h3>
                 <div class="quiz-options">
-                    <div class="quiz-option" onclick="selectAnswer(this, true)">Receive signals from other neurons</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">Send signals to other neurons</div>
-                    <div class="quiz-option" onclick="selectAnswer(this, false)">Speed up signal transmission</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, true)">Cell bodies, dendrites, and synapses</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Myelinated axons and oligodendrocytes</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Only blood vessels and glial cells</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Unmyelinated axons exclusively</div>
+                </div>
+            </div>
+            
+            <div class="quiz-question">
+                <h3>4. What happens at the Nodes of Ranvier?</h3>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Neurotransmitters are released</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Myelin is produced by oligodendrocytes</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, true)">Action potentials are regenerated during saltatory conduction</div>
+                    <div class="quiz-option" onclick="selectAnswer(this, false)">Dendrites branch to increase surface area</div>
                 </div>
             </div>
         </div>
@@ -377,18 +673,16 @@
     
     <script>
         function showInfo(elementId) {
-            // Hide all info panels
             const panels = document.querySelectorAll('.info-panel');
             panels.forEach(panel => panel.classList.remove('active'));
             
-            // Show selected panel
             const panel = document.getElementById(elementId);
             if (panel) {
                 panel.classList.add('active');
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
         
-        // Add click event listeners to neuron parts
         document.querySelectorAll('.neuron-part').forEach(part => {
             part.addEventListener('click', function() {
                 const infoId = this.getAttribute('data-info');
@@ -396,16 +690,21 @@
             });
         });
         
-        function startSignal() {
+        function startSignalTransmission() {
             const signal = document.getElementById('signal');
             signal.style.display = 'block';
             
-            // Animation sequence: dendrites -> cell body -> axon -> terminals
             const positions = [
-                {top: '130px', left: '150px'}, // dendrites
-                {top: '180px', left: '220px'}, // cell body
-                {top: '210px', left: '340px'}, // axon
-                {top: '250px', left: '440px'}  // terminals
+                {top: '140px', left: '200px'}, // dendrites
+                {top: '180px', left: '140px'}, // dendrites 2
+                {top: '230px', left: '320px'}, // cell body
+                {top: '295px', left: '400px'}, // axon hillock
+                {top: '270px', left: '520px'}, // axon
+                {top: '217px', left: '600px'}, // myelin
+                {top: '217px', left: '635px'}, // node
+                {top: '217px', left: '670px'}, // myelin 2
+                {top: '295px', left: '740px'}, // terminals
+                {top: '365px', left: '765px'}  // synapse
             ];
             
             let currentPos = 0;
@@ -415,16 +714,22 @@
                     signal.style.top = positions[currentPos].top;
                     signal.style.left = positions[currentPos].left;
                     currentPos++;
-                    setTimeout(moveSignal, 800);
+                    setTimeout(moveSignal, 600);
                 } else {
-                    signal.style.display = 'none';
+                    setTimeout(() => {
+                        signal.style.display = 'none';
+                    }, 1000);
                 }
             }
             
             moveSignal();
         }
         
-        function resetDiagram() {
+        function showSignalIntegration() {
+            alert("Signal Integration Demo: Multiple dendritic inputs are summed at the cell body. If the threshold is reached at the axon hillock, an action potential is generated!");
+        }
+        
+        function resetSimulation() {
             const signal = document.getElementById('signal');
             signal.style.display = 'none';
             
@@ -433,18 +738,15 @@
         }
         
         function selectAnswer(element, isCorrect) {
-            // Remove previous selections in this question
             const siblings = element.parentNode.querySelectorAll('.quiz-option');
             siblings.forEach(sibling => {
                 sibling.classList.remove('correct', 'incorrect');
             });
             
-            // Add appropriate class
             if (isCorrect) {
                 element.classList.add('correct');
             } else {
                 element.classList.add('incorrect');
-                // Also highlight the correct answer
                 siblings.forEach(sibling => {
                     if (sibling.onclick.toString().includes('true')) {
                         sibling.classList.add('correct');
