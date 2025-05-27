@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,16 +13,16 @@
             height: 300px;
             width: 100%;
         }
-        
+
         .neuron-part {
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .neuron-part:hover {
             filter: brightness(1.2);
         }
-        
+
         .signal-dot {
             position: absolute;
             width: 10px;
@@ -32,32 +33,58 @@
             box-shadow: 0 0 10px 2px rgba(255, 255, 0, 0.7);
             z-index: 100;
         }
-        
+
         .tab-content {
             display: none;
         }
-        
+
         .tab-content.active {
             display: block;
         }
+
+        .scientific-note {
+            background: #f0f4f8;
+            border-left: 4px solid #2563eb;
+            padding: 1em 1.5em;
+            margin: 1.5em 0;
+            font-size: 0.98em;
+            color: #1e293b;
+            font-family: 'Georgia', serif;
+        }
+
+        .scientific-body {
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+        }
+
+        .scientific-header {
+            font-family: 'Merriweather', 'Georgia', serif;
+            letter-spacing: 0.01em;
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="container mx-auto px-4 py-8 max-w-6xl scientific-body">
         <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-800 mb-2">Functional Microanatomy of Neurons</h1>
-            <p class="text-lg text-gray-600">An Interactive Exploration of Neuronal Structure and Function</p>
+            <h1 class="text-3xl font-bold text-blue-800 mb-2 scientific-header">Functional Microanatomy of Neurons</h1>
+            <p class="text-lg text-gray-600 scientific-header">An Interactive Exploration of Neuronal Structure and
+                Function</p>
+            <a href="index.html" class="text-gray-500 hover:text-blue-600 text-sm absolute left-4 top-4">← Home</a>
         </header>
 
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-blue-700 mb-4">What happens when neurons communicate?</h2>
             <p class="text-gray-700 mb-4">
-                Neurons are the fundamental units of the nervous system, responsible for processing and transmitting information. 
-                But how exactly does a signal travel through a neuron and to other neurons? What makes neurons different from other cells?
+                Neurons are the fundamental units of the nervous system, responsible for processing and transmitting
+                information.
+                But how exactly does a signal travel through a neuron and to other neurons? What makes neurons different
+                from other cells?
             </p>
             <p class="text-gray-700 mb-4">
-                <strong>Explore this interactive simulation</strong> to discover how neurons are structured and how signals flow through their specialized parts.
-                Adjust parameters to see how changes affect neuronal communication and learn about the critical components that make up gray and white matter in the brain.
+                <strong>Explore this interactive simulation</strong> to discover how neurons are structured and how
+                signals flow through their specialized parts.
+                Adjust parameters to see how changes affect neuronal communication and learn about the critical
+                components that make up gray and white matter in the brain.
             </p>
         </div>
 
@@ -65,22 +92,26 @@
         <div class="mb-6 border-b border-gray-200">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tabList" role="tablist">
                 <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-blue-600 rounded-t-lg active" id="neuron-tab" data-tab="neuron-content" type="button" role="tab">
+                    <button class="inline-block p-4 border-b-2 border-blue-600 rounded-t-lg active" id="neuron-tab"
+                        data-tab="neuron-content" type="button" role="tab">
                         Neuron Structure
                     </button>
                 </li>
                 <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300" id="signal-tab" data-tab="signal-content" type="button" role="tab">
+                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
+                        id="signal-tab" data-tab="signal-content" type="button" role="tab">
                         Signal Transmission
                     </button>
                 </li>
                 <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300" id="tissue-tab" data-tab="tissue-content" type="button" role="tab">
+                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
+                        id="tissue-tab" data-tab="tissue-content" type="button" role="tab">
                         Neural Tissue
                     </button>
                 </li>
                 <li role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300" id="quiz-tab" data-tab="quiz-content" type="button" role="tab">
+                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
+                        id="quiz-tab" data-tab="quiz-content" type="button" role="tab">
                         Test Your Knowledge
                     </button>
                 </li>
@@ -96,37 +127,44 @@
                         <svg id="neuron-diagram" viewBox="0 0 800 400" class="w-full">
                             <!-- Dendrites -->
                             <g id="dendrites" class="neuron-part" data-part="dendrites">
-                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5" fill="none"/>
-                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5" fill="none"/>
-                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5" fill="none"/>
-                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5" fill="none"/>
-                                
+                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5"
+                                    fill="none" />
+                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5"
+                                    fill="none" />
+                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5"
+                                    fill="none" />
+                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5"
+                                    fill="none" />
+
                                 <!-- Dendritic spines -->
-                                <circle cx="240" cy="130" r="4" fill="#AA66CC"/>
-                                <circle cx="230" cy="165" r="4" fill="#AA66CC"/>
-                                <circle cx="235" cy="205" r="4" fill="#AA66CC"/>
-                                <circle cx="245" cy="245" r="4" fill="#AA66CC"/>
+                                <circle cx="240" cy="130" r="4" fill="#AA66CC" />
+                                <circle cx="230" cy="165" r="4" fill="#AA66CC" />
+                                <circle cx="235" cy="205" r="4" fill="#AA66CC" />
+                                <circle cx="245" cy="245" r="4" fill="#AA66CC" />
                             </g>
-                            
+
                             <!-- Cell Body (Soma) -->
                             <g id="soma" class="neuron-part" data-part="soma">
-                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2"/>
-                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1"/>
+                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2" />
+                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1" />
                             </g>
-                            
+
                             <!-- Axon -->
                             <g id="axon" class="neuron-part" data-part="axon">
-                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8" fill="none"/>
-                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6" fill="none"/>
-                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6" fill="none"/>
+                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8"
+                                    fill="none" />
+                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6"
+                                    fill="none" />
+                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6"
+                                    fill="none" />
                             </g>
-                            
+
                             <!-- Synaptic Terminals -->
                             <g id="synapses" class="neuron-part" data-part="synapses">
-                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"/>
-                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"/>
+                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" />
+                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" />
                             </g>
-                            
+
                             <!-- Labels -->
                             <text x="220" y="100" font-size="16" fill="#333" font-weight="bold">Dendrites</text>
                             <text x="290" y="270" font-size="16" fill="#333" font-weight="bold">Soma</text>
@@ -136,23 +174,27 @@
                         </svg>
                     </div>
                     <div class="mt-4 text-center">
-                        <p class="text-sm text-gray-600 italic">Click on any part of the neuron to learn more about it</p>
+                        <p class="text-sm text-gray-600 italic">Click on any part of the neuron to learn more about it
+                        </p>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-bold text-blue-700 mb-4" id="neuron-part-title">Neuron Components</h3>
                     <div id="neuron-part-info">
-                        <p class="mb-4">Neurons are specialized cells that process and transmit information through electrical and chemical signals. Click on different parts of the neuron diagram to learn about their specific functions.</p>
-                        
+                        <p class="mb-4">Neurons are specialized cells that process and transmit information through
+                            electrical and chemical signals. Click on different parts of the neuron diagram to learn
+                            about their specific functions.</p>
+
                         <p class="mb-2"><strong>Key Features of Neurons:</strong></p>
                         <ul class="list-disc pl-5 mb-4">
                             <li>Rich diversity in morphology (shape)</li>
                             <li>Bioelectrical properties (generate electrical signals)</li>
                             <li>Specializations for intercellular communication</li>
                         </ul>
-                        
-                        <p class="text-sm text-gray-600 italic">Select a part of the neuron to see detailed information</p>
+
+                        <p class="text-sm text-gray-600 italic">Select a part of the neuron to see detailed information
+                        </p>
                     </div>
                 </div>
             </div>
@@ -166,40 +208,50 @@
                         <svg id="signal-diagram" viewBox="0 0 800 400" class="w-full">
                             <!-- Background elements -->
                             <rect x="0" y="0" width="800" height="400" fill="#f8fafc" />
-                            
+
                             <!-- Dendrites -->
                             <g id="signal-dendrites">
-                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5" fill="none" class="signal-path" data-order="1"/>
-                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5" fill="none" class="signal-path" data-order="1"/>
-                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5" fill="none" class="signal-path" data-order="1"/>
-                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5" fill="none" class="signal-path" data-order="1"/>
-                                
+                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5"
+                                    fill="none" class="signal-path" data-order="1" />
+                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5"
+                                    fill="none" class="signal-path" data-order="1" />
+                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5"
+                                    fill="none" class="signal-path" data-order="1" />
+                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5"
+                                    fill="none" class="signal-path" data-order="1" />
+
                                 <!-- Dendritic spines -->
-                                <circle cx="240" cy="130" r="4" fill="#AA66CC"/>
-                                <circle cx="230" cy="165" r="4" fill="#AA66CC"/>
-                                <circle cx="235" cy="205" r="4" fill="#AA66CC"/>
-                                <circle cx="245" cy="245" r="4" fill="#AA66CC"/>
+                                <circle cx="240" cy="130" r="4" fill="#AA66CC" />
+                                <circle cx="230" cy="165" r="4" fill="#AA66CC" />
+                                <circle cx="235" cy="205" r="4" fill="#AA66CC" />
+                                <circle cx="245" cy="245" r="4" fill="#AA66CC" />
                             </g>
-                            
+
                             <!-- Cell Body (Soma) -->
                             <g id="signal-soma">
-                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2" class="signal-path" data-order="2"/>
-                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1"/>
+                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2"
+                                    class="signal-path" data-order="2" />
+                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1" />
                             </g>
-                            
+
                             <!-- Axon -->
                             <g id="signal-axon">
-                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8" fill="none" class="signal-path" data-order="3"/>
-                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6" fill="none" class="signal-path" data-order="4"/>
-                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6" fill="none" class="signal-path" data-order="4"/>
+                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8"
+                                    fill="none" class="signal-path" data-order="3" />
+                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6"
+                                    fill="none" class="signal-path" data-order="4" />
+                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6"
+                                    fill="none" class="signal-path" data-order="4" />
                             </g>
-                            
+
                             <!-- Synaptic Terminals -->
                             <g id="signal-synapses">
-                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" class="signal-path" data-order="5"/>
-                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" class="signal-path" data-order="5"/>
+                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"
+                                    class="signal-path" data-order="5" />
+                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"
+                                    class="signal-path" data-order="5" />
                             </g>
-                            
+
                             <!-- Labels -->
                             <text x="220" y="100" font-size="16" fill="#333" font-weight="bold">Dendrites</text>
                             <text x="290" y="270" font-size="16" fill="#333" font-weight="bold">Soma</text>
@@ -210,50 +262,59 @@
                         <!-- Signal dot will be added here by JavaScript -->
                     </div>
                     <div class="mt-4 flex justify-center space-x-4">
-                        <button id="start-signal" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                        <button id="start-signal"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                             Start Signal
                         </button>
-                        <button id="reset-signal" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                        <button id="reset-signal"
+                            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
                             Reset
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-bold text-blue-700 mb-4">Signal Transmission Parameters</h3>
-                    
+
                     <div class="mb-4">
-                        <label for="signal-speed" class="block text-sm font-medium text-gray-700 mb-1">Signal Speed</label>
-                        <input type="range" id="signal-speed" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <label for="signal-speed" class="block text-sm font-medium text-gray-700 mb-1">Signal
+                            Speed</label>
+                        <input type="range" id="signal-speed" min="1" max="10" value="5"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-gray-500 mt-1">
                             <span>Slow</span>
                             <span>Fast</span>
                         </div>
                     </div>
-                    
+
                     <div class="mb-4">
-                        <label for="signal-strength" class="block text-sm font-medium text-gray-700 mb-1">Signal Strength</label>
-                        <input type="range" id="signal-strength" min="1" max="10" value="7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <label for="signal-strength" class="block text-sm font-medium text-gray-700 mb-1">Signal
+                            Strength</label>
+                        <input type="range" id="signal-strength" min="1" max="10" value="7"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-gray-500 mt-1">
                             <span>Weak</span>
                             <span>Strong</span>
                         </div>
                     </div>
-                    
+
                     <div class="mb-6">
-                        <label for="myelination" class="block text-sm font-medium text-gray-700 mb-1">Myelination Level</label>
-                        <input type="range" id="myelination" min="0" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <label for="myelination" class="block text-sm font-medium text-gray-700 mb-1">Myelination
+                            Level</label>
+                        <input type="range" id="myelination" min="0" max="10" value="5"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-gray-500 mt-1">
                             <span>Unmyelinated</span>
                             <span>Fully Myelinated</span>
                         </div>
                     </div>
-                    
+
                     <div class="p-4 bg-blue-50 rounded-lg mb-4">
                         <h4 class="font-bold text-blue-800 mb-2">Current Signal Status</h4>
-                        <p id="signal-status" class="text-gray-700">Ready to transmit signal. Press "Start Signal" to begin.</p>
+                        <p id="signal-status" class="text-gray-700">Ready to transmit signal. Press "Start Signal" to
+                            begin.</p>
                     </div>
-                    
+
                     <div class="chart-container mt-4">
                         <canvas id="signal-chart"></canvas>
                     </div>
@@ -265,33 +326,37 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-bold text-blue-700 mb-4">Neural Tissue Composition</h3>
-                    
+
                     <div class="flex mb-4">
-                        <button id="gray-matter-btn" class="flex-1 py-2 bg-gray-700 text-white rounded-l hover:bg-gray-800 transition">
+                        <button id="gray-matter-btn"
+                            class="flex-1 py-2 bg-gray-700 text-white rounded-l hover:bg-gray-800 transition">
                             Gray Matter
                         </button>
-                        <button id="white-matter-btn" class="flex-1 py-2 bg-gray-300 text-gray-800 rounded-r hover:bg-gray-400 transition">
+                        <button id="white-matter-btn"
+                            class="flex-1 py-2 bg-gray-300 text-gray-800 rounded-r hover:bg-gray-400 transition">
                             White Matter
                         </button>
                     </div>
-                    
+
                     <div id="tissue-visualization" class="relative h-64 bg-gray-700 rounded-lg overflow-hidden">
                         <!-- Tissue visualization will be rendered here by JavaScript -->
                     </div>
-                    
+
                     <div class="mt-4">
                         <div class="chart-container">
                             <canvas id="tissue-composition-chart"></canvas>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-bold text-blue-700 mb-4" id="tissue-title">Gray Matter</h3>
-                    
+
                     <div id="gray-matter-info" class="tissue-info">
-                        <p class="mb-4">Gray matter appears somewhat darker in coloration (brown or gray) when observed in a brain that is cut open at autopsy. It contains the processing machinery of the brain.</p>
-                        
+                        <p class="mb-4">Gray matter appears somewhat darker in coloration (brown or gray) when observed
+                            in a brain that is cut open at autopsy. It contains the processing machinery of the brain.
+                        </p>
+
                         <p class="mb-2"><strong>Gray Matter Contains:</strong></p>
                         <ul class="list-disc pl-5 mb-4">
                             <li>Neuronal cell bodies</li>
@@ -301,7 +366,7 @@
                             <li>Glial cells</li>
                             <li>Vascular endothelium</li>
                         </ul>
-                        
+
                         <p class="mb-4">Gray matter is primarily found in:</p>
                         <ul class="list-disc pl-5 mb-4">
                             <li>The outer layer of the cerebrum (cerebral cortex)</li>
@@ -309,21 +374,24 @@
                             <li>Central regions of the spinal cord</li>
                             <li>Clusters of neurons deep in the brain (nuclei)</li>
                         </ul>
-                        
-                        <p class="text-sm text-gray-600 italic">Gray matter is where most information processing occurs in the brain.</p>
+
+                        <p class="text-sm text-gray-600 italic">Gray matter is where most information processing occurs
+                            in the brain.</p>
                     </div>
-                    
+
                     <div id="white-matter-info" class="tissue-info hidden">
-                        <p class="mb-4">White matter appears somewhat lighter in coloration (light brown) when observed in a brain that is cut open at autopsy. It forms the brain's communication network.</p>
-                        
+                        <p class="mb-4">White matter appears somewhat lighter in coloration (light brown) when observed
+                            in a brain that is cut open at autopsy. It forms the brain's communication network.</p>
+
                         <p class="mb-2"><strong>White Matter Contains:</strong></p>
                         <ul class="list-disc pl-5 mb-4">
-                            <li>Myelinated axons (but—with rare exceptions—no cell bodies, dendrites, or axon terminals)</li>
+                            <li>Myelinated axons (but—with rare exceptions—no cell bodies, dendrites, or axon terminals)
+                            </li>
                             <li>Oligodendrocytes (glial cells that make myelin)</li>
                             <li>Other supporting glial cells</li>
                             <li>Vascular endothelium</li>
                         </ul>
-                        
+
                         <p class="mb-4">White matter is primarily found in:</p>
                         <ul class="list-disc pl-5 mb-4">
                             <li>Deep regions of the cerebrum</li>
@@ -331,9 +399,32 @@
                             <li>Outer regions of the spinal cord</li>
                             <li>Bundles of axons connecting different brain regions (tracts)</li>
                         </ul>
-                        
-                        <p class="text-sm text-gray-600 italic">White matter is responsible for transmitting signals between different regions of gray matter and between the brain and the rest of the body.</p>
+
+                        <p class="text-sm text-gray-600 italic">White matter is responsible for transmitting signals
+                            between different regions of gray matter and between the brain and the rest of the body.</p>
                     </div>
+
+                    <table class="w-full text-sm mt-6 mb-8 border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border px-3 py-2">Feature</th>
+                                <th class="border px-3 py-2">Gray Matter</th>
+                                <th class="border px-3 py-2">White Matter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border px-3 py-2">Main Components</td>
+                                <td class="border px-3 py-2">Cell bodies, dendrites, unmyelinated axons</td>
+                                <td class="border px-3 py-2">Myelinated axons, glial cells</td>
+                            </tr>
+                            <tr>
+                                <td class="border px-3 py-2">Function</td>
+                                <td class="border px-3 py-2">Information processing</td>
+                                <td class="border px-3 py-2">Signal transmission</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -341,7 +432,7 @@
         <div class="tab-content" id="quiz-content">
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h3 class="text-xl font-bold text-blue-700 mb-4">Test Your Knowledge</h3>
-                
+
                 <div id="quiz-container">
                     <div id="question-1" class="quiz-question mb-8">
                         <p class="font-bold mb-2">1. How does information typically flow through a neuron?</p>
@@ -365,9 +456,10 @@
                         </div>
                         <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
                     </div>
-                    
+
                     <div id="question-2" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">2. Which set of microanatomical structures are typically found in white matter?</p>
+                        <p class="font-bold mb-2">2. Which set of microanatomical structures are typically found in
+                            white matter?</p>
                         <div class="space-y-2">
                             <label class="flex items-start">
                                 <input type="radio" name="q2" value="A" class="mt-1 mr-2">
@@ -388,7 +480,7 @@
                         </div>
                         <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
                     </div>
-                    
+
                     <div id="question-3" class="quiz-question mb-8">
                         <p class="font-bold mb-2">3. What is the primary function of dendrites?</p>
                         <div class="space-y-2">
@@ -411,9 +503,10 @@
                         </div>
                         <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
                     </div>
-                    
+
                     <div id="question-4" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">4. What gives white matter its lighter appearance compared to gray matter?</p>
+                        <p class="font-bold mb-2">4. What gives white matter its lighter appearance compared to gray
+                            matter?</p>
                         <div class="space-y-2">
                             <label class="flex items-start">
                                 <input type="radio" name="q4" value="A" class="mt-1 mr-2">
@@ -434,36 +527,49 @@
                         </div>
                         <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
                     </div>
-                    
-                    <button id="check-answers" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+
+                    <button id="check-answers"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                         Check Answers
                     </button>
-                    
+
                     <div id="quiz-results" class="mt-4 p-4 rounded hidden"></div>
                 </div>
             </div>
         </div>
+
+        <div class="scientific-note">
+            <strong>Note:</strong> Myelination increases the speed of action potential propagation along the axon.
+        </div>
+
+        <hr class="my-8 border-gray-300">
+
     </div>
+
+    <footer class="text-center text-gray-500 text-xs mt-12 mb-2">
+        Made by Mario Athanasiou • <a href="https://www.linkedin.com/in/mario-athanasiou/"
+            class="text-blue-600 hover:underline">Connect on LinkedIn</a>
+    </footer>
 
     <script>
         // Initialize the application when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             try {
                 // Tab switching functionality
                 initializeTabs();
-                
+
                 // Neuron structure tab functionality
                 initializeNeuronStructure();
-                
+
                 // Signal transmission tab functionality
                 initializeSignalTransmission();
-                
+
                 // Neural tissue tab functionality
                 initializeNeuralTissue();
-                
+
                 // Quiz functionality
                 initializeQuiz();
-                
+
                 console.log("Application initialized successfully");
             } catch (error) {
                 console.error("Error initializing application:", error);
@@ -475,7 +581,7 @@
             try {
                 const tabButtons = document.querySelectorAll('#tabList button');
                 const tabContents = document.querySelectorAll('.tab-content');
-                
+
                 tabButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         // Remove active class from all tabs
@@ -483,20 +589,20 @@
                             btn.classList.remove('active', 'border-blue-600');
                             btn.classList.add('border-transparent');
                         });
-                        
+
                         // Add active class to clicked tab
                         button.classList.add('active', 'border-blue-600');
                         button.classList.remove('border-transparent');
-                        
+
                         // Hide all tab contents
                         tabContents.forEach(content => {
                             content.classList.remove('active');
                         });
-                        
+
                         // Show the selected tab content
                         const tabId = button.getAttribute('data-tab');
                         document.getElementById(tabId).classList.add('active');
-                        
+
                         // Initialize charts if needed when tab becomes visible
                         if (tabId === 'signal-content') {
                             // Small delay to ensure DOM is ready
@@ -519,7 +625,7 @@
                         }
                     });
                 });
-                
+
                 console.log("Tabs initialized successfully");
             } catch (error) {
                 console.error("Error initializing tabs:", error);
@@ -532,7 +638,7 @@
                 const neuronParts = document.querySelectorAll('.neuron-part');
                 const neuronPartTitle = document.getElementById('neuron-part-title');
                 const neuronPartInfo = document.getElementById('neuron-part-info');
-                
+
                 // Information about each neuron part
                 const partInfo = {
                     dendrites: {
@@ -610,7 +716,7 @@
                         `
                     }
                 };
-                
+
                 // Add click event listeners to neuron parts
                 neuronParts.forEach(part => {
                     part.addEventListener('click', () => {
@@ -618,7 +724,7 @@
                         if (partInfo[partName]) {
                             neuronPartTitle.textContent = partInfo[partName].title;
                             neuronPartInfo.innerHTML = partInfo[partName].content;
-                            
+
                             // Highlight the selected part
                             neuronParts.forEach(p => {
                                 p.style.opacity = 0.5;
@@ -627,7 +733,7 @@
                         }
                     });
                 });
-                
+
                 console.log("Neuron structure functionality initialized successfully");
             } catch (error) {
                 console.error("Error initializing neuron structure functionality:", error);
@@ -655,34 +761,34 @@
                 const myelinationSlider = document.getElementById('myelination');
                 const signalStatus = document.getElementById('signal-status');
                 const signalDiagramContainer = document.getElementById('signal-diagram-container');
-                
+
                 // Initialize signal chart
                 initializeSignalChart();
-                
+
                 // Add event listeners
                 startSignalBtn.addEventListener('click', startSignalAnimation);
                 resetSignalBtn.addEventListener('click', resetSignalAnimation);
-                
+
                 signalSpeedSlider.addEventListener('input', () => {
                     signalSpeed = parseInt(signalSpeedSlider.value);
                     updateSignalStatus();
                 });
-                
+
                 signalStrengthSlider.addEventListener('input', () => {
                     signalStrength = parseInt(signalStrengthSlider.value);
                     updateSignalStatus();
                 });
-                
+
                 myelinationSlider.addEventListener('input', () => {
                     myelinationLevel = parseInt(myelinationSlider.value);
                     updateSignalStatus();
                     updateAxonAppearance();
                 });
-                
+
                 // Initial update
                 updateSignalStatus();
                 updateAxonAppearance();
-                
+
                 console.log("Signal transmission functionality initialized successfully");
             } catch (error) {
                 console.error("Error initializing signal transmission functionality:", error);
@@ -693,15 +799,15 @@
         function initializeSignalChart() {
             try {
                 const ctx = document.getElementById('signal-chart').getContext('2d');
-                
+
                 // Check if chart already exists
                 if (signalChart) {
                     signalChart.destroy();
                 }
-                
+
                 // Initialize empty data
                 signalData = Array(50).fill(0);
-                
+
                 signalChart = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -741,7 +847,7 @@
                         }
                     }
                 });
-                
+
                 console.log("Signal chart initialized successfully");
             } catch (error) {
                 console.error("Error initializing signal chart:", error);
@@ -753,16 +859,16 @@
             try {
                 // Reset any existing animation
                 resetSignalAnimation();
-                
+
                 // Create signal dot
                 signalDot = document.createElement('div');
                 signalDot.className = 'signal-dot';
                 document.getElementById('signal-diagram-container').appendChild(signalDot);
-                
+
                 // Get signal paths in order
                 const signalPaths = Array.from(document.querySelectorAll('.signal-path'))
                     .sort((a, b) => parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order')));
-                
+
                 // Calculate path points
                 const pathPoints = [];
                 signalPaths.forEach(path => {
@@ -788,18 +894,18 @@
                         }
                     }
                 });
-                
+
                 // Animation variables
                 let currentPointIndex = 0;
                 currentSignalPosition = 0;
-                
+
                 // Reset signal data
                 signalData = Array(50).fill(0);
                 updateSignalChart();
-                
+
                 // Update signal status
                 document.getElementById('signal-status').textContent = 'Signal transmission in progress...';
-                
+
                 // Start animation
                 signalAnimation = setInterval(() => {
                     try {
@@ -808,21 +914,21 @@
                             const point = pathPoints[currentPointIndex];
                             const svgRect = document.getElementById('signal-diagram').getBoundingClientRect();
                             const containerRect = document.getElementById('signal-diagram-container').getBoundingClientRect();
-                            
+
                             // Calculate position relative to container
                             const relX = (point.x / 800) * svgRect.width;
                             const relY = (point.y / 400) * svgRect.height;
-                            
+
                             signalDot.style.left = `${relX}px`;
                             signalDot.style.top = `${relY}px`;
-                            
+
                             // Update signal data
                             updateSignalData(currentPointIndex, pathPoints.length);
-                            
+
                             // Increment point index based on speed and myelination
                             const effectiveSpeed = calculateEffectiveSpeed();
                             currentPointIndex += effectiveSpeed;
-                            
+
                             // Update current position for status
                             currentSignalPosition = Math.min(100, Math.round((currentPointIndex / pathPoints.length) * 100));
                             updateSignalStatus();
@@ -837,7 +943,7 @@
                         clearInterval(signalAnimation);
                     }
                 }, 50);
-                
+
                 console.log("Signal animation started successfully");
             } catch (error) {
                 console.error("Error starting signal animation:", error);
@@ -852,23 +958,23 @@
                     clearInterval(signalAnimation);
                     signalAnimation = null;
                 }
-                
+
                 // Remove signal dot
                 if (signalDot && signalDot.parentNode) {
                     signalDot.parentNode.removeChild(signalDot);
                     signalDot = null;
                 }
-                
+
                 // Reset signal data
                 signalData = Array(50).fill(0);
                 updateSignalChart();
-                
+
                 // Reset current position
                 currentSignalPosition = 0;
-                
+
                 // Update signal status
                 updateSignalStatus();
-                
+
                 console.log("Signal animation reset successfully");
             } catch (error) {
                 console.error("Error resetting signal animation:", error);
@@ -880,10 +986,10 @@
             try {
                 // Calculate current phase (dendrite, soma, axon, synapse)
                 const phase = Math.floor((currentIndex / totalPoints) * 4);
-                
+
                 // Calculate signal amplitude based on phase and parameters
                 let amplitude = 0;
-                
+
                 switch (phase) {
                     case 0: // Dendrites
                         amplitude = signalStrength * 0.6;
@@ -899,14 +1005,14 @@
                         amplitude = signalStrength * 0.9;
                         break;
                 }
-                
+
                 // Add some randomness
                 amplitude += (Math.random() - 0.5) * 0.5;
-                
+
                 // Shift data and add new value
                 signalData.shift();
                 signalData.push(amplitude);
-                
+
                 // Update chart
                 updateSignalChart();
             } catch (error) {
@@ -931,13 +1037,13 @@
             try {
                 // Base speed from slider
                 let effectiveSpeed = signalSpeed;
-                
+
                 // Myelination increases speed
                 effectiveSpeed *= (1 + (myelinationLevel / 10));
-                
+
                 // Signal strength slightly affects speed
                 effectiveSpeed *= (1 + ((signalStrength - 5) / 20));
-                
+
                 return Math.max(1, Math.round(effectiveSpeed));
             } catch (error) {
                 console.error("Error calculating effective speed:", error);
@@ -949,7 +1055,7 @@
         function updateSignalStatus() {
             try {
                 const statusElement = document.getElementById('signal-status');
-                
+
                 if (signalAnimation) {
                     // Animation in progress
                     statusElement.textContent = `Signal transmission in progress: ${currentSignalPosition}% complete`;
@@ -970,22 +1076,22 @@
         function updateAxonAppearance() {
             try {
                 const axonPaths = document.querySelectorAll('#signal-axon path');
-                
+
                 axonPaths.forEach(path => {
                     // Calculate stroke color based on myelination
                     const baseColor = 102; // Base purple color (6633AA)
                     const whiteness = Math.min(255, baseColor + (myelinationLevel * 15));
                     const color = `rgb(${whiteness}, ${baseColor}, ${whiteness + 20})`;
-                    
+
                     // Update stroke color
                     path.setAttribute('stroke', color);
-                    
+
                     // Update stroke width based on myelination (thicker = more myelin)
                     const baseWidth = path.getAttribute('data-base-width') || path.getAttribute('stroke-width');
                     if (!path.getAttribute('data-base-width')) {
                         path.setAttribute('data-base-width', baseWidth);
                     }
-                    
+
                     const newWidth = parseFloat(baseWidth) * (1 + (myelinationLevel / 20));
                     path.setAttribute('stroke-width', newWidth);
                 });
@@ -1008,42 +1114,42 @@
                 const grayMatterInfo = document.getElementById('gray-matter-info');
                 const whiteMatterInfo = document.getElementById('white-matter-info');
                 const tissueTitle = document.getElementById('tissue-title');
-                
+
                 // Initialize tissue chart
                 initializeTissueChart();
-                
+
                 // Initialize tissue visualization
                 updateTissueVisualization('gray');
-                
+
                 // Add event listeners
                 grayMatterBtn.addEventListener('click', () => {
                     grayMatterBtn.classList.remove('bg-gray-300', 'text-gray-800');
                     grayMatterBtn.classList.add('bg-gray-700', 'text-white');
                     whiteMatterBtn.classList.remove('bg-gray-700', 'text-white');
                     whiteMatterBtn.classList.add('bg-gray-300', 'text-gray-800');
-                    
+
                     grayMatterInfo.classList.remove('hidden');
                     whiteMatterInfo.classList.add('hidden');
                     tissueTitle.textContent = 'Gray Matter';
-                    
+
                     updateTissueVisualization('gray');
                     updateTissueChart('gray');
                 });
-                
+
                 whiteMatterBtn.addEventListener('click', () => {
                     whiteMatterBtn.classList.remove('bg-gray-300', 'text-gray-800');
                     whiteMatterBtn.classList.add('bg-gray-700', 'text-white');
                     grayMatterBtn.classList.remove('bg-gray-700', 'text-white');
                     grayMatterBtn.classList.add('bg-gray-300', 'text-gray-800');
-                    
+
                     whiteMatterInfo.classList.remove('hidden');
                     grayMatterInfo.classList.add('hidden');
                     tissueTitle.textContent = 'White Matter';
-                    
+
                     updateTissueVisualization('white');
                     updateTissueChart('white');
                 });
-                
+
                 console.log("Neural tissue functionality initialized successfully");
             } catch (error) {
                 console.error("Error initializing neural tissue functionality:", error);
@@ -1054,12 +1160,12 @@
         function initializeTissueChart() {
             try {
                 const ctx = document.getElementById('tissue-composition-chart').getContext('2d');
-                
+
                 // Check if chart already exists
                 if (tissueChart) {
                     tissueChart.destroy();
                 }
-                
+
                 // Data for gray matter (default)
                 const data = {
                     labels: ['Neuronal Cell Bodies', 'Dendrites', 'Axons', 'Synapses', 'Glial Cells', 'Blood Vessels'],
@@ -1085,7 +1191,7 @@
                         borderWidth: 1
                     }]
                 };
-                
+
                 tissueChart = new Chart(ctx, {
                     type: 'pie',
                     data: data,
@@ -1105,9 +1211,9 @@
                                 position: 'right'
                             }
                         }
-                    }
+                    },
                 });
-                
+
                 console.log("Tissue chart initialized successfully");
             } catch (error) {
                 console.error("Error initializing tissue chart:", error);
@@ -1121,9 +1227,9 @@
                     initializeTissueChart();
                     return;
                 }
-                
+
                 let data, title;
-                
+
                 if (tissueType === 'white') {
                     data = [5, 0, 70, 0, 20, 5];
                     title = 'White Matter Composition';
@@ -1131,11 +1237,11 @@
                     data = [20, 25, 15, 20, 15, 5];
                     title = 'Gray Matter Composition';
                 }
-                
+
                 tissueChart.data.datasets[0].data = data;
                 tissueChart.options.plugins.title.text = title;
                 tissueChart.update();
-                
+
                 console.log(`Tissue chart updated to ${tissueType} matter`);
             } catch (error) {
                 console.error("Error updating tissue chart:", error);
@@ -1146,16 +1252,16 @@
         function updateTissueVisualization(tissueType) {
             try {
                 const container = document.getElementById('tissue-visualization');
-                
+
                 // Clear previous visualization
                 container.innerHTML = '';
-                
+
                 // Create SVG element
                 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 svg.setAttribute('viewBox', '0 0 400 200');
                 svg.setAttribute('width', '100%');
                 svg.setAttribute('height', '100%');
-                
+
                 if (tissueType === 'gray') {
                     // Gray matter visualization
                     // Background
@@ -1166,13 +1272,13 @@
                     background.setAttribute('height', '200');
                     background.setAttribute('fill', '#555');
                     svg.appendChild(background);
-                    
+
                     // Add cell bodies
                     for (let i = 0; i < 15; i++) {
                         const cx = 50 + Math.random() * 300;
                         const cy = 50 + Math.random() * 100;
                         const r = 8 + Math.random() * 7;
-                        
+
                         const cell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         cell.setAttribute('cx', cx);
                         cell.setAttribute('cy', cy);
@@ -1181,7 +1287,7 @@
                         cell.setAttribute('stroke', '#7744AA');
                         cell.setAttribute('stroke-width', '1');
                         svg.appendChild(cell);
-                        
+
                         // Add nucleus
                         const nucleus = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         nucleus.setAttribute('cx', cx - 2);
@@ -1189,13 +1295,13 @@
                         nucleus.setAttribute('r', r / 2.5);
                         nucleus.setAttribute('fill', '#7744AA');
                         svg.appendChild(nucleus);
-                        
+
                         // Add dendrites
                         const numDendrites = 3 + Math.floor(Math.random() * 3);
                         for (let j = 0; j < numDendrites; j++) {
                             const angle = (j / numDendrites) * 2 * Math.PI;
                             const length = 15 + Math.random() * 20;
-                            
+
                             const dendrite = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                             dendrite.setAttribute('d', `M ${cx},${cy} Q ${cx + length * 0.7 * Math.cos(angle)},${cy + length * 0.7 * Math.sin(angle)} ${cx + length * Math.cos(angle)},${cy + length * Math.sin(angle)}`);
                             dendrite.setAttribute('stroke', '#8844AA');
@@ -1203,18 +1309,18 @@
                             dendrite.setAttribute('fill', 'none');
                             svg.appendChild(dendrite);
                         }
-                        
+
                         // Add axon
                         const axonAngle = Math.random() * 2 * Math.PI;
                         const axonLength = 30 + Math.random() * 40;
-                        
+
                         const axon = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         axon.setAttribute('d', `M ${cx},${cy} Q ${cx + axonLength * 0.5 * Math.cos(axonAngle)},${cy + axonLength * 0.5 * Math.sin(axonAngle)} ${cx + axonLength * Math.cos(axonAngle)},${cy + axonLength * Math.sin(axonAngle)}`);
                         axon.setAttribute('stroke', '#6633AA');
                         axon.setAttribute('stroke-width', '3');
                         axon.setAttribute('fill', 'none');
                         svg.appendChild(axon);
-                        
+
                         // Add synaptic terminal
                         const terminal = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         terminal.setAttribute('cx', cx + axonLength * Math.cos(axonAngle));
@@ -1223,13 +1329,13 @@
                         terminal.setAttribute('fill', '#5522AA');
                         svg.appendChild(terminal);
                     }
-                    
+
                     // Add glial cells
                     for (let i = 0; i < 10; i++) {
                         const cx = 50 + Math.random() * 300;
                         const cy = 50 + Math.random() * 100;
                         const r = 5 + Math.random() * 3;
-                        
+
                         const glial = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         glial.setAttribute('cx', cx);
                         glial.setAttribute('cy', cy);
@@ -1239,14 +1345,14 @@
                         glial.setAttribute('stroke-width', '1');
                         svg.appendChild(glial);
                     }
-                    
+
                     // Add blood vessels
                     for (let i = 0; i < 3; i++) {
                         const x1 = 50 + Math.random() * 300;
                         const y1 = 50 + Math.random() * 100;
                         const x2 = x1 + (Math.random() - 0.5) * 100;
                         const y2 = y1 + (Math.random() - 0.5) * 50;
-                        
+
                         const vessel = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         vessel.setAttribute('d', `M ${x1},${y1} Q ${(x1 + x2) / 2 + (Math.random() - 0.5) * 30},${(y1 + y2) / 2 + (Math.random() - 0.5) * 30} ${x2},${y2}`);
                         vessel.setAttribute('stroke', 'rgba(255, 99, 132, 0.8)');
@@ -1264,13 +1370,13 @@
                     background.setAttribute('height', '200');
                     background.setAttribute('fill', '#ddd');
                     svg.appendChild(background);
-                    
+
                     // Add myelinated axons
                     for (let i = 0; i < 30; i++) {
                         const y = 20 + Math.random() * 160;
                         const width = 100 + Math.random() * 200;
                         const thickness = 3 + Math.random() * 4;
-                        
+
                         // Axon
                         const axon = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         axon.setAttribute('d', `M 50,${y} Q ${150 + Math.random() * 50},${y + (Math.random() - 0.5) * 30} ${50 + width},${y + (Math.random() - 0.5) * 40}`);
@@ -1278,7 +1384,7 @@
                         axon.setAttribute('stroke-width', thickness);
                         axon.setAttribute('fill', 'none');
                         svg.appendChild(axon);
-                        
+
                         // Myelin sheath
                         const myelin = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         myelin.setAttribute('d', axon.getAttribute('d'));
@@ -1287,17 +1393,17 @@
                         myelin.setAttribute('fill', 'none');
                         myelin.setAttribute('stroke-dasharray', '10,5');
                         svg.appendChild(myelin);
-                        
+
                         // Move axon to front
                         svg.appendChild(axon);
                     }
-                    
+
                     // Add oligodendrocytes (myelin-producing glial cells)
                     for (let i = 0; i < 8; i++) {
                         const cx = 100 + Math.random() * 200;
                         const cy = 50 + Math.random() * 100;
                         const r = 6 + Math.random() * 3;
-                        
+
                         const glial = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                         glial.setAttribute('cx', cx);
                         glial.setAttribute('cy', cy);
@@ -1306,13 +1412,13 @@
                         glial.setAttribute('stroke', 'rgba(255, 159, 64, 1)');
                         glial.setAttribute('stroke-width', '1');
                         svg.appendChild(glial);
-                        
+
                         // Add processes connecting to myelin
                         const numProcesses = 2 + Math.floor(Math.random() * 3);
                         for (let j = 0; j < numProcesses; j++) {
                             const angle = (j / numProcesses) * 2 * Math.PI;
                             const length = 15 + Math.random() * 10;
-                            
+
                             const process = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                             process.setAttribute('d', `M ${cx},${cy} Q ${cx + length * 0.7 * Math.cos(angle)},${cy + length * 0.7 * Math.sin(angle)} ${cx + length * Math.cos(angle)},${cy + length * Math.sin(angle)}`);
                             process.setAttribute('stroke', 'rgba(255, 159, 64, 0.7)');
@@ -1321,14 +1427,14 @@
                             svg.appendChild(process);
                         }
                     }
-                    
+
                     // Add blood vessels
                     for (let i = 0; i < 3; i++) {
                         const x1 = 50 + Math.random() * 300;
                         const y1 = 50 + Math.random() * 100;
                         const x2 = x1 + (Math.random() - 0.5) * 100;
                         const y2 = y1 + (Math.random() - 0.5) * 50;
-                        
+
                         const vessel = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         vessel.setAttribute('d', `M ${x1},${y1} Q ${(x1 + x2) / 2 + (Math.random() - 0.5) * 30},${(y1 + y2) / 2 + (Math.random() - 0.5) * 30} ${x2},${y2}`);
                         vessel.setAttribute('stroke', 'rgba(255, 99, 132, 0.8)');
@@ -1337,10 +1443,10 @@
                         svg.appendChild(vessel);
                     }
                 }
-                
+
                 // Add SVG to container
                 container.appendChild(svg);
-                
+
                 console.log(`Tissue visualization updated to ${tissueType} matter`);
             } catch (error) {
                 console.error("Error updating tissue visualization:", error);
@@ -1352,7 +1458,7 @@
             try {
                 const checkAnswersBtn = document.getElementById('check-answers');
                 const quizResults = document.getElementById('quiz-results');
-                
+
                 // Correct answers
                 const correctAnswers = {
                     q1: 'C', // synapse → dendrite → cell body → axon → synapse
@@ -1360,17 +1466,17 @@
                     q3: 'B', // To receive signals from other neurons
                     q4: 'C'  // Myelinated axons
                 };
-                
+
                 // Add event listener to check answers button
                 checkAnswersBtn.addEventListener('click', () => {
                     let score = 0;
                     let feedback = '';
-                    
+
                     // Check each question
                     Object.keys(correctAnswers).forEach(question => {
                         const selectedAnswer = document.querySelector(`input[name="${question}"]:checked`);
                         const feedbackElement = document.querySelector(`#${question.replace('q', 'question-')} .answer-feedback`);
-                        
+
                         if (selectedAnswer) {
                             if (selectedAnswer.value === correctAnswers[question]) {
                                 // Correct answer
@@ -1392,10 +1498,10 @@
                             feedbackElement.classList.add('bg-red-100', 'text-red-700');
                         }
                     });
-                    
+
                     // Display overall results
                     const percentage = Math.round((score / Object.keys(correctAnswers).length) * 100);
-                    
+
                     if (percentage === 100) {
                         quizResults.innerHTML = `<p class="font-bold text-green-700">Perfect score! ${score}/${Object.keys(correctAnswers).length} (${percentage}%)</p>
                         <p class="mt-2">Excellent work! You have a solid understanding of neuronal structure and function.</p>`;
@@ -1417,39 +1523,43 @@
                         quizResults.classList.remove('hidden', 'bg-green-100', 'bg-yellow-100');
                         quizResults.classList.add('bg-red-100');
                     }
-                    
+
                     quizResults.classList.remove('hidden');
                 });
-                
+
                 console.log("Quiz functionality initialized successfully");
             } catch (error) {
                 console.error("Error initializing quiz functionality:", error);
             }
         }
     </script>
-<script>window.parent.postMessage({ action: "ready" }, "*"); 
- 
-window.console = new Proxy(console, {
-  get(target, prop) {
-    if (['log', 'warn', 'error'].includes(prop)) {
-      return new Proxy(target[prop], {
-        apply(fn, thisArg, args) {
-          fn.apply(thisArg, args);
-          window.parent.postMessage({ action: 'console', 
-            type: prop, 
-            args: args.map((arg) => {
-              try {
-                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
-              } catch (e) {
-                return arg;
-              }
-            }) 
-          }, '*');
-        }
-      });
-    }
-    return target[prop];
-  }
-});
-</script></body>
+    <script>window.parent.postMessage({ action: "ready" }, "*");
+
+        window.console = new Proxy(console, {
+            get(target, prop) {
+                if (['log', 'warn', 'error'].includes(prop)) {
+                    return new Proxy(target[prop], {
+                        apply(fn, thisArg, args) {
+                            fn.apply(thisArg, args);
+                            window.parent.postMessage({
+                                action: 'console',
+                                type: prop,
+                                args: args.map((arg) => {
+                                    try {
+                                        return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+                                    } catch (e) {
+                                        return arg;
+                                    }
+                                })
+                            });
+                        }
+                    });
+                }
+
+                return Reflect.get(target, prop);
+            }
+        });
+    </script>
+</body>
+
 </html>
