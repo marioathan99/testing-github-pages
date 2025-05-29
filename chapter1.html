@@ -4,16 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Nervous System Explorer</title>
+    <!-- Brain emoji favicon -->
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
-    <title>Neuron Functional Microanatomy Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         .chart-container {
             position: relative;
-            height: 300px;
-            width: 100%;
+            min-height: 250px;
+            max-height: 400px;
+            margin-bottom: 1rem;
         }
 
         .neuron-part {
@@ -25,15 +27,35 @@
             filter: brightness(1.2);
         }
 
-        .signal-dot {
+        .action-potential-dot {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background-color: yellow;
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px 2px rgba(255, 255, 0, 0.7);
-            z-index: 100;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
         }
 
         .tab-content {
@@ -44,805 +66,1309 @@
             display: block;
         }
 
-        .scientific-note {
-            background: #f0f4f8;
-            border-left: 4px solid #2563eb;
-            padding: 1em 1.5em;
-            margin: 1.5em 0;
-            font-size: 0.98em;
-            color: #1e293b;
-            /* font-family: 'Georgia', serif; */
-            /* Remove or comment out this line */
-        }
+        @media (max-width: 800px) {
 
-        .scientific-body {
-            font-family: Arial, sans-serif;
-            /* Change to match index.html */
-        }
+            header,
+            main,
+            footer {
+                padding-left: 0.5em !important;
+                padding-right: 0.5em !important;
+            }
 
-        .scientific-header {
-            font-family: 'Merriweather', 'Georgia', serif;
-            letter-spacing: 0.01em;
+            .rounded-lg,
+            .rounded,
+            .shadow-md,
+            .shadow-lg {
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .h-\[400px\],
+            .h-\[300px\] {
+                height: 220px !important;
+                min-height: 120px !important;
+                max-height: 240px !important;
+            }
+
+            .relative {
+                min-height: 120px !important;
+                height: 220px !important;
+                max-height: 240px !important;
+            }
+
+            svg {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .tab-button {
+                flex: 1 1 50%;
+                font-size: 1em;
+                padding: 0.5em 0.2em;
+            }
+
+            .tab-content {
+                padding: 0.5em 0.2em !important;
+            }
+
+            .chart-container {
+                min-height: 120px !important;
+                max-height: 220px !important;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            th,
+            td {
+                box-sizing: border-box;
+                width: 100% !important;
+                padding-left: 0.5em !important;
+                padding-right: 0.5em !important;
+            }
+
+            .overflow-x-auto {
+                overflow-x: auto;
+            }
+
+            #neuron-info,
+            #system-info,
+            #nerve-info {
+                left: 0 !important;
+                right: 0 !important;
+                font-size: 0.95em !important;
+                padding: 0.5em !important;
+            }
+
+            select,
+            button,
+            input[type="range"] {
+                font-size: 1em !important;
+            }
         }
     </style>
 </head>
 
 <body class="bg-gray-100 font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-6xl scientific-body">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-800 mb-2 scientific-header">Functional Microanatomy of Neurons</h1>
-            <p class="text-lg text-gray-600 scientific-header">An Interactive Exploration of Neuronal Structure and
-                Function</p>
-            <a href="index.html" class="text-gray-500 hover:text-blue-600 text-sm absolute left-4 top-4">← Home</a>
-        </header>
+    <!-- Mobile-friendly Home button -->
+    <nav class="w-full flex items-center px-2 py-3 bg-white border-b border-gray-200 sticky top-0 z-30">
+        <a href="/"
+            class="flex items-center text-blue-700 font-semibold text-base md:text-lg hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded transition">
+            <span class="mr-2 text-xl md:text-2xl">←</span>
+            <span class="hidden xs:inline md:inline">Home</span>
+        </a>
+    </nav>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">What happens when neurons communicate?</h2>
-            <p class="text-gray-700 mb-4">
-                Neurons are the fundamental units of the nervous system, responsible for processing and transmitting
-                information.
-                But how exactly does a signal travel through a neuron and to other neurons? What makes neurons different
-                from other cells?
-            </p>
-            <p class="text-gray-700 mb-4">
-                <strong>Explore this interactive simulation</strong> to discover how neurons are structured and how
-                signals flow through their specialized parts.
-                Adjust parameters to see how changes affect neuronal communication and learn about the critical
-                components that make up gray and white matter in the brain.
-            </p>
+    <header class="bg-blue-700 text-white p-6 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold mb-2">Interactive Nervous System Explorer</h1>
+            <p class="text-xl">Discover how neurons communicate and the nervous system functions</p>
         </div>
+    </header>
 
-        <!-- Tab Navigation -->
-        <div class="mb-6 border-b border-gray-200">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tabList" role="tablist">
-                <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-blue-600 rounded-t-lg active" id="neuron-tab"
-                        data-tab="neuron-content" type="button" role="tab">
-                        Neuron Structure
-                    </button>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
-                        id="signal-tab" data-tab="signal-content" type="button" role="tab">
-                        Signal Transmission
-                    </button>
-                </li>
-                <li class="mr-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
-                        id="tissue-tab" data-tab="tissue-content" type="button" role="tab">
-                        Neural Tissue
-                    </button>
-                </li>
-                <li role="presentation">
-                    <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300"
-                        id="quiz-tab" data-tab="quiz-content" type="button" role="tab">
-                        Test Your Knowledge
-                    </button>
-                </li>
+    <main class="container mx-auto p-4 md:p-6">
+        <!-- Introduction Section -->
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-blue-700">What if you could see neurons in action?</h2>
+            <p class="mb-4">The human nervous system is an incredible network that coordinates all our actions and
+                sensory experiences. But how does it actually work? This interactive simulation lets you explore
+                neurons, action potentials, and the divisions of the nervous system.</p>
+            <p class="mb-2 font-semibold">In this exploration, you'll discover:</p>
+            <ul class="list-disc pl-6 mb-4">
+                <li>How neurons transmit information through action potentials</li>
+                <li>The structure and function of different neuron types</li>
+                <li>How the central and peripheral nervous systems work together</li>
+                <li>The role of cranial nerves in controlling bodily functions</li>
             </ul>
+            <p class="text-blue-700 font-semibold">Start by selecting a tab below to begin your exploration!</p>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="mb-6 flex flex-wrap border-b border-gray-200">
+            <button id="tab-neuron"
+                class="tab-button px-4 py-2 text-blue-700 border-b-2 border-blue-700 font-medium">Neuron
+                Structure</button>
+            <button id="tab-action" class="tab-button px-4 py-2 text-gray-500 font-medium">Action Potential</button>
+            <button id="tab-types" class="tab-button px-4 py-2 text-gray-500 font-medium">Neuron Types</button>
+            <button id="tab-system" class="tab-button px-4 py-2 text-gray-500 font-medium">Nervous System</button>
+            <button id="tab-cranial" class="tab-button px-4 py-2 text-gray-500 font-medium">Cranial Nerves</button>
         </div>
 
-        <!-- Tab Content -->
-        <div class="tab-content active" id="neuron-content">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Neuron Structure</h3>
-                    <div class="relative" id="neuron-diagram-container">
-                        <svg id="neuron-diagram" viewBox="0 0 800 400" class="w-full">
-                            <!-- Dendrites -->
-                            <g id="dendrites" class="neuron-part" data-part="dendrites">
-                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5"
-                                    fill="none" />
-                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5"
-                                    fill="none" />
-                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5"
-                                    fill="none" />
-                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5"
-                                    fill="none" />
+        <!-- Neuron Structure Tab -->
+        <div id="content-neuron" class="tab-content active">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-blue-700">Neuron Structure: The Building Block of the Nervous
+                    System</h2>
 
-                                <!-- Dendritic spines -->
-                                <circle cx="240" cy="130" r="4" fill="#AA66CC" />
-                                <circle cx="230" cy="165" r="4" fill="#AA66CC" />
-                                <circle cx="235" cy="205" r="4" fill="#AA66CC" />
-                                <circle cx="245" cy="245" r="4" fill="#AA66CC" />
-                            </g>
+                <div class="lg:flex gap-6">
+                    <div class="lg:w-1/2 mb-6 lg:mb-0">
+                        <div class="relative h-[400px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <!-- Interactive Neuron Diagram -->
+                            <svg id="neuron-svg" viewBox="0 0 800 400" class="w-full h-full">
+                                <!-- Dendrites -->
+                                <g id="dendrites" class="neuron-part" data-part="dendrites">
+                                    <path d="M200,200 C150,150 120,180 100,150 C80,120 60,130 40,100" stroke="#8884d8"
+                                        stroke-width="5" fill="none" />
+                                    <path d="M200,200 C150,170 130,140 110,130 C90,120 70,100 50,80" stroke="#8884d8"
+                                        stroke-width="5" fill="none" />
+                                    <path d="M200,200 C160,220 140,240 120,230 C100,220 80,240 60,250" stroke="#8884d8"
+                                        stroke-width="5" fill="none" />
+                                    <path d="M200,200 C170,230 160,260 140,270 C120,280 100,270 80,290" stroke="#8884d8"
+                                        stroke-width="5" fill="none" />
+                                </g>
 
-                            <!-- Cell Body (Soma) -->
-                            <g id="soma" class="neuron-part" data-part="soma">
-                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2" />
-                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1" />
-                            </g>
+                                <!-- Soma/Cell Body -->
+                                <g id="soma" class="neuron-part" data-part="soma">
+                                    <circle cx="200" cy="200" r="50" fill="#82ca9d" stroke="#333" stroke-width="2" />
+                                    <circle cx="200" cy="200" r="20" fill="#333" stroke="none" /> <!-- Nucleus -->
+                                </g>
 
-                            <!-- Axon -->
-                            <g id="axon" class="neuron-part" data-part="axon">
-                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8"
-                                    fill="none" />
-                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6"
-                                    fill="none" />
-                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6"
-                                    fill="none" />
-                            </g>
+                                <!-- Axon Hillock -->
+                                <g id="axon-hillock" class="neuron-part" data-part="axon-hillock">
+                                    <path d="M250,200 Q270,200 290,200" stroke="#ff8042" stroke-width="10"
+                                        fill="none" />
+                                </g>
 
-                            <!-- Synaptic Terminals -->
-                            <g id="synapses" class="neuron-part" data-part="synapses">
-                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" />
-                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2" />
-                            </g>
+                                <!-- Axon -->
+                                <g id="axon" class="neuron-part" data-part="axon">
+                                    <path d="M290,200 L600,200" stroke="#ff8042" stroke-width="8" fill="none" />
+                                </g>
 
-                            <!-- Labels -->
-                            <text x="220" y="100" font-size="16" fill="#333" font-weight="bold">Dendrites</text>
-                            <text x="290" y="270" font-size="16" fill="#333" font-weight="bold">Soma</text>
-                            <text x="450" y="180" font-size="16" fill="#333" font-weight="bold">Axon</text>
-                            <text x="620" y="150" font-size="16" fill="#333" font-weight="bold">Synaptic</text>
-                            <text x="620" y="170" font-size="16" fill="#333" font-weight="bold">Terminals</text>
-                        </svg>
-                    </div>
-                    <div class="mt-4 text-center">
-                        <p class="text-sm text-gray-600 italic">Click on any part of the neuron to learn more about it
+                                <!-- Myelin Sheath -->
+                                <g id="myelin" class="neuron-part" data-part="myelin">
+                                    <rect x="310" y="185" width="40" height="30" fill="#ffc658" rx="5" />
+                                    <rect x="380" y="185" width="40" height="30" fill="#ffc658" rx="5" />
+                                    <rect x="450" y="185" width="40" height="30" fill="#ffc658" rx="5" />
+                                    <rect x="520" y="185" width="40" height="30" fill="#ffc658" rx="5" />
+                                </g>
+
+                                <!-- Nodes of Ranvier -->
+                                <g id="nodes" class="neuron-part" data-part="nodes">
+                                    <rect x="350" y="196" width="30" height="8" fill="#ff8042" />
+                                    <rect x="420" y="196" width="30" height="8" fill="#ff8042" />
+                                    <rect x="490" y="196" width="30" height="8" fill="#ff8042" />
+                                    <rect x="560" y="196" width="30" height="8" fill="#ff8042" />
+                                </g>
+
+                                <!-- Axon Terminals -->
+                                <g id="terminals" class="neuron-part" data-part="terminals">
+                                    <path d="M600,200 C620,180 640,160 660,150" stroke="#ff8042" stroke-width="5"
+                                        fill="none" />
+                                    <path d="M600,200 C620,190 640,180 660,175" stroke="#ff8042" stroke-width="5"
+                                        fill="none" />
+                                    <path d="M600,200 C620,210 640,220 660,225" stroke="#ff8042" stroke-width="5"
+                                        fill="none" />
+                                    <path d="M600,200 C620,220 640,240 660,250" stroke="#ff8042" stroke-width="5"
+                                        fill="none" />
+
+                                    <circle cx="660" cy="150" r="10" fill="#ff8042" />
+                                    <circle cx="660" cy="175" r="10" fill="#ff8042" />
+                                    <circle cx="660" cy="225" r="10" fill="#ff8042" />
+                                    <circle cx="660" cy="250" r="10" fill="#ff8042" />
+                                </g>
+
+                                <!-- Synapse -->
+                                <g id="synapse" class="neuron-part" data-part="synapse">
+                                    <rect x="680" y="130" width="60" height="140" fill="#a4a4ff" rx="10" />
+                                    <text x="710" y="200" text-anchor="middle" fill="white" font-size="14">Next
+                                        Neuron</text>
+                                </g>
+                            </svg>
+
+                            <!-- Info Overlay -->
+                            <div id="neuron-info"
+                                class="absolute top-2 left-2 right-2 bg-white bg-opacity-90 p-3 rounded shadow-md hidden">
+                                <h3 id="part-title" class="font-bold text-blue-700 mb-1">Part Name</h3>
+                                <p id="part-description" class="text-sm">Description goes here</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-center mt-2 text-gray-600">Click on any part of the neuron to learn more
                         </p>
                     </div>
-                </div>
 
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4" id="neuron-part-title">Neuron Components</h3>
-                    <div id="neuron-part-info">
-                        <p class="mb-4">Neurons are specialized cells that process and transmit information through
-                            electrical and chemical signals. Click on different parts of the neuron diagram to learn
-                            about their specific functions.</p>
+                    <div class="lg:w-1/2">
+                        <h3 class="text-xl font-semibold mb-3">Key Neuron Structures</h3>
+                        <p class="mb-4">Neurons are specialized cells that transmit information throughout the body.
+                            Each part has a specific function:</p>
 
-                        <p class="mb-2"><strong>Key Features of Neurons:</strong></p>
-                        <ul class="list-disc pl-5 mb-4">
-                            <li>Rich diversity in morphology (shape)</li>
-                            <li>Bioelectrical properties (generate electrical signals)</li>
-                            <li>Specializations for intercellular communication</li>
-                        </ul>
+                        <div class="space-y-4">
+                            <div class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded">
+                                <h4 class="font-semibold">Soma (Cell Body)</h4>
+                                <p class="text-sm">The metabolic center containing the nucleus and organelles. It
+                                    maintains the neuron's life functions.</p>
+                            </div>
 
-                        <p class="text-sm text-gray-600 italic">Select a part of the neuron to see detailed information
-                        </p>
+                            <div class="p-3 border-l-4 border-purple-500 bg-purple-50 rounded">
+                                <h4 class="font-semibold">Dendrites</h4>
+                                <p class="text-sm">Tree-like extensions that receive chemical signals from other
+                                    neurons. They have a high surface area for receiving multiple inputs.</p>
+                            </div>
+
+                            <div class="p-3 border-l-4 border-orange-500 bg-orange-50 rounded">
+                                <h4 class="font-semibold">Axon</h4>
+                                <p class="text-sm">A long projection that conducts electrical impulses away from the
+                                    soma. The axon hillock is where action potentials are generated.</p>
+                            </div>
+
+                            <div class="p-3 border-l-4 border-yellow-500 bg-yellow-50 rounded">
+                                <h4 class="font-semibold">Myelin Sheath</h4>
+                                <p class="text-sm">A fatty layer that insulates the axon and increases transmission
+                                    speed. Gaps in the myelin (Nodes of Ranvier) allow for saltatory conduction.</p>
+                            </div>
+
+                            <div class="p-3 border-l-4 border-red-500 bg-red-50 rounded">
+                                <h4 class="font-semibold">Axon Terminals</h4>
+                                <p class="text-sm">End points that release neurotransmitters into the synapse to
+                                    communicate with the next neuron.</p>
+                            </div>
+                        </div>
+
+                        <button id="simulate-neuron-btn"
+                            class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                            Simulate Signal Transmission
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="signal-content">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Signal Transmission Simulation</h3>
-                    <div class="relative" id="signal-diagram-container">
-                        <svg id="signal-diagram" viewBox="0 0 800 400" class="w-full">
-                            <!-- Background elements -->
-                            <rect x="0" y="0" width="800" height="400" fill="#f8fafc" />
+        <!-- Action Potential Tab -->
+        <div id="content-action" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-blue-700">Action Potential: How Neurons Communicate</h2>
 
-                            <!-- Dendrites -->
-                            <g id="signal-dendrites">
-                                <path d="M300,200 C280,150 250,130 220,120" stroke="#8844AA" stroke-width="5"
-                                    fill="none" class="signal-path" data-order="1" />
-                                <path d="M300,200 C280,170 240,160 210,170" stroke="#8844AA" stroke-width="5"
-                                    fill="none" class="signal-path" data-order="1" />
-                                <path d="M300,200 C280,190 250,200 220,210" stroke="#8844AA" stroke-width="5"
-                                    fill="none" class="signal-path" data-order="1" />
-                                <path d="M300,200 C280,230 260,250 230,260" stroke="#8844AA" stroke-width="5"
-                                    fill="none" class="signal-path" data-order="1" />
+                <div class="lg:flex gap-6">
+                    <div class="lg:w-1/2 mb-6 lg:mb-0">
+                        <h3 class="text-xl font-semibold mb-3">Membrane Potential Simulation</h3>
+                        <p class="mb-4">The action potential is a rapid electrical signal that travels along a neuron's
+                            membrane. Adjust the stimulus strength to see how it affects the neuron's response:</p>
 
-                                <!-- Dendritic spines -->
-                                <circle cx="240" cy="130" r="4" fill="#AA66CC" />
-                                <circle cx="230" cy="165" r="4" fill="#AA66CC" />
-                                <circle cx="235" cy="205" r="4" fill="#AA66CC" />
-                                <circle cx="245" cy="245" r="4" fill="#AA66CC" />
-                            </g>
-
-                            <!-- Cell Body (Soma) -->
-                            <g id="signal-soma">
-                                <circle cx="300" cy="200" r="40" fill="#9966CC" stroke="#7744AA" stroke-width="2"
-                                    class="signal-path" data-order="2" />
-                                <circle cx="290" cy="190" r="15" fill="#7744AA" stroke="#663399" stroke-width="1" />
-                            </g>
-
-                            <!-- Axon -->
-                            <g id="signal-axon">
-                                <path d="M340,200 C400,200 450,200 500,200" stroke="#6633AA" stroke-width="8"
-                                    fill="none" class="signal-path" data-order="3" />
-                                <path d="M500,200 C550,200 580,180 600,150" stroke="#6633AA" stroke-width="6"
-                                    fill="none" class="signal-path" data-order="4" />
-                                <path d="M500,200 C550,200 580,220 600,250" stroke="#6633AA" stroke-width="6"
-                                    fill="none" class="signal-path" data-order="4" />
-                            </g>
-
-                            <!-- Synaptic Terminals -->
-                            <g id="signal-synapses">
-                                <circle cx="600" cy="150" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"
-                                    class="signal-path" data-order="5" />
-                                <circle cx="600" cy="250" r="10" fill="#5522AA" stroke="#441188" stroke-width="2"
-                                    class="signal-path" data-order="5" />
-                            </g>
-
-                            <!-- Labels -->
-                            <text x="220" y="100" font-size="16" fill="#333" font-weight="bold">Dendrites</text>
-                            <text x="290" y="270" font-size="16" fill="#333" font-weight="bold">Soma</text>
-                            <text x="450" y="180" font-size="16" fill="#333" font-weight="bold">Axon</text>
-                            <text x="620" y="150" font-size="16" fill="#333" font-weight="bold">Synaptic</text>
-                            <text x="620" y="170" font-size="16" fill="#333" font-weight="bold">Terminals</text>
-                        </svg>
-                        <!-- Signal dot will be added here by JavaScript -->
-                    </div>
-                    <div class="mt-4 flex justify-center space-x-4">
-                        <button id="start-signal"
-                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                            Start Signal
-                        </button>
-                        <button id="reset-signal"
-                            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
-                            Reset
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Signal Transmission Parameters</h3>
-
-                    <div class="mb-4">
-                        <label for="signal-speed" class="block text-sm font-medium text-gray-700 mb-1">Signal
-                            Speed</label>
-                        <input type="range" id="signal-speed" min="1" max="10" value="5"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>Slow</span>
-                            <span>Fast</span>
+                        <div class="mb-4">
+                            <label for="stimulus-strength" class="block text-sm font-medium text-gray-700 mb-1">Stimulus
+                                Strength:</label>
+                            <input type="range" id="stimulus-strength" min="0" max="100" value="60" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>Weak</span>
+                                <span>Threshold</span>
+                                <span>Strong</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label for="signal-strength" class="block text-sm font-medium text-gray-700 mb-1">Signal
-                            Strength</label>
-                        <input type="range" id="signal-strength" min="1" max="10" value="7"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>Weak</span>
-                            <span>Strong</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <label for="myelination" class="block text-sm font-medium text-gray-700 mb-1">Myelination
-                            Level</label>
-                        <input type="range" id="myelination" min="0" max="10" value="5"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>Unmyelinated</span>
-                            <span>Fully Myelinated</span>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-blue-50 rounded-lg mb-4">
-                        <h4 class="font-bold text-blue-800 mb-2">Current Signal Status</h4>
-                        <p id="signal-status" class="text-gray-700">Ready to transmit signal. Press "Start Signal" to
-                            begin.</p>
-                    </div>
-
-                    <div class="chart-container mt-4">
-                        <canvas id="signal-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="tissue-content">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Neural Tissue Composition</h3>
-
-                    <div class="flex mb-4">
-                        <button id="gray-matter-btn"
-                            class="flex-1 py-2 bg-gray-700 text-white rounded-l hover:bg-gray-800 transition">
-                            Gray Matter
-                        </button>
-                        <button id="white-matter-btn"
-                            class="flex-1 py-2 bg-gray-300 text-gray-800 rounded-r hover:bg-gray-400 transition">
-                            White Matter
-                        </button>
-                    </div>
-
-                    <div id="tissue-visualization" class="relative h-64 bg-gray-700 rounded-lg overflow-hidden">
-                        <!-- Tissue visualization will be rendered here by JavaScript -->
-                    </div>
-
-                    <div class="mt-4">
                         <div class="chart-container">
-                            <canvas id="tissue-composition-chart"></canvas>
+                            <canvas id="action-potential-chart"></canvas>
+                        </div>
+
+                        <button id="trigger-action-potential"
+                            class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                            Trigger Stimulus
+                        </button>
+
+                        <div id="threshold-message"
+                            class="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded text-sm hidden">
+                            The stimulus is below threshold. Increase the strength to trigger an action potential.
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4" id="tissue-title">Gray Matter</h3>
+                    <div class="lg:w-1/2">
+                        <h3 class="text-xl font-semibold mb-3">The Action Potential Process</h3>
 
-                    <div id="gray-matter-info" class="tissue-info">
-                        <p class="mb-4">Gray matter appears somewhat darker in coloration (brown or gray) when observed
-                            in a brain that is cut open at autopsy. It contains the processing machinery of the brain.
-                        </p>
+                        <div class="space-y-4 mb-6">
+                            <div id="phase-resting" class="p-3 border-l-4 border-gray-500 bg-gray-50 rounded">
+                                <h4 class="font-semibold">1. Resting Potential (-70mV)</h4>
+                                <p class="text-sm">At rest, the neuron maintains a negative charge inside relative to
+                                    outside due to the distribution of ions (mainly K+ inside, Na+ outside).</p>
+                            </div>
 
-                        <p class="mb-2"><strong>Gray Matter Contains:</strong></p>
-                        <ul class="list-disc pl-5 mb-4">
-                            <li>Neuronal cell bodies</li>
-                            <li>Dendrites</li>
-                            <li>Unmyelinated axons</li>
-                            <li>Synaptic terminals</li>
-                            <li>Glial cells</li>
-                            <li>Vascular endothelium</li>
-                        </ul>
+                            <div id="phase-depolarization"
+                                class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded opacity-50">
+                                <h4 class="font-semibold">2. Depolarization</h4>
+                                <p class="text-sm">When stimulated above threshold, voltage-gated Na+ channels open,
+                                    allowing Na+ to rush in, making the inside of the cell more positive.</p>
+                            </div>
 
-                        <p class="mb-4">Gray matter is primarily found in:</p>
-                        <ul class="list-disc pl-5 mb-4">
-                            <li>The outer layer of the cerebrum (cerebral cortex)</li>
-                            <li>The outer layer of the cerebellum (cerebellar cortex)</li>
-                            <li>Central regions of the spinal cord</li>
-                            <li>Clusters of neurons deep in the brain (nuclei)</li>
-                        </ul>
+                            <div id="phase-repolarization"
+                                class="p-3 border-l-4 border-green-500 bg-green-50 rounded opacity-50">
+                                <h4 class="font-semibold">3. Repolarization</h4>
+                                <p class="text-sm">Na+ channels close and K+ channels open, allowing K+ to flow out of
+                                    the cell, restoring the negative charge inside.</p>
+                            </div>
 
-                        <p class="text-sm text-gray-600 italic">Gray matter is where most information processing occurs
-                            in the brain.</p>
+                            <div id="phase-hyperpolarization"
+                                class="p-3 border-l-4 border-purple-500 bg-purple-50 rounded opacity-50">
+                                <h4 class="font-semibold">4. Hyperpolarization</h4>
+                                <p class="text-sm">The membrane potential briefly becomes more negative than the resting
+                                    potential as K+ channels remain open slightly longer.</p>
+                            </div>
+
+                            <div id="phase-recovery" class="p-3 border-l-4 border-red-500 bg-red-50 rounded opacity-50">
+                                <h4 class="font-semibold">5. Recovery</h4>
+                                <p class="text-sm">The Na+/K+ pump restores ion concentrations to their original state,
+                                    returning the membrane to resting potential.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 class="font-semibold text-blue-700 mb-2">Did You Know?</h4>
+                            <p class="text-sm">Action potentials follow the "all-or-none" principle - they either happen
+                                completely or not at all. Once threshold is reached, the action potential will always be
+                                the same size regardless of stimulus strength.</p>
+                        </div>
                     </div>
-
-                    <div id="white-matter-info" class="tissue-info hidden">
-                        <p class="mb-4">White matter appears somewhat lighter in coloration (light brown) when observed
-                            in a brain that is cut open at autopsy. It forms the brain's communication network.</p>
-
-                        <p class="mb-2"><strong>White Matter Contains:</strong></p>
-                        <ul class="list-disc pl-5 mb-4">
-                            <li>Myelinated axons (but—with rare exceptions—no cell bodies, dendrites, or axon terminals)
-                            </li>
-                            <li>Oligodendrocytes (glial cells that make myelin)</li>
-                            <li>Other supporting glial cells</li>
-                            <li>Vascular endothelium</li>
-                        </ul>
-
-                        <p class="mb-4">White matter is primarily found in:</p>
-                        <ul class="list-disc pl-5 mb-4">
-                            <li>Deep regions of the cerebrum</li>
-                            <li>Deep regions of the cerebellum</li>
-                            <li>Outer regions of the spinal cord</li>
-                            <li>Bundles of axons connecting different brain regions (tracts)</li>
-                        </ul>
-
-                        <p class="text-sm text-gray-600 italic">White matter is responsible for transmitting signals
-                            between different regions of gray matter and between the brain and the rest of the body.</p>
-                    </div>
-
-                    <table class="w-full text-sm mt-6 mb-8 border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border px-3 py-2">Feature</th>
-                                <th class="border px-3 py-2">Gray Matter</th>
-                                <th class="border px-3 py-2">White Matter</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border px-3 py-2">Main Components</td>
-                                <td class="border px-3 py-2">Cell bodies, dendrites, unmyelinated axons</td>
-                                <td class="border px-3 py-2">Myelinated axons, glial cells</td>
-                            </tr>
-                            <tr>
-                                <td class="border px-3 py-2">Function</td>
-                                <td class="border px-3 py-2">Information processing</td>
-                                <td class="border px-3 py-2">Signal transmission</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="quiz-content">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-xl font-bold text-blue-700 mb-4">Test Your Knowledge</h3>
+        <!-- Neuron Types Tab -->
+        <div id="content-types" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-blue-700">Neuron Types: Specialized for Different Functions</h2>
 
-                <div id="quiz-container">
-                    <div id="question-1" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">1. How does information typically flow through a neuron?</p>
-                        <div class="space-y-2">
-                            <label class="flex items-start">
-                                <input type="radio" name="q1" value="A" class="mt-1 mr-2">
-                                <span>A. dendrite → synapse → cell body → axon → dendrite</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q1" value="B" class="mt-1 mr-2">
-                                <span>B. synapse → dendrite → axon → cell body → synapse</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q1" value="C" class="mt-1 mr-2">
-                                <span>C. synapse → dendrite → cell body → axon → synapse</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q1" value="D" class="mt-1 mr-2">
-                                <span>D. axon → dendrite → synapse → cell body → axon</span>
-                            </label>
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-3">Functional Classification</h3>
+                    <p class="mb-4">Neurons are classified based on their function in the nervous system:</p>
+
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div id="sensory-neuron"
+                            class="p-4 border border-blue-200 rounded-lg bg-blue-50 cursor-pointer hover:shadow-md transition">
+                            <h4 class="font-semibold text-blue-700">Sensory (Afferent) Neurons</h4>
+                            <p class="text-sm mt-2">Convert external stimuli into electrical signals for the brain.
+                                Found in sensory organs and the PNS.</p>
                         </div>
-                        <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
-                    </div>
 
-                    <div id="question-2" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">2. Which set of microanatomical structures are typically found in
-                            white matter?</p>
-                        <div class="space-y-2">
-                            <label class="flex items-start">
-                                <input type="radio" name="q2" value="A" class="mt-1 mr-2">
-                                <span>A. synapses, vascular endothelium, neuronal cell bodies, axons</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q2" value="B" class="mt-1 mr-2">
-                                <span>B. vascular endothelium, axons</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q2" value="C" class="mt-1 mr-2">
-                                <span>C. synapses, vascular endothelium, neuronal cell bodies</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q2" value="D" class="mt-1 mr-2">
-                                <span>D. vascular endothelium, neuronal cell bodies, axons</span>
-                            </label>
+                        <div id="motor-neuron"
+                            class="p-4 border border-green-200 rounded-lg bg-green-50 cursor-pointer hover:shadow-md transition">
+                            <h4 class="font-semibold text-green-700">Motor (Efferent) Neurons</h4>
+                            <p class="text-sm mt-2">Transmit signals from the CNS to muscles and glands to initiate
+                                actions and movements.</p>
                         </div>
-                        <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
-                    </div>
 
-                    <div id="question-3" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">3. What is the primary function of dendrites?</p>
-                        <div class="space-y-2">
-                            <label class="flex items-start">
-                                <input type="radio" name="q3" value="A" class="mt-1 mr-2">
-                                <span>A. To transmit signals away from the cell body</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q3" value="B" class="mt-1 mr-2">
-                                <span>B. To receive signals from other neurons</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q3" value="C" class="mt-1 mr-2">
-                                <span>C. To produce myelin</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q3" value="D" class="mt-1 mr-2">
-                                <span>D. To store neurotransmitters</span>
-                            </label>
+                        <div id="interneuron"
+                            class="p-4 border border-purple-200 rounded-lg bg-purple-50 cursor-pointer hover:shadow-md transition">
+                            <h4 class="font-semibold text-purple-700">Interneurons</h4>
+                            <p class="text-sm mt-2">Connect other neurons within the CNS. They process and integrate
+                                information between sensory and motor neurons.</p>
                         </div>
-                        <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
                     </div>
+                </div>
 
-                    <div id="question-4" class="quiz-question mb-8">
-                        <p class="font-bold mb-2">4. What gives white matter its lighter appearance compared to gray
-                            matter?</p>
-                        <div class="space-y-2">
-                            <label class="flex items-start">
-                                <input type="radio" name="q4" value="A" class="mt-1 mr-2">
-                                <span>A. Higher concentration of blood vessels</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q4" value="B" class="mt-1 mr-2">
-                                <span>B. Presence of neuronal cell bodies</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q4" value="C" class="mt-1 mr-2">
-                                <span>C. Myelinated axons</span>
-                            </label>
-                            <label class="flex items-start">
-                                <input type="radio" name="q4" value="D" class="mt-1 mr-2">
-                                <span>D. Higher density of synapses</span>
-                            </label>
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">Structural Classification</h3>
+                    <p class="mb-4">Neurons can also be classified based on their structure:</p>
+
+                    <div class="lg:flex gap-6">
+                        <div class="lg:w-1/2 mb-6 lg:mb-0">
+                            <div
+                                class="relative h-[300px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                                <svg id="neuron-type-svg" viewBox="0 0 600 300" class="w-full h-full">
+                                    <!-- Default view shows multipolar neuron -->
+                                    <g id="multipolar-view">
+                                        <!-- Dendrites -->
+                                        <path d="M200,150 C150,100 120,130 100,100" stroke="#8884d8" stroke-width="4"
+                                            fill="none" />
+                                        <path d="M200,150 C150,120 130,90 110,80" stroke="#8884d8" stroke-width="4"
+                                            fill="none" />
+                                        <path d="M200,150 C160,170 140,190 120,180" stroke="#8884d8" stroke-width="4"
+                                            fill="none" />
+                                        <path d="M200,150 C170,180 160,210 140,220" stroke="#8884d8" stroke-width="4"
+                                            fill="none" />
+
+                                        <!-- Soma -->
+                                        <circle cx="200" cy="150" r="30" fill="#82ca9d" stroke="#333"
+                                            stroke-width="2" />
+
+                                        <!-- Axon -->
+                                        <path d="M230,150 L450,150" stroke="#ff8042" stroke-width="6" fill="none" />
+
+                                        <!-- Axon Terminals -->
+                                        <path d="M450,150 C470,130 490,110 510,100" stroke="#ff8042" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M450,150 C470,140 490,130 510,125" stroke="#ff8042" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M450,150 C470,160 490,170 510,175" stroke="#ff8042" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M450,150 C470,170 490,190 510,200" stroke="#ff8042" stroke-width="3"
+                                            fill="none" />
+
+                                        <circle cx="510" cy="100" r="6" fill="#ff8042" />
+                                        <circle cx="510" cy="125" r="6" fill="#ff8042" />
+                                        <circle cx="510" cy="175" r="6" fill="#ff8042" />
+                                        <circle cx="510" cy="200" r="6" fill="#ff8042" />
+
+                                        <text x="300" y="50" text-anchor="middle" font-size="18"
+                                            font-weight="bold">Multipolar Neuron</text>
+                                        <text x="300" y="75" text-anchor="middle" font-size="14">(Most common type,
+                                            e.g., motor neurons)</text>
+                                    </g>
+
+                                    <!-- Bipolar view (hidden by default) -->
+                                    <g id="bipolar-view" style="display: none;">
+                                        <!-- Dendrite -->
+                                        <path d="M150,150 L100,150" stroke="#8884d8" stroke-width="4" fill="none" />
+
+                                        <!-- Soma -->
+                                        <circle cx="200" cy="150" r="30" fill="#82ca9d" stroke="#333"
+                                            stroke-width="2" />
+
+                                        <!-- Axon -->
+                                        <path d="M230,150 L450,150" stroke="#ff8042" stroke-width="6" fill="none" />
+
+                                        <!-- Axon Terminal -->
+                                        <circle cx="450" cy="150" r="10" fill="#ff8042" />
+
+                                        <text x="300" y="50" text-anchor="middle" font-size="18"
+                                            font-weight="bold">Bipolar Neuron</text>
+                                        <text x="300" y="75" text-anchor="middle" font-size="14">(Found in sensory
+                                            pathways, e.g., retina)</text>
+                                    </g>
+
+                                    <!-- Unipolar view (hidden by default) -->
+                                    <g id="unipolar-view" style="display: none;">
+                                        <!-- Single process that branches -->
+                                        <path d="M200,150 L250,150" stroke="#8884d8" stroke-width="4" fill="none" />
+                                        <path d="M250,150 C300,100 350,50 400,50" stroke="#8884d8" stroke-width="4"
+                                            fill="none" />
+                                        <path d="M250,150 C300,200 350,250 400,250" stroke="#ff8042" stroke-width="4"
+                                            fill="none" />
+
+                                        <!-- Soma -->
+                                        <circle cx="200" cy="150" r="30" fill="#82ca9d" stroke="#333"
+                                            stroke-width="2" />
+
+                                        <!-- Terminal -->
+                                        <circle cx="400" cy="50" r="10" fill="#8884d8" />
+                                        <circle cx="400" cy="250" r="10" fill="#ff8042" />
+
+                                        <text x="300" y="50" text-anchor="middle" font-size="18"
+                                            font-weight="bold">Unipolar Neuron</text>
+                                        <text x="300" y="75" text-anchor="middle" font-size="14">(Common in sensory
+                                            neurons of PNS)</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="flex justify-center mt-4 space-x-2">
+                                <button id="show-multipolar"
+                                    class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Multipolar</button>
+                                <button id="show-bipolar"
+                                    class="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm">Bipolar</button>
+                                <button id="show-unipolar"
+                                    class="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm">Unipolar</button>
+                            </div>
                         </div>
-                        <div class="answer-feedback hidden mt-2 p-2 rounded"></div>
+
+                        <div class="lg:w-1/2">
+                            <div class="space-y-4">
+                                <div class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded">
+                                    <h4 class="font-semibold">Multipolar Neurons</h4>
+                                    <p class="text-sm">Have one axon and multiple dendrites. Most common type in the
+                                        CNS. Examples include motor neurons and interneurons.</p>
+                                </div>
+
+                                <div class="p-3 border-l-4 border-green-500 bg-green-50 rounded">
+                                    <h4 class="font-semibold">Bipolar Neurons</h4>
+                                    <p class="text-sm">Have one axon and one dendrite extending from opposite sides of
+                                        the soma. Found in sensory pathways like the retina, inner ear, and olfactory
+                                        system.</p>
+                                </div>
+
+                                <div class="p-3 border-l-4 border-purple-500 bg-purple-50 rounded">
+                                    <h4 class="font-semibold">Unipolar Neurons</h4>
+                                    <p class="text-sm">Have a single process that divides into two branches - one
+                                        functions as a dendrite, the other as an axon. Common in sensory neurons of the
+                                        PNS.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <h4 class="font-semibold text-yellow-700 mb-2">Function vs. Structure</h4>
+                                <p class="text-sm">While there's some correlation between a neuron's structure and
+                                    function, they're not always directly related:</p>
+                                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
+                                    <li>Sensory neurons are typically unipolar or bipolar</li>
+                                    <li>Motor neurons are generally multipolar</li>
+                                    <li>Interneurons are almost always multipolar</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-
-                    <button id="check-answers"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        Check Answers
-                    </button>
-
-                    <div id="quiz-results" class="mt-4 p-4 rounded hidden"></div>
                 </div>
             </div>
         </div>
 
-        <div class="scientific-note">
-            <strong>Note:</strong> Myelination increases the speed of action potential propagation along the axon.
+        <!-- Nervous System Tab -->
+        <div id="content-system" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-blue-700">The Nervous System: Organization and Function</h2>
+
+                <div class="mb-8">
+                    <p class="mb-4">The human nervous system is divided into two main parts that work together to
+                        coordinate all bodily functions:</p>
+
+                    <div class="lg:flex gap-6">
+                        <div class="lg:w-1/2 mb-6 lg:mb-0">
+                            <div
+                                class="relative h-[400px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                                <svg id="nervous-system-svg" viewBox="0 0 600 400" class="w-full h-full">
+                                    <!-- Main divisions -->
+                                    <g id="cns-group" class="system-part" data-part="cns">
+                                        <rect x="250" y="50" width="100" height="80" rx="10" fill="#ff8042"
+                                            stroke="#333" stroke-width="2" />
+                                        <text x="300" y="90" text-anchor="middle" fill="white"
+                                            font-weight="bold">Brain</text>
+
+                                        <rect x="285" y="130" width="30" height="170" rx="5" fill="#ff8042"
+                                            stroke="#333" stroke-width="2" />
+                                        <text x="300" y="215" text-anchor="middle" fill="white" font-weight="bold"
+                                            font-size="12" transform="rotate(90, 300, 215)">Spinal Cord</text>
+                                    </g>
+
+                                    <g id="pns-group" class="system-part" data-part="pns">
+                                        <!-- Cranial nerves -->
+                                        <path d="M250,80 C220,70 200,90 180,70" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M250,90 C220,100 200,80 180,100" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+
+                                        <!-- Spinal nerves -->
+                                        <path d="M285,150 C250,140 220,150 190,140" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M315,150 C350,140 380,150 410,140" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+
+                                        <path d="M285,180 C250,170 220,180 190,170" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M315,180 C350,170 380,180 410,170" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+
+                                        <path d="M285,210 C250,200 220,210 190,200" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M315,210 C350,200 380,210 410,200" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+
+                                        <path d="M285,240 C250,230 220,240 190,230" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M315,240 C350,230 380,240 410,230" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+
+                                        <path d="M285,270 C250,260 220,270 190,260" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                        <path d="M315,270 C350,260 380,270 410,260" stroke="#8884d8" stroke-width="3"
+                                            fill="none" />
+                                    </g>
+
+                                    <!-- Labels -->
+                                    <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="bold">Central
+                                        Nervous System (CNS)</text>
+                                    <text x="300" y="330" text-anchor="middle" font-size="16"
+                                        font-weight="bold">Peripheral Nervous System (PNS)</text>
+
+                                    <!-- PNS Divisions -->
+                                    <g id="somatic-group" class="system-part" data-part="somatic" style="opacity: 0.5">
+                                        <rect x="100" y="350" width="180" height="30" rx="5" fill="#82ca9d"
+                                            stroke="#333" stroke-width="1" />
+                                        <text x="190" y="370" text-anchor="middle" font-size="12">Somatic Nervous
+                                            System</text>
+                                    </g>
+
+                                    <g id="autonomic-group" class="system-part" data-part="autonomic"
+                                        style="opacity: 0.5">
+                                        <rect x="320" y="350" width="180" height="30" rx="5" fill="#8884d8"
+                                            stroke="#333" stroke-width="1" />
+                                        <text x="410" y="370" text-anchor="middle" font-size="12">Autonomic Nervous
+                                            System</text>
+                                    </g>
+                                </svg>
+
+                                <!-- Info Overlay -->
+                                <div id="system-info"
+                                    class="absolute top-2 left-2 right-2 bg-white bg-opacity-90 p-3 rounded shadow-md hidden">
+                                    <h3 id="system-title" class="font-bold text-blue-700 mb-1">System Part</h3>
+                                    <p id="system-description" class="text-sm">Description goes here</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-center mt-2 text-gray-600">Click on any part of the nervous system to
+                                learn more</p>
+                        </div>
+
+                        <div class="lg:w-1/2">
+                            <h3 class="text-xl font-semibold mb-3">Nervous System Organization</h3>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="p-3 border-l-4 border-orange-500 bg-orange-50 rounded">
+                                    <h4 class="font-semibold">Central Nervous System (CNS)</h4>
+                                    <p class="text-sm">The main control center consisting of the brain and spinal cord.
+                                        Protected by the skull and vertebral column, it processes information and
+                                        coordinates responses.</p>
+                                </div>
+
+                                <div class="p-3 border-l-4 border-purple-500 bg-purple-50 rounded">
+                                    <h4 class="font-semibold">Peripheral Nervous System (PNS)</h4>
+                                    <p class="text-sm">The network of nerves outside the CNS that connects it to the
+                                        rest of the body. Includes cranial nerves, spinal nerves, and ganglia.</p>
+                                </div>
+                            </div>
+
+                            <h3 class="text-xl font-semibold mb-3">PNS Divisions</h3>
+
+                            <div class="space-y-4">
+                                <div class="p-3 border-l-4 border-green-500 bg-green-50 rounded">
+                                    <h4 class="font-semibold">Somatic Nervous System</h4>
+                                    <p class="text-sm">Controls voluntary movements and reflex arcs. Includes nerves
+                                        that serve skeletal muscles and sensory receptors.</p>
+                                </div>
+
+                                <div class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded">
+                                    <h4 class="font-semibold">Autonomic Nervous System</h4>
+                                    <p class="text-sm">Regulates involuntary functions like heart rate, digestion, and
+                                        respiratory rate. Further divided into:</p>
+                                    <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
+                                        <li><strong>Sympathetic:</strong> "Fight or flight" response (uses
+                                            norepinephrine)</li>
+                                        <li><strong>Parasympathetic:</strong> "Rest and digest" functions (uses
+                                            acetylcholine)</li>
+                                        <li><strong>Enteric:</strong> Controls GI tract function (sometimes considered
+                                            separate)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Autonomic Nervous System Comparison</h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 px-4 py-2">Function</th>
+                                    <th class="border border-gray-300 px-4 py-2 bg-yellow-50">Sympathetic<br>("Fight or
+                                        Flight")</th>
+                                    <th class="border border-gray-300 px-4 py-2 bg-blue-50">Parasympathetic<br>("Rest
+                                        and Digest")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Heart Rate</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Increases ↑</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Decreases ↓</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Bronchial Passages</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Dilates ↑</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Constricts ↓</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Pupils</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Dilates ↑</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Constricts ↓</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Digestion</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Decreases ↓</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Increases ↑</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Blood to Muscles</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Increases ↑</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Decreases ↓</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Primary Neurotransmitter
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-yellow-50">Norepinephrine</td>
+                                    <td class="border border-gray-300 px-4 py-2 bg-blue-50">Acetylcholine</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6">
+                        <button id="simulate-autonomic-btn"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                            Simulate Autonomic Response
+                        </button>
+
+                        <div id="autonomic-simulation"
+                            class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                            <h4 class="font-semibold mb-2">Autonomic Response Simulation</h4>
+                            <div class="flex items-center mb-4">
+                                <span class="mr-2">Rest</span>
+                                <input type="range" id="autonomic-slider" min="0" max="100" value="50"
+                                    class="w-full mx-2">
+                                <span class="ml-2">Stress</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm font-medium mb-1">Heart Rate: <span id="heart-rate">75</span> BPM
+                                    </p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="heart-rate-bar" class="bg-red-500 h-2.5 rounded-full"
+                                            style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm font-medium mb-1">Pupil Size: <span id="pupil-size">Normal</span>
+                                    </p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="pupil-size-bar" class="bg-blue-500 h-2.5 rounded-full"
+                                            style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm font-medium mb-1">Digestion: <span
+                                            id="digestion-rate">Normal</span></p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="digestion-bar" class="bg-green-500 h-2.5 rounded-full"
+                                            style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p class="text-sm font-medium mb-1">Breathing Rate: <span
+                                            id="breathing-rate">12</span> breaths/min</p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="breathing-bar" class="bg-yellow-500 h-2.5 rounded-full"
+                                            style="width: 50%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="mt-4 text-sm" id="autonomic-message">The body is in a balanced state between
+                                sympathetic and parasympathetic activity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <hr class="my-8 border-gray-300">
+        <!-- Cranial Nerves Tab -->
+        <div id="content-cranial" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-blue-700">Cranial Nerves: The Direct Connections to the Brain
+                </h2>
 
-    </div>
+                <p class="mb-6">The 12 pairs of cranial nerves emerge directly from the brain and pass through openings
+                    in the skull to reach their destinations. Each has specific functions in sensory perception, motor
+                    control, or both.</p>
 
-    <footer class="text-center text-gray-500 text-xs mt-12 mb-2">
+                <div class="lg:flex gap-6">
+                    <div class="lg:w-1/2 mb-6 lg:mb-0">
+                        <div class="relative h-[400px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <svg id="cranial-nerves-svg" viewBox="0 0 600 400" class="w-full h-full">
+                                <!-- Brain outline -->
+                                <path
+                                    d="M150,150 C200,100 400,100 450,150 C500,200 500,250 450,300 C400,350 200,350 150,300 C100,250 100,200 150,150"
+                                    fill="#f8d7da" stroke="#333" stroke-width="2" />
+
+                                <!-- Cranial nerves (simplified representation) -->
+                                <g id="nerve-1" class="nerve-part" data-nerve="1">
+                                    <circle cx="300" cy="130" r="10" fill="#ff8042" />
+                                    <text x="300" y="120" text-anchor="middle" font-size="12">I</text>
+                                </g>
+
+                                <g id="nerve-2" class="nerve-part" data-nerve="2">
+                                    <path d="M270,140 L240,120" stroke="#8884d8" stroke-width="3" fill="none" />
+                                    <path d="M330,140 L360,120" stroke="#8884d8" stroke-width="3" fill="none" />
+                                    <text x="240" y="110" text-anchor="middle" font-size="12">II</text>
+                                    <text x="360" y="110" text-anchor="middle" font-size="12">II</text>
+                                </g>
+
+                                <g id="nerve-3" class="nerve-part" data-nerve="3">
+                                    <path d="M280,150 L250,140" stroke="#82ca9d" stroke-width="3" fill="none" />
+                                    <text x="240" y="130" text-anchor="middle" font-size="12">III</text>
+                                </g>
+
+                                <g id="nerve-4" class="nerve-part" data-nerve="4">
+                                    <path d="M320,150 L350,140" stroke="#82ca9d" stroke-width="3" fill="none" />
+                                    <text x="360" y="130" text-anchor="middle" font-size="12">IV</text>
+                                </g>
+
+                                <g id="nerve-5" class="nerve-part" data-nerve="5">
+                                    <path d="M260,170 L220,160" stroke="#ffc658" stroke-width="3" fill="none" />
+                                    <text x="210" y="150" text-anchor="middle" font-size="12">V</text>
+                                </g>
+
+                                <g id="nerve-6" class="nerve-part" data-nerve="6">
+                                    <path d="M340,170 L380,160" stroke="#82ca9d" stroke-width="3" fill="none" />
+                                    <text x="390" y="150" text-anchor="middle" font-size="12">VI</text>
+                                </g>
+
+                                <g id="nerve-7" class="nerve-part" data-nerve="7">
+                                    <path d="M250,190 L210,190" stroke="#ffc658" stroke-width="3" fill="none" />
+                                    <text x="200" y="180" text-anchor="middle" font-size="12">VII</text>
+                                </g>
+
+                                <g id="nerve-8" class="nerve-part" data-nerve="8">
+                                    <path d="M350,190 L390,190" stroke="#8884d8" stroke-width="3" fill="none" />
+                                    <text x="400" y="180" text-anchor="middle" font-size="12">VIII</text>
+                                </g>
+
+                                <g id="nerve-9" class="nerve-part" data-nerve="9">
+                                    <path d="M240,210 L200,220" stroke="#ffc658" stroke-width="3" fill="none" />
+                                    <text x="190" y="210" text-anchor="middle" font-size="12">IX</text>
+                                </g>
+
+                                <g id="nerve-10" class="nerve-part" data-nerve="10">
+                                    <path d="M360,210 L400,220" stroke="#ffc658" stroke-width="3" fill="none" />
+                                    <text x="410" y="210" text-anchor="middle" font-size="12">X</text>
+                                </g>
+
+                                <g id="nerve-11" class="nerve-part" data-nerve="11">
+                                    <path d="M230,230 L190,250" stroke="#82ca9d" stroke-width="3" fill="none" />
+                                    <text x="180" y="240" text-anchor="middle" font-size="12">XI</text>
+                                </g>
+
+                                <g id="nerve-12" class="nerve-part" data-nerve="12">
+                                    <path d="M370,230 L410,250" stroke="#82ca9d" stroke-width="3" fill="none" />
+                                    <text x="420" y="240" text-anchor="middle" font-size="12">XII</text>
+                                </g>
+
+                                <!-- Legend -->
+                                <rect x="450" y="300" width="15" height="15" fill="#8884d8" />
+                                <text x="470" y="312" font-size="12" text-anchor="start">Sensory</text>
+
+                                <rect x="450" y="325" width="15" height="15" fill="#82ca9d" />
+                                <text x="470" y="337" font-size="12" text-anchor="start">Motor</text>
+
+                                <rect x="450" y="350" width="15" height="15" fill="#ffc658" />
+                                <text x="470" y="362" font-size="12" text-anchor="start">Mixed</text>
+                            </svg>
+
+                            <!-- Info Overlay -->
+                            <div id="nerve-info"
+                                class="absolute top-2 left-2 right-2 bg-white bg-opacity-90 p-3 rounded shadow-md hidden">
+                                <h3 id="nerve-title" class="font-bold text-blue-700 mb-1">Cranial Nerve</h3>
+                                <p id="nerve-description" class="text-sm">Description goes here</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-center mt-2 text-gray-600">Click on any cranial nerve to learn more</p>
+                    </div>
+
+                    <div class="lg:w-1/2">
+                        <h3 class="text-xl font-semibold mb-3">Cranial Nerve Functions</h3>
+
+                        <div class="mb-4">
+                            <label for="nerve-selector" class="block text-sm font-medium text-gray-700 mb-1">Select a
+                                cranial nerve:</label>
+                            <select id="nerve-selector" class="w-full p-2 border border-gray-300 rounded">
+                                <option value="0">Overview of all nerves</option>
+                                <option value="1">I - Olfactory</option>
+                                <option value="2">II - Optic</option>
+                                <option value="3">III - Oculomotor</option>
+                                <option value="4">IV - Trochlear</option>
+                                <option value="5">V - Trigeminal</option>
+                                <option value="6">VI - Abducens</option>
+                                <option value="7">VII - Facial</option>
+                                <option value="8">VIII - Vestibulocochlear</option>
+                                <option value="9">IX - Glossopharyngeal</option>
+                                <option value="10">X - Vagus</option>
+                                <option value="11">XI - Accessory</option>
+                                <option value="12">XII - Hypoglossal</option>
+                            </select>
+                        </div>
+
+                        <div id="nerve-details" class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 class="font-semibold text-blue-700 mb-2">Cranial Nerves Overview</h4>
+                            <p class="text-sm mb-3">The 12 pairs of cranial nerves are numbered with Roman numerals
+                                based on their order of emergence from the brain, from front to back.</p>
+
+                            <p class="text-sm mb-2">A helpful mnemonic to remember their functions:</p>
+                            <p class="font-medium text-center mb-3">"Some Say Mary Money, But My Brother Says Big Brains
+                                Matter Most"</p>
+
+                            <ul class="text-sm space-y-1">
+                                <li><strong>S</strong> = Sensory only (I, II, VIII)</li>
+                                <li><strong>M</strong> = Motor only (III, IV, VI, XI, XII)</li>
+                                <li><strong>B</strong> = Both sensory and motor (V, VII, IX, X)</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-6">
+                            <h4 class="font-semibold mb-2">Test Your Knowledge</h4>
+                            <p class="text-sm mb-4">Match the cranial nerve with its primary function:</p>
+
+                            <div class="mb-4">
+                                <label for="quiz-nerve" class="block text-sm font-medium text-gray-700 mb-1">Which
+                                    cranial nerve is responsible for:</label>
+                                <select id="quiz-question" class="w-full p-2 border border-gray-300 rounded mb-2">
+                                    <option value="smell">Sense of smell</option>
+                                    <option value="vision">Vision</option>
+                                    <option value="eye-movement">Most eye movements</option>
+                                    <option value="face-sensation">Facial sensation</option>
+                                    <option value="facial-expression">Facial expressions</option>
+                                    <option value="hearing">Hearing and balance</option>
+                                    <option value="tongue">Tongue movement</option>
+                                    <option value="vagus">Heart and digestive organs</option>
+                                </select>
+
+                                <select id="quiz-answer" class="w-full p-2 border border-gray-300 rounded">
+                                    <option value="0">Select a cranial nerve...</option>
+                                    <option value="1">I - Olfactory</option>
+                                    <option value="2">II - Optic</option>
+                                    <option value="3">III - Oculomotor</option>
+                                    <option value="4">IV - Trochlear</option>
+                                    <option value="5">V - Trigeminal</option>
+                                    <option value="6">VI - Abducens</option>
+                                    <option value="7">VII - Facial</option>
+                                    <option value="8">VIII - Vestibulocochlear</option>
+                                    <option value="9">IX - Glossopharyngeal</option>
+                                    <option value="10">X - Vagus</option>
+                                    <option value="11">XI - Accessory</option>
+                                    <option value="12">XII - Hypoglossal</option>
+                                </select>
+                            </div>
+
+                            <button id="check-answer"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                                Check Answer
+                            </button>
+
+                            <div id="quiz-result" class="mt-3 p-3 rounded hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-6">
+        <div class="container mx-auto">
+            <p class="text-center">Interactive Nervous System Explorer | Educational Simulation</p>
+        </div>
+    </footer>
+
+    <!-- Custom footer as requested -->
+    <footer style="text-align:center; color:#888; font-size:0.9em; margin-top:2em;">
         Made by Mario Athanasiou • <a href="https://www.linkedin.com/in/mario-athanasiou/"
-            class="text-blue-600 hover:underline">Connect on LinkedIn</a>
+            style="color:#457b9d;">Connect on
+            LinkedIn</a>
     </footer>
 
     <script>
-        // Initialize the application when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function () {
+        // Initialize variables and track state
+        let actionPotentialChart = null;
+        let actionPotentialAnimation = null;
+        let autonomicInterval = null;
+
+        // Helper functions for error handling and type checking
+        function safeQuerySelector(selector) {
             try {
-                // Tab switching functionality
-                initializeTabs();
-
-                // Neuron structure tab functionality
-                initializeNeuronStructure();
-
-                // Signal transmission tab functionality
-                initializeSignalTransmission();
-
-                // Neural tissue tab functionality
-                initializeNeuralTissue();
-
-                // Quiz functionality
-                initializeQuiz();
-
-                console.log("Application initialized successfully");
+                const element = document.querySelector(selector);
+                if (!element) {
+                    console.warn(`Element not found: ${selector}`);
+                    return null;
+                }
+                return element;
             } catch (error) {
-                console.error("Error initializing application:", error);
+                console.error(`Error selecting ${selector}:`, error);
+                return null;
             }
-        });
+        }
 
-        // Tab switching functionality
-        function initializeTabs() {
+        function safeAddEventListener(element, event, callback) {
             try {
-                const tabButtons = document.querySelectorAll('#tabList button');
+                if (!element) {
+                    console.warn(`Cannot add event listener to null element`);
+                    return;
+                }
+                element.addEventListener(event, callback);
+            } catch (error) {
+                console.error(`Error adding event listener:`, error);
+            }
+        }
+
+        // Tab navigation
+        function setupTabs() {
+            try {
+                const tabButtons = document.querySelectorAll('.tab-button');
                 const tabContents = document.querySelectorAll('.tab-content');
+
+                if (!tabButtons || !tabContents) {
+                    console.error("Tab elements not found");
+                    return;
+                }
 
                 tabButtons.forEach(button => {
                     button.addEventListener('click', () => {
-                        // Remove active class from all tabs
+                        // Reset all tabs
                         tabButtons.forEach(btn => {
-                            btn.classList.remove('active', 'border-blue-600');
-                            btn.classList.add('border-transparent');
+                            btn.classList.remove('text-blue-700', 'border-b-2', 'border-blue-700');
+                            btn.classList.add('text-gray-500');
                         });
 
-                        // Add active class to clicked tab
-                        button.classList.add('active', 'border-blue-600');
-                        button.classList.remove('border-transparent');
-
-                        // Hide all tab contents
                         tabContents.forEach(content => {
                             content.classList.remove('active');
                         });
 
-                        // Show the selected tab content
-                        const tabId = button.getAttribute('data-tab');
-                        document.getElementById(tabId).classList.add('active');
+                        // Activate selected tab
+                        button.classList.add('text-blue-700', 'border-b-2', 'border-blue-700');
+                        button.classList.remove('text-gray-500');
 
-                        // Initialize charts if needed when tab becomes visible
-                        if (tabId === 'signal-content') {
-                            // Small delay to ensure DOM is ready
+                        const tabId = button.id.replace('tab-', 'content-');
+                        const activeContent = document.getElementById(tabId);
+
+                        if (activeContent) {
+                            activeContent.classList.add('active');
+
+                            // Initialize charts if needed
                             setTimeout(() => {
-                                if (signalChart) {
-                                    signalChart.resize();
-                                } else {
-                                    initializeSignalChart();
-                                }
-                            }, 100);
-                        } else if (tabId === 'tissue-content') {
-                            // Small delay to ensure DOM is ready
-                            setTimeout(() => {
-                                if (tissueChart) {
-                                    tissueChart.resize();
-                                } else {
-                                    initializeTissueChart();
+                                if (tabId === 'content-action' && !actionPotentialChart) {
+                                    initActionPotentialChart();
                                 }
                             }, 100);
                         }
                     });
                 });
-
-                console.log("Tabs initialized successfully");
             } catch (error) {
-                console.error("Error initializing tabs:", error);
+                console.error("Error setting up tabs:", error);
             }
         }
 
-        // Neuron structure tab functionality
-        function initializeNeuronStructure() {
+        // Neuron Structure Tab
+        function setupNeuronInteraction() {
             try {
                 const neuronParts = document.querySelectorAll('.neuron-part');
-                const neuronPartTitle = document.getElementById('neuron-part-title');
-                const neuronPartInfo = document.getElementById('neuron-part-info');
+                const neuronInfo = document.getElementById('neuron-info');
+                const partTitle = document.getElementById('part-title');
+                const partDescription = document.getElementById('part-description');
 
-                // Information about each neuron part
-                const partInfo = {
-                    dendrites: {
-                        title: "Dendrites",
-                        content: `
-                            <p class="mb-4">Dendrites are short (usually about 100 microns in length) protoplasmic extensions that arise from the cell body (soma).</p>
-                            
-                            <p class="mb-2"><strong>Key Features:</strong></p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Primarily involved in receiving neural signals from other neurons</li>
-                                <li>Often covered with dendritic spines (tiny mushroom-like protrusions)</li>
-                                <li>Spines are primarily sites where dendrites receive excitatory signals</li>
-                                <li>Neurons that lack spines ("smooth" dendrites) typically inhibit their synaptic partners</li>
-                            </ul>
-                            
-                            <p class="mb-4">Dendrites exhibit diverse morphology among different classes of neurons:</p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Pyramidal neurons have a single long "apical" dendrite and numerous shorter "basal" dendrites</li>
-                                <li>Other neurons are "multipolar," with dendrites emanating from the soma in a somewhat regular array</li>
-                            </ul>
-                        `
+                if (!neuronParts || !neuronInfo || !partTitle || !partDescription) {
+                    console.error("Neuron interaction elements not found");
+                    return;
+                }
+
+                const partDetails = {
+                    'dendrites': {
+                        title: 'Dendrites',
+                        description: 'Tree-like extensions that receive chemical signals from other neurons. They have a high surface area to receive multiple inputs.'
                     },
-                    soma: {
-                        title: "Cell Body (Soma)",
-                        content: `
-                            <p class="mb-4">The cell body, also called a soma (plural: somata), is the central part of the neuron.</p>
-                            
-                            <p class="mb-2"><strong>Key Features:</strong></p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Contains the nucleus, nucleic acids, and the usual cellular organelles</li>
-                                <li>Highly active metabolically to support neural signaling</li>
-                                <li>Maintains the intricate protoplasmic processes (dendrites and axons) that arise from it</li>
-                                <li>Integrates incoming signals from dendrites</li>
-                                <li>Initiates action potentials that travel down the axon</li>
-                            </ul>
-                            
-                            <p class="mb-4">The soma varies in size and shape depending on the type of neuron, but typically ranges from 5 to 100 microns in diameter.</p>
-                        `
+                    'soma': {
+                        title: 'Soma (Cell Body)',
+                        description: 'Contains the nucleus and organelles. It\'s the metabolic center of the neuron that maintains the cell\'s life functions.'
                     },
-                    axon: {
-                        title: "Axon",
-                        content: `
-                            <p class="mb-4">Axons are long protoplasmic extensions that arise from the cell body (soma).</p>
-                            
-                            <p class="mb-2"><strong>Key Features:</strong></p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Involved in transmitting neural signals away from the cell body</li>
-                                <li>Length varies greatly: some are very short (<100 μm), others can be very long (>1 meter!)</li>
-                                <li>Often covered with myelin, an insulating substance that speeds up signal transmission</li>
-                                <li>May branch to form collaterals, allowing a single neuron to communicate with multiple targets</li>
-                            </ul>
-                            
-                            <p class="mb-4">The axon begins at the axon hillock, a specialized region of the soma where action potentials are initiated. The action potential then travels down the axon to the synaptic terminals.</p>
-                        `
+                    'axon-hillock': {
+                        title: 'Axon Hillock',
+                        description: 'The cone-shaped region where the axon connects to the soma. This is where action potentials are generated.'
                     },
-                    synapses: {
-                        title: "Synaptic Terminals",
-                        content: `
-                            <p class="mb-4">Synaptic terminals, or synapses, are specialized contacts between neurons or between neurons and effector cells.</p>
-                            
-                            <p class="mb-2"><strong>Key Features:</strong></p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Found at the end of axons</li>
-                                <li>May be "electrical" (the small minority in the mature CNS) or "chemical" (the vast majority)</li>
-                                <li>Chemical synapses release neurotransmitters that bind to receptors on the target cell</li>
-                                <li>Usually contact dendrites of other neurons, but may also contact cell bodies or even other axon terminals</li>
-                            </ul>
-                            
-                            <p class="mb-4">The synapse consists of:</p>
-                            <ul class="list-disc pl-5 mb-4">
-                                <li>Presynaptic terminal: Contains neurotransmitter-filled vesicles</li>
-                                <li>Synaptic cleft: Small gap between the presynaptic and postsynaptic membranes</li>
-                                <li>Postsynaptic membrane: Contains receptors that bind neurotransmitters</li>
-                            </ul>
-                        `
+                    'axon': {
+                        title: 'Axon',
+                        description: 'A long projection that conducts electrical impulses away from the soma to other neurons, muscles, or glands.'
+                    },
+                    'myelin': {
+                        title: 'Myelin Sheath',
+                        description: 'Fatty layer that insulates the axon and greatly increases the speed of electrical transmission.'
+                    },
+                    'nodes': {
+                        title: 'Nodes of Ranvier',
+                        description: 'Gaps in the myelin sheath where the axon membrane is exposed. These enable rapid saltatory conduction of nerve impulses.'
+                    },
+                    'terminals': {
+                        title: 'Axon Terminals',
+                        description: 'End points that release neurotransmitters into the synapse to communicate with the next neuron.'
+                    },
+                    'synapse': {
+                        title: 'Synapse',
+                        description: 'The junction between two neurons where information is passed from one neuron to another via neurotransmitters.'
                     }
                 };
 
-                // Add click event listeners to neuron parts
                 neuronParts.forEach(part => {
                     part.addEventListener('click', () => {
                         const partName = part.getAttribute('data-part');
-                        if (partInfo[partName]) {
-                            neuronPartTitle.textContent = partInfo[partName].title;
-                            neuronPartInfo.innerHTML = partInfo[partName].content;
+                        const details = partDetails[partName];
 
-                            // Highlight the selected part
-                            neuronParts.forEach(p => {
-                                p.style.opacity = 0.5;
-                            });
-                            part.style.opacity = 1;
+                        if (details) {
+                            partTitle.textContent = details.title;
+                            partDescription.textContent = details.description;
+                            neuronInfo.classList.remove('hidden');
                         }
                     });
                 });
 
-                console.log("Neuron structure functionality initialized successfully");
+                // Close info box when clicking elsewhere
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.neuron-part') && !event.target.closest('#neuron-info')) {
+                        neuronInfo.classList.add('hidden');
+                    }
+                });
+
+                // Simulate button
+                const simulateButton = document.getElementById('simulate-neuron-btn');
+                if (simulateButton) {
+                    simulateButton.addEventListener('click', simulateNeuronSignal);
+                }
             } catch (error) {
-                console.error("Error initializing neuron structure functionality:", error);
+                console.error("Error setting up neuron interaction:", error);
             }
         }
 
-        // Signal transmission variables
-        let signalAnimation = null;
-        let signalDot = null;
-        let signalChart = null;
-        let signalData = [];
-        let currentSignalPosition = 0;
-        let signalSpeed = 5;
-        let signalStrength = 7;
-        let myelinationLevel = 5;
-
-        // Signal transmission tab functionality
-        function initializeSignalTransmission() {
+        function simulateNeuronSignal() {
             try {
-                // Get DOM elements
-                const startSignalBtn = document.getElementById('start-signal');
-                const resetSignalBtn = document.getElementById('reset-signal');
-                const signalSpeedSlider = document.getElementById('signal-speed');
-                const signalStrengthSlider = document.getElementById('signal-strength');
-                const myelinationSlider = document.getElementById('myelination');
-                const signalStatus = document.getElementById('signal-status');
-                const signalDiagramContainer = document.getElementById('signal-diagram-container');
+                // Clear any existing animation
+                const existingDots = document.querySelectorAll('.action-potential-dot');
+                existingDots.forEach(dot => dot.remove());
 
-                // Initialize signal chart
-                initializeSignalChart();
+                // Create a dot that will travel along the neuron
+                const dot = document.createElement('div');
+                dot.className = 'action-potential-dot pulse';
+                document.querySelector('.relative').appendChild(dot);
 
-                // Add event listeners
-                startSignalBtn.addEventListener('click', startSignalAnimation);
-                resetSignalBtn.addEventListener('click', resetSignalAnimation);
+                // Define the path for the dot to follow
+                const path = [
+                    { x: 100, y: 150 }, // Start at dendrites
+                    { x: 150, y: 180 },
+                    { x: 200, y: 200 }, // Soma
+                    { x: 250, y: 200 }, // Axon hillock
+                    { x: 300, y: 200 }, // Axon
+                    { x: 350, y: 200 },
+                    { x: 400, y: 200 },
+                    { x: 450, y: 200 },
+                    { x: 500, y: 200 },
+                    { x: 550, y: 200 },
+                    { x: 600, y: 200 }, // End of axon
+                    { x: 620, y: 190 },
+                    { x: 640, y: 180 },
+                    { x: 660, y: 175 } // Axon terminal
+                ];
 
-                signalSpeedSlider.addEventListener('input', () => {
-                    signalSpeed = parseInt(signalSpeedSlider.value);
-                    updateSignalStatus();
-                });
+                let currentStep = 0;
 
-                signalStrengthSlider.addEventListener('input', () => {
-                    signalStrength = parseInt(signalStrengthSlider.value);
-                    updateSignalStatus();
-                });
+                // Animate the dot along the path
+                const animateSignal = () => {
+                    if (currentStep < path.length) {
+                        const point = path[currentStep];
 
-                myelinationSlider.addEventListener('input', () => {
-                    myelinationLevel = parseInt(myelinationSlider.value);
-                    updateSignalStatus();
-                    updateAxonAppearance();
-                });
+                        // Scale coordinates to match the SVG viewBox and container size
+                        const svgElement = document.getElementById('neuron-svg');
+                        const svgRect = svgElement.getBoundingClientRect();
+                        const viewBox = svgElement.getAttribute('viewBox').split(' ');
 
-                // Initial update
-                updateSignalStatus();
-                updateAxonAppearance();
+                        const scaleX = svgRect.width / viewBox[2];
+                        const scaleY = svgRect.height / viewBox[3];
 
-                console.log("Signal transmission functionality initialized successfully");
+                        dot.style.left = `${point.x * scaleX}px`;
+                        dot.style.top = `${point.y * scaleY}px`;
+
+                        currentStep++;
+                        setTimeout(animateSignal, 200);
+                    } else {
+                        // When reaching the end, simulate neurotransmitter release
+                        dot.classList.remove('pulse');
+
+                        // Create small dots representing neurotransmitters
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                const neurotransmitter = document.createElement('div');
+                                neurotransmitter.className = 'action-potential-dot';
+                                neurotransmitter.style.backgroundColor = 'cyan';
+                                neurotransmitter.style.width = '6px';
+                                neurotransmitter.style.height = '6px';
+
+                                // Position at the terminal
+                                const terminalX = path[path.length - 1].x * scaleX;
+                                const terminalY = path[path.length - 1].y * scaleY;
+
+                                neurotransmitter.style.left = `${terminalX}px`;
+                                neurotransmitter.style.top = `${terminalY}px`;
+
+                                document.querySelector('.relative').appendChild(neurotransmitter);
+
+                                // Animate neurotransmitter to synapse
+                                let progress = 0;
+                                const synapseX = 700 * scaleX;
+                                const synapseY = terminalY;
+
+                                const moveToSynapse = () => {
+                                    if (progress <= 1) {
+                                        const currentX = terminalX + (synapseX - terminalX) * progress;
+                                        neurotransmitter.style.left = `${currentX}px`;
+
+                                        progress += 0.1;
+                                        setTimeout(moveToSynapse, 50);
+                                    } else {
+                                        // Remove after reaching synapse
+                                        setTimeout(() => {
+                                            neurotransmitter.remove();
+                                        }, 500);
+                                    }
+                                };
+
+                                moveToSynapse();
+                            }, i * 200);
+                        }
+
+                        // Remove the original dot after animation completes
+                        setTimeout(() => {
+                            dot.remove();
+                        }, 2000);
+                    }
+                };
+
+                animateSignal();
             } catch (error) {
-                console.error("Error initializing signal transmission functionality:", error);
+                console.error("Error simulating neuron signal:", error);
             }
         }
 
-        // Initialize signal chart
-        function initializeSignalChart() {
+        // Action Potential Tab
+        function initActionPotentialChart() {
             try {
-                const ctx = document.getElementById('signal-chart').getContext('2d');
-
-                // Check if chart already exists
-                if (signalChart) {
-                    signalChart.destroy();
+                const ctx = document.getElementById('action-potential-chart');
+                if (!ctx) {
+                    console.error("Action potential chart canvas not found");
+                    return;
                 }
 
-                // Initialize empty data
-                signalData = Array(50).fill(0);
+                // Destroy existing chart if it exists
+                if (actionPotentialChart) {
+                    actionPotentialChart.destroy();
+                }
 
-                signalChart = new Chart(ctx, {
+                // Generate initial data (resting potential)
+                const labels = Array.from({ length: 100 }, (_, i) => i);
+                const data = Array(100).fill(-70);
+
+                actionPotentialChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: Array(50).fill(''),
+                        labels: labels,
                         datasets: [{
-                            label: 'Signal Strength',
-                            data: signalData,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true
+                            label: 'Membrane Potential (mV)',
+                            data: data,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            pointRadius: 0
                         }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
-                        aspectRatio: 2,
+                        maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true,
-                                max: 10,
+                                min: -90,
+                                max: 40,
                                 title: {
                                     display: true,
-                                    text: 'Signal Amplitude'
+                                    text: 'Membrane Potential (mV)'
                                 }
                             },
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Time'
+                                    text: 'Time (ms)'
                                 }
                             }
                         },
@@ -852,690 +1378,577 @@
                     }
                 });
 
-                console.log("Signal chart initialized successfully");
-            } catch (error) {
-                console.error("Error initializing signal chart:", error);
-            }
-        }
+                // Set up the trigger button
+                const triggerButton = document.getElementById('trigger-action-potential');
+                const stimulusSlider = document.getElementById('stimulus-strength');
+                const thresholdMessage = document.getElementById('threshold-message');
 
-        // Start signal animation
-        function startSignalAnimation() {
-            try {
-                // Reset any existing animation
-                resetSignalAnimation();
+                if (triggerButton && stimulusSlider && thresholdMessage) {
+                    triggerButton.addEventListener('click', () => {
+                        const stimulusStrength = parseInt(stimulusSlider.value);
 
-                // Create signal dot
-                signalDot = document.createElement('div');
-                signalDot.className = 'signal-dot';
-                document.getElementById('signal-diagram-container').appendChild(signalDot);
-
-                // Get signal paths in order
-                const signalPaths = Array.from(document.querySelectorAll('.signal-path'))
-                    .sort((a, b) => parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order')));
-
-                // Calculate path points
-                const pathPoints = [];
-                signalPaths.forEach(path => {
-                    if (path.tagName === 'path') {
-                        const length = path.getTotalLength();
-                        const numPoints = Math.max(10, Math.floor(length / 10));
-                        for (let i = 0; i < numPoints; i++) {
-                            const point = path.getPointAtLength(i * length / (numPoints - 1));
-                            pathPoints.push({ x: point.x, y: point.y });
+                        // Clear any existing animation
+                        if (actionPotentialAnimation) {
+                            clearInterval(actionPotentialAnimation);
                         }
-                    } else if (path.tagName === 'circle') {
-                        // For circle, add points around the circumference
-                        const cx = parseFloat(path.getAttribute('cx'));
-                        const cy = parseFloat(path.getAttribute('cy'));
-                        const r = parseFloat(path.getAttribute('r'));
-                        const numPoints = 10;
-                        for (let i = 0; i < numPoints; i++) {
-                            const angle = (i / numPoints) * 2 * Math.PI;
-                            pathPoints.push({
-                                x: cx + r * Math.cos(angle),
-                                y: cy + r * Math.sin(angle)
-                            });
-                        }
-                    }
-                });
 
-                // Animation variables
-                let currentPointIndex = 0;
-                currentSignalPosition = 0;
+                        // Reset phases
+                        document.querySelectorAll('[id^="phase-"]').forEach(phase => {
+                            phase.classList.add('opacity-50');
+                        });
+                        document.getElementById('phase-resting').classList.remove('opacity-50');
 
-                // Reset signal data
-                signalData = Array(50).fill(0);
-                updateSignalChart();
+                        // Reset chart data
+                        actionPotentialChart.data.datasets[0].data = Array(100).fill(-70);
+                        actionPotentialChart.update();
 
-                // Update signal status
-                document.getElementById('signal-status').textContent = 'Signal transmission in progress...';
+                        // Check if stimulus is above threshold
+                        if (stimulusStrength < 40) {
+                            // Below threshold - show small depolarization but no action potential
+                            thresholdMessage.classList.remove('hidden');
+                            thresholdMessage.classList.remove('bg-green-100', 'border-green-300');
+                            thresholdMessage.classList.add('bg-yellow-100', 'border-yellow-300');
+                            thresholdMessage.textContent = 'The stimulus is below threshold. Increase the strength to trigger an action potential.';
 
-                // Start animation
-                signalAnimation = setInterval(() => {
-                    try {
-                        if (currentPointIndex < pathPoints.length) {
-                            // Move signal dot
-                            const point = pathPoints[currentPointIndex];
-                            const svgRect = document.getElementById('signal-diagram').getBoundingClientRect();
-                            const containerRect = document.getElementById('signal-diagram-container').getBoundingClientRect();
-
-                            // Calculate position relative to container
-                            const relX = (point.x / 800) * svgRect.width;
-                            const relY = (point.y / 400) * svgRect.height;
-
-                            signalDot.style.left = `${relX}px`;
-                            signalDot.style.top = `${relY}px`;
-
-                            // Update signal data
-                            updateSignalData(currentPointIndex, pathPoints.length);
-
-                            // Increment point index based on speed and myelination
-                            const effectiveSpeed = calculateEffectiveSpeed();
-                            currentPointIndex += effectiveSpeed;
-
-                            // Update current position for status
-                            currentSignalPosition = Math.min(100, Math.round((currentPointIndex / pathPoints.length) * 100));
-                            updateSignalStatus();
-                        } else {
-                            // Animation complete
-                            document.getElementById('signal-status').textContent = 'Signal transmission complete!';
-                            clearInterval(signalAnimation);
-                            signalAnimation = null;
-                        }
-                    } catch (error) {
-                        console.error("Error in signal animation frame:", error);
-                        clearInterval(signalAnimation);
-                    }
-                }, 50);
-
-                console.log("Signal animation started successfully");
-            } catch (error) {
-                console.error("Error starting signal animation:", error);
-            }
-        }
-
-        // Reset signal animation
-        function resetSignalAnimation() {
-            try {
-                // Clear animation interval
-                if (signalAnimation) {
-                    clearInterval(signalAnimation);
-                    signalAnimation = null;
-                }
-
-                // Remove signal dot
-                if (signalDot && signalDot.parentNode) {
-                    signalDot.parentNode.removeChild(signalDot);
-                    signalDot = null;
-                }
-
-                // Reset signal data
-                signalData = Array(50).fill(0);
-                updateSignalChart();
-
-                // Reset current position
-                currentSignalPosition = 0;
-
-                // Update signal status
-                updateSignalStatus();
-
-                console.log("Signal animation reset successfully");
-            } catch (error) {
-                console.error("Error resetting signal animation:", error);
-            }
-        }
-
-        // Update signal data
-        function updateSignalData(currentIndex, totalPoints) {
-            try {
-                // Calculate current phase (dendrite, soma, axon, synapse)
-                const phase = Math.floor((currentIndex / totalPoints) * 4);
-
-                // Calculate signal amplitude based on phase and parameters
-                let amplitude = 0;
-
-                switch (phase) {
-                    case 0: // Dendrites
-                        amplitude = signalStrength * 0.6;
-                        break;
-                    case 1: // Soma
-                        amplitude = signalStrength * 0.8;
-                        break;
-                    case 2: // Axon
-                        // Myelination affects signal in axon
-                        amplitude = signalStrength * (0.7 + (myelinationLevel / 30));
-                        break;
-                    case 3: // Synapses
-                        amplitude = signalStrength * 0.9;
-                        break;
-                }
-
-                // Add some randomness
-                amplitude += (Math.random() - 0.5) * 0.5;
-
-                // Shift data and add new value
-                signalData.shift();
-                signalData.push(amplitude);
-
-                // Update chart
-                updateSignalChart();
-            } catch (error) {
-                console.error("Error updating signal data:", error);
-            }
-        }
-
-        // Update signal chart
-        function updateSignalChart() {
-            try {
-                if (signalChart) {
-                    signalChart.data.datasets[0].data = signalData;
-                    signalChart.update();
-                }
-            } catch (error) {
-                console.error("Error updating signal chart:", error);
-            }
-        }
-
-        // Calculate effective speed based on parameters
-        function calculateEffectiveSpeed() {
-            try {
-                // Base speed from slider
-                let effectiveSpeed = signalSpeed;
-
-                // Myelination increases speed
-                effectiveSpeed *= (1 + (myelinationLevel / 10));
-
-                // Signal strength slightly affects speed
-                effectiveSpeed *= (1 + ((signalStrength - 5) / 20));
-
-                return Math.max(1, Math.round(effectiveSpeed));
-            } catch (error) {
-                console.error("Error calculating effective speed:", error);
-                return 1;
-            }
-        }
-
-        // Update signal status
-        function updateSignalStatus() {
-            try {
-                const statusElement = document.getElementById('signal-status');
-
-                if (signalAnimation) {
-                    // Animation in progress
-                    statusElement.textContent = `Signal transmission in progress: ${currentSignalPosition}% complete`;
-                } else if (currentSignalPosition >= 100) {
-                    // Animation complete
-                    statusElement.textContent = 'Signal transmission complete!';
-                } else {
-                    // Ready to start
-                    const effectiveSpeed = calculateEffectiveSpeed();
-                    statusElement.textContent = `Ready to transmit signal. Speed: ${effectiveSpeed}x, Strength: ${signalStrength}/10, Myelination: ${myelinationLevel}/10`;
-                }
-            } catch (error) {
-                console.error("Error updating signal status:", error);
-            }
-        }
-
-        // Update axon appearance based on myelination
-        function updateAxonAppearance() {
-            try {
-                const axonPaths = document.querySelectorAll('#signal-axon path');
-
-                axonPaths.forEach(path => {
-                    // Calculate stroke color based on myelination
-                    const baseColor = 102; // Base purple color (6633AA)
-                    const whiteness = Math.min(255, baseColor + (myelinationLevel * 15));
-                    const color = `rgb(${whiteness}, ${baseColor}, ${whiteness + 20})`;
-
-                    // Update stroke color
-                    path.setAttribute('stroke', color);
-
-                    // Update stroke width based on myelination (thicker = more myelin)
-                    const baseWidth = path.getAttribute('data-base-width') || path.getAttribute('stroke-width');
-                    if (!path.getAttribute('data-base-width')) {
-                        path.setAttribute('data-base-width', baseWidth);
-                    }
-
-                    const newWidth = parseFloat(baseWidth) * (1 + (myelinationLevel / 20));
-                    path.setAttribute('stroke-width', newWidth);
-                });
-            } catch (error) {
-                console.error("Error updating axon appearance:", error);
-            }
-        }
-
-        // Neural tissue variables
-        let tissueChart = null;
-        let currentTissueType = 'gray';
-
-        // Neural tissue tab functionality
-        function initializeNeuralTissue() {
-            try {
-                // Get DOM elements
-                const grayMatterBtn = document.getElementById('gray-matter-btn');
-                const whiteMatterBtn = document.getElementById('white-matter-btn');
-                const tissueVisualization = document.getElementById('tissue-visualization');
-                const grayMatterInfo = document.getElementById('gray-matter-info');
-                const whiteMatterInfo = document.getElementById('white-matter-info');
-                const tissueTitle = document.getElementById('tissue-title');
-
-                // Initialize tissue chart
-                initializeTissueChart();
-
-                // Initialize tissue visualization
-                updateTissueVisualization('gray');
-
-                // Add event listeners
-                grayMatterBtn.addEventListener('click', () => {
-                    grayMatterBtn.classList.remove('bg-gray-300', 'text-gray-800');
-                    grayMatterBtn.classList.add('bg-gray-700', 'text-white');
-                    whiteMatterBtn.classList.remove('bg-gray-700', 'text-white');
-                    whiteMatterBtn.classList.add('bg-gray-300', 'text-gray-800');
-
-                    grayMatterInfo.classList.remove('hidden');
-                    whiteMatterInfo.classList.add('hidden');
-                    tissueTitle.textContent = 'Gray Matter';
-
-                    updateTissueVisualization('gray');
-                    updateTissueChart('gray');
-                });
-
-                whiteMatterBtn.addEventListener('click', () => {
-                    whiteMatterBtn.classList.remove('bg-gray-300', 'text-gray-800');
-                    whiteMatterBtn.classList.add('bg-gray-700', 'text-white');
-                    grayMatterBtn.classList.remove('bg-gray-700', 'text-white');
-                    grayMatterBtn.classList.add('bg-gray-300', 'text-gray-800');
-
-                    whiteMatterInfo.classList.remove('hidden');
-                    grayMatterInfo.classList.add('hidden');
-                    tissueTitle.textContent = 'White Matter';
-
-                    updateTissueVisualization('white');
-                    updateTissueChart('white');
-                });
-
-                console.log("Neural tissue functionality initialized successfully");
-            } catch (error) {
-                console.error("Error initializing neural tissue functionality:", error);
-            }
-        }
-
-        // Initialize tissue chart
-        function initializeTissueChart() {
-            try {
-                const ctx = document.getElementById('tissue-composition-chart').getContext('2d');
-
-                // Check if chart already exists
-                if (tissueChart) {
-                    tissueChart.destroy();
-                }
-
-                // Data for gray matter (default)
-                const data = {
-                    labels: ['Neuronal Cell Bodies', 'Dendrites', 'Axons', 'Synapses', 'Glial Cells', 'Blood Vessels'],
-                    datasets: [{
-                        label: 'Composition (%)',
-                        data: [20, 25, 15, 20, 15, 5],
-                        backgroundColor: [
-                            'rgba(153, 102, 204, 0.7)',
-                            'rgba(136, 68, 170, 0.7)',
-                            'rgba(102, 51, 170, 0.7)',
-                            'rgba(85, 34, 170, 0.7)',
-                            'rgba(255, 159, 64, 0.7)',
-                            'rgba(255, 99, 132, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(153, 102, 204, 1)',
-                            'rgba(136, 68, 170, 1)',
-                            'rgba(102, 51, 170, 1)',
-                            'rgba(85, 34, 170, 1)',
-                            'rgba(255, 159, 64, 1)',
-                            'rgba(255, 99, 132, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                };
-
-                tissueChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        aspectRatio: 1.5,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Gray Matter Composition',
-                                font: {
-                                    size: 16
+                            // Show small depolarization
+                            let step = 0;
+                            actionPotentialAnimation = setInterval(() => {
+                                if (step < 20) {
+                                    // Small depolarization proportional to stimulus
+                                    const depolarization = -70 + (stimulusStrength / 10);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = depolarization;
+                                    actionPotentialChart.update();
+                                } else if (step < 40) {
+                                    // Return to resting
+                                    const returnStep = step - 20;
+                                    const depolarization = -70 + ((stimulusStrength / 10) * (1 - returnStep / 20));
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = depolarization;
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = depolarization;
+                                    actionPotentialChart.update();
+                                } else {
+                                    clearInterval(actionPotentialAnimation);
                                 }
-                            },
-                            legend: {
-                                position: 'right'
-                            }
-                        }
-                    },
-                });
+                                step++;
+                            }, 50);
+                        } else {
+                            // Above threshold - trigger action potential
+                            thresholdMessage.classList.remove('hidden');
+                            thresholdMessage.classList.remove('bg-yellow-100', 'border-yellow-300');
+                            thresholdMessage.classList.add('bg-green-100', 'border-green-300');
+                            thresholdMessage.textContent = 'Action potential triggered! The neuron is firing.';
 
-                console.log("Tissue chart initialized successfully");
+                            let step = 0;
+                            actionPotentialAnimation = setInterval(() => {
+                                if (step < 10) {
+                                    // Initial depolarization
+                                    document.getElementById('phase-resting').classList.remove('opacity-50');
+                                    const depolarization = -70 + (step * 3);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = depolarization;
+                                } else if (step < 15) {
+                                    // Rapid depolarization
+                                    document.getElementById('phase-depolarization').classList.remove('opacity-50');
+                                    const depolarization = -40 + ((step - 10) * 16);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = depolarization;
+                                } else if (step < 25) {
+                                    // Repolarization
+                                    document.getElementById('phase-repolarization').classList.remove('opacity-50');
+                                    const repolarization = 30 - ((step - 15) * 10);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = repolarization;
+                                } else if (step < 35) {
+                                    // Hyperpolarization
+                                    document.getElementById('phase-hyperpolarization').classList.remove('opacity-50');
+                                    const hyperpolarization = -70 - ((35 - step) * 0.5);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = hyperpolarization;
+                                } else if (step < 60) {
+                                    // Recovery
+                                    document.getElementById('phase-recovery').classList.remove('opacity-50');
+                                    const recovery = -75 + ((step - 35) * 0.2);
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = recovery;
+                                } else {
+                                    // Return to resting
+                                    actionPotentialChart.data.datasets[0].data[20 + step] = -70;
+
+                                    if (step >= 80) {
+                                        clearInterval(actionPotentialAnimation);
+                                    }
+                                }
+
+                                actionPotentialChart.update();
+                                step++;
+                            }, 50);
+                        }
+                    });
+                }
             } catch (error) {
-                console.error("Error initializing tissue chart:", error);
+                console.error("Error initializing action potential chart:", error);
             }
         }
 
-        // Update tissue chart
-        function updateTissueChart(tissueType) {
+        // Neuron Types Tab
+        function setupNeuronTypesInteraction() {
             try {
-                if (!tissueChart) {
-                    initializeTissueChart();
+                const multipolarBtn = document.getElementById('show-multipolar');
+                const bipolarBtn = document.getElementById('show-bipolar');
+                const unipolarBtn = document.getElementById('show-unipolar');
+
+                const multipolarView = document.getElementById('multipolar-view');
+                const bipolarView = document.getElementById('bipolar-view');
+                const unipolarView = document.getElementById('unipolar-view');
+
+                if (!multipolarBtn || !bipolarBtn || !unipolarBtn ||
+                    !multipolarView || !bipolarView || !unipolarView) {
+                    console.error("Neuron type elements not found");
                     return;
                 }
 
-                let data, title;
-
-                if (tissueType === 'white') {
-                    data = [5, 0, 70, 0, 20, 5];
-                    title = 'White Matter Composition';
-                } else {
-                    data = [20, 25, 15, 20, 15, 5];
-                    title = 'Gray Matter Composition';
-                }
-
-                tissueChart.data.datasets[0].data = data;
-                tissueChart.options.plugins.title.text = title;
-                tissueChart.update();
-
-                console.log(`Tissue chart updated to ${tissueType} matter`);
-            } catch (error) {
-                console.error("Error updating tissue chart:", error);
-            }
-        }
-
-        // Update tissue visualization
-        function updateTissueVisualization(tissueType) {
-            try {
-                const container = document.getElementById('tissue-visualization');
-
-                // Clear previous visualization
-                container.innerHTML = '';
-
-                // Create SVG element
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('viewBox', '0 0 400 200');
-                svg.setAttribute('width', '100%');
-                svg.setAttribute('height', '100%');
-
-                if (tissueType === 'gray') {
-                    // Gray matter visualization
-                    // Background
-                    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    background.setAttribute('x', '0');
-                    background.setAttribute('y', '0');
-                    background.setAttribute('width', '400');
-                    background.setAttribute('height', '200');
-                    background.setAttribute('fill', '#555');
-                    svg.appendChild(background);
-
-                    // Add cell bodies
-                    for (let i = 0; i < 15; i++) {
-                        const cx = 50 + Math.random() * 300;
-                        const cy = 50 + Math.random() * 100;
-                        const r = 8 + Math.random() * 7;
-
-                        const cell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        cell.setAttribute('cx', cx);
-                        cell.setAttribute('cy', cy);
-                        cell.setAttribute('r', r);
-                        cell.setAttribute('fill', '#9966CC');
-                        cell.setAttribute('stroke', '#7744AA');
-                        cell.setAttribute('stroke-width', '1');
-                        svg.appendChild(cell);
-
-                        // Add nucleus
-                        const nucleus = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        nucleus.setAttribute('cx', cx - 2);
-                        nucleus.setAttribute('cy', cy - 2);
-                        nucleus.setAttribute('r', r / 2.5);
-                        nucleus.setAttribute('fill', '#7744AA');
-                        svg.appendChild(nucleus);
-
-                        // Add dendrites
-                        const numDendrites = 3 + Math.floor(Math.random() * 3);
-                        for (let j = 0; j < numDendrites; j++) {
-                            const angle = (j / numDendrites) * 2 * Math.PI;
-                            const length = 15 + Math.random() * 20;
-
-                            const dendrite = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                            dendrite.setAttribute('d', `M ${cx},${cy} Q ${cx + length * 0.7 * Math.cos(angle)},${cy + length * 0.7 * Math.sin(angle)} ${cx + length * Math.cos(angle)},${cy + length * Math.sin(angle)}`);
-                            dendrite.setAttribute('stroke', '#8844AA');
-                            dendrite.setAttribute('stroke-width', '2');
-                            dendrite.setAttribute('fill', 'none');
-                            svg.appendChild(dendrite);
-                        }
-
-                        // Add axon
-                        const axonAngle = Math.random() * 2 * Math.PI;
-                        const axonLength = 30 + Math.random() * 40;
-
-                        const axon = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        axon.setAttribute('d', `M ${cx},${cy} Q ${cx + axonLength * 0.5 * Math.cos(axonAngle)},${cy + axonLength * 0.5 * Math.sin(axonAngle)} ${cx + axonLength * Math.cos(axonAngle)},${cy + axonLength * Math.sin(axonAngle)}`);
-                        axon.setAttribute('stroke', '#6633AA');
-                        axon.setAttribute('stroke-width', '3');
-                        axon.setAttribute('fill', 'none');
-                        svg.appendChild(axon);
-
-                        // Add synaptic terminal
-                        const terminal = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        terminal.setAttribute('cx', cx + axonLength * Math.cos(axonAngle));
-                        terminal.setAttribute('cy', cy + axonLength * Math.sin(axonAngle));
-                        terminal.setAttribute('r', 4);
-                        terminal.setAttribute('fill', '#5522AA');
-                        svg.appendChild(terminal);
-                    }
-
-                    // Add glial cells
-                    for (let i = 0; i < 10; i++) {
-                        const cx = 50 + Math.random() * 300;
-                        const cy = 50 + Math.random() * 100;
-                        const r = 5 + Math.random() * 3;
-
-                        const glial = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        glial.setAttribute('cx', cx);
-                        glial.setAttribute('cy', cy);
-                        glial.setAttribute('r', r);
-                        glial.setAttribute('fill', 'rgba(255, 159, 64, 0.7)');
-                        glial.setAttribute('stroke', 'rgba(255, 159, 64, 1)');
-                        glial.setAttribute('stroke-width', '1');
-                        svg.appendChild(glial);
-                    }
-
-                    // Add blood vessels
-                    for (let i = 0; i < 3; i++) {
-                        const x1 = 50 + Math.random() * 300;
-                        const y1 = 50 + Math.random() * 100;
-                        const x2 = x1 + (Math.random() - 0.5) * 100;
-                        const y2 = y1 + (Math.random() - 0.5) * 50;
-
-                        const vessel = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        vessel.setAttribute('d', `M ${x1},${y1} Q ${(x1 + x2) / 2 + (Math.random() - 0.5) * 30},${(y1 + y2) / 2 + (Math.random() - 0.5) * 30} ${x2},${y2}`);
-                        vessel.setAttribute('stroke', 'rgba(255, 99, 132, 0.8)');
-                        vessel.setAttribute('stroke-width', '4');
-                        vessel.setAttribute('fill', 'none');
-                        svg.appendChild(vessel);
-                    }
-                } else {
-                    // White matter visualization
-                    // Background
-                    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    background.setAttribute('x', '0');
-                    background.setAttribute('y', '0');
-                    background.setAttribute('width', '400');
-                    background.setAttribute('height', '200');
-                    background.setAttribute('fill', '#ddd');
-                    svg.appendChild(background);
-
-                    // Add myelinated axons
-                    for (let i = 0; i < 30; i++) {
-                        const y = 20 + Math.random() * 160;
-                        const width = 100 + Math.random() * 200;
-                        const thickness = 3 + Math.random() * 4;
-
-                        // Axon
-                        const axon = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        axon.setAttribute('d', `M 50,${y} Q ${150 + Math.random() * 50},${y + (Math.random() - 0.5) * 30} ${50 + width},${y + (Math.random() - 0.5) * 40}`);
-                        axon.setAttribute('stroke', '#6633AA');
-                        axon.setAttribute('stroke-width', thickness);
-                        axon.setAttribute('fill', 'none');
-                        svg.appendChild(axon);
-
-                        // Myelin sheath
-                        const myelin = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        myelin.setAttribute('d', axon.getAttribute('d'));
-                        myelin.setAttribute('stroke', 'rgba(255, 255, 255, 0.8)');
-                        myelin.setAttribute('stroke-width', thickness * 2);
-                        myelin.setAttribute('fill', 'none');
-                        myelin.setAttribute('stroke-dasharray', '10,5');
-                        svg.appendChild(myelin);
-
-                        // Move axon to front
-                        svg.appendChild(axon);
-                    }
-
-                    // Add oligodendrocytes (myelin-producing glial cells)
-                    for (let i = 0; i < 8; i++) {
-                        const cx = 100 + Math.random() * 200;
-                        const cy = 50 + Math.random() * 100;
-                        const r = 6 + Math.random() * 3;
-
-                        const glial = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        glial.setAttribute('cx', cx);
-                        glial.setAttribute('cy', cy);
-                        glial.setAttribute('r', r);
-                        glial.setAttribute('fill', 'rgba(255, 159, 64, 0.7)');
-                        glial.setAttribute('stroke', 'rgba(255, 159, 64, 1)');
-                        glial.setAttribute('stroke-width', '1');
-                        svg.appendChild(glial);
-
-                        // Add processes connecting to myelin
-                        const numProcesses = 2 + Math.floor(Math.random() * 3);
-                        for (let j = 0; j < numProcesses; j++) {
-                            const angle = (j / numProcesses) * 2 * Math.PI;
-                            const length = 15 + Math.random() * 10;
-
-                            const process = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                            process.setAttribute('d', `M ${cx},${cy} Q ${cx + length * 0.7 * Math.cos(angle)},${cy + length * 0.7 * Math.sin(angle)} ${cx + length * Math.cos(angle)},${cy + length * Math.sin(angle)}`);
-                            process.setAttribute('stroke', 'rgba(255, 159, 64, 0.7)');
-                            process.setAttribute('stroke-width', '1.5');
-                            process.setAttribute('fill', 'none');
-                            svg.appendChild(process);
-                        }
-                    }
-
-                    // Add blood vessels
-                    for (let i = 0; i < 3; i++) {
-                        const x1 = 50 + Math.random() * 300;
-                        const y1 = 50 + Math.random() * 100;
-                        const x2 = x1 + (Math.random() - 0.5) * 100;
-                        const y2 = y1 + (Math.random() - 0.5) * 50;
-
-                        const vessel = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        vessel.setAttribute('d', `M ${x1},${y1} Q ${(x1 + x2) / 2 + (Math.random() - 0.5) * 30},${(y1 + y2) / 2 + (Math.random() - 0.5) * 30} ${x2},${y2}`);
-                        vessel.setAttribute('stroke', 'rgba(255, 99, 132, 0.8)');
-                        vessel.setAttribute('stroke-width', '4');
-                        vessel.setAttribute('fill', 'none');
-                        svg.appendChild(vessel);
-                    }
-                }
-
-                // Add SVG to container
-                container.appendChild(svg);
-
-                console.log(`Tissue visualization updated to ${tissueType} matter`);
-            } catch (error) {
-                console.error("Error updating tissue visualization:", error);
-            }
-        }
-
-        // Quiz functionality
-        function initializeQuiz() {
-            try {
-                const checkAnswersBtn = document.getElementById('check-answers');
-                const quizResults = document.getElementById('quiz-results');
-
-                // Correct answers
-                const correctAnswers = {
-                    q1: 'C', // synapse → dendrite → cell body → axon → synapse
-                    q2: 'B', // vascular endothelium, axons
-                    q3: 'B', // To receive signals from other neurons
-                    q4: 'C'  // Myelinated axons
-                };
-
-                // Add event listener to check answers button
-                checkAnswersBtn.addEventListener('click', () => {
-                    let score = 0;
-                    let feedback = '';
-
-                    // Check each question
-                    Object.keys(correctAnswers).forEach(question => {
-                        const selectedAnswer = document.querySelector(`input[name="${question}"]:checked`);
-                        const feedbackElement = document.querySelector(`#${question.replace('q', 'question-')} .answer-feedback`);
-
-                        if (selectedAnswer) {
-                            if (selectedAnswer.value === correctAnswers[question]) {
-                                // Correct answer
-                                score++;
-                                feedbackElement.textContent = 'Correct!';
-                                feedbackElement.classList.remove('hidden', 'bg-red-100', 'text-red-700');
-                                feedbackElement.classList.add('bg-green-100', 'text-green-700');
-                            } else {
-                                // Incorrect answer
-                                feedbackElement.textContent = `Incorrect. The correct answer is ${correctAnswers[question]}.`;
-                                feedbackElement.classList.remove('hidden', 'bg-green-100', 'text-green-700');
-                                feedbackElement.classList.add('bg-red-100', 'text-red-700');
-                            }
-                            feedbackElement.classList.remove('hidden');
-                        } else {
-                            // No answer selected
-                            feedbackElement.textContent = 'Please select an answer.';
-                            feedbackElement.classList.remove('hidden', 'bg-green-100', 'text-green-700');
-                            feedbackElement.classList.add('bg-red-100', 'text-red-700');
-                        }
+                // Function to update button styles
+                const updateButtons = (activeBtn) => {
+                    [multipolarBtn, bipolarBtn, unipolarBtn].forEach(btn => {
+                        btn.classList.remove('bg-blue-600', 'text-white');
+                        btn.classList.add('bg-gray-300', 'text-gray-700');
                     });
 
-                    // Display overall results
-                    const percentage = Math.round((score / Object.keys(correctAnswers).length) * 100);
+                    activeBtn.classList.remove('bg-gray-300', 'text-gray-700');
+                    activeBtn.classList.add('bg-blue-600', 'text-white');
+                };
 
-                    if (percentage === 100) {
-                        quizResults.innerHTML = `<p class="font-bold text-green-700">Perfect score! ${score}/${Object.keys(correctAnswers).length} (${percentage}%)</p>
-                        <p class="mt-2">Excellent work! You have a solid understanding of neuronal structure and function.</p>`;
-                        quizResults.classList.remove('hidden', 'bg-yellow-100', 'bg-red-100');
-                        quizResults.classList.add('bg-green-100');
-                    } else if (percentage >= 75) {
-                        quizResults.innerHTML = `<p class="font-bold text-green-700">Great job! ${score}/${Object.keys(correctAnswers).length} (${percentage}%)</p>
-                        <p class="mt-2">You have a good understanding of neuronal structure and function. Review the incorrect answers to strengthen your knowledge.</p>`;
-                        quizResults.classList.remove('hidden', 'bg-red-100');
-                        quizResults.classList.add('bg-green-100');
-                    } else if (percentage >= 50) {
-                        quizResults.innerHTML = `<p class="font-bold text-yellow-700">Good effort! ${score}/${Object.keys(correctAnswers).length} (${percentage}%)</p>
-                        <p class="mt-2">You have a basic understanding of neuronal structure and function. Consider reviewing the material again.</p>`;
-                        quizResults.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
-                        quizResults.classList.add('bg-yellow-100');
-                    } else {
-                        quizResults.innerHTML = `<p class="font-bold text-red-700">Need improvement. ${score}/${Object.keys(correctAnswers).length} (${percentage}%)</p>
-                        <p class="mt-2">It seems you need more time with this material. Try exploring the interactive simulations again and then retake the quiz.</p>`;
-                        quizResults.classList.remove('hidden', 'bg-green-100', 'bg-yellow-100');
-                        quizResults.classList.add('bg-red-100');
-                    }
+                // Function to update views
+                const updateViews = (activeView) => {
+                    [multipolarView, bipolarView, unipolarView].forEach(view => {
+                        view.style.display = 'none';
+                    });
 
-                    quizResults.classList.remove('hidden');
+                    activeView.style.display = 'block';
+                };
+
+                // Set up button click handlers
+                multipolarBtn.addEventListener('click', () => {
+                    updateButtons(multipolarBtn);
+                    updateViews(multipolarView);
                 });
 
-                console.log("Quiz functionality initialized successfully");
+                bipolarBtn.addEventListener('click', () => {
+                    updateButtons(bipolarBtn);
+                    updateViews(bipolarView);
+                });
+
+                unipolarBtn.addEventListener('click', () => {
+                    updateButtons(unipolarBtn);
+                    updateViews(unipolarView);
+                });
+
+                // Set up functional classification interaction
+                const sensoryNeuron = document.getElementById('sensory-neuron');
+                const motorNeuron = document.getElementById('motor-neuron');
+                const interneuron = document.getElementById('interneuron');
+
+                if (sensoryNeuron && motorNeuron && interneuron) {
+                    sensoryNeuron.addEventListener('click', () => {
+                        updateButtons(unipolarBtn);
+                        updateViews(unipolarView);
+                    });
+
+                    motorNeuron.addEventListener('click', () => {
+                        updateButtons(multipolarBtn);
+                        updateViews(multipolarView);
+                    });
+
+                    interneuron.addEventListener('click', () => {
+                        updateButtons(multipolarBtn);
+                        updateViews(multipolarView);
+                    });
+                }
             } catch (error) {
-                console.error("Error initializing quiz functionality:", error);
+                console.error("Error setting up neuron types interaction:", error);
             }
         }
+
+        // Nervous System Tab
+        function setupNervousSystemInteraction() {
+            try {
+                const systemParts = document.querySelectorAll('.system-part');
+                const systemInfo = document.getElementById('system-info');
+                const systemTitle = document.getElementById('system-title');
+                const systemDescription = document.getElementById('system-description');
+
+                if (!systemParts || !systemInfo || !systemTitle || !systemDescription) {
+                    console.error("Nervous system interaction elements not found");
+                    return;
+                }
+
+                const systemDetails = {
+                    'cns': {
+                        title: 'Central Nervous System (CNS)',
+                        description: 'The brain and spinal cord form the CNS, which is the main processing center for the entire nervous system. It interprets sensory information and sends instructions to the rest of the body.'
+                    },
+                    'pns': {
+                        title: 'Peripheral Nervous System (PNS)',
+                        description: 'The network of nerves outside the CNS that connects it to the limbs and organs. Includes cranial nerves, spinal nerves, and ganglia.'
+                    },
+                    'somatic': {
+                        title: 'Somatic Nervous System',
+                        description: 'Part of the PNS that controls voluntary movements and reflex arcs. It includes nerves that serve skeletal muscles and sensory receptors.'
+                    },
+                    'autonomic': {
+                        title: 'Autonomic Nervous System',
+                        description: 'Part of the PNS that regulates involuntary functions like heart rate, digestion, and respiratory rate. Divided into sympathetic ("fight or flight") and parasympathetic ("rest and digest") divisions.'
+                    }
+                };
+
+                systemParts.forEach(part => {
+                    part.addEventListener('click', () => {
+                        const partName = part.getAttribute('data-part');
+                        const details = systemDetails[partName];
+
+                        if (details) {
+                            systemTitle.textContent = details.title;
+                            systemDescription.textContent = details.description;
+                            systemInfo.classList.remove('hidden');
+
+                            // Highlight the selected part
+                            systemParts.forEach(p => p.style.opacity = '0.5');
+                            part.style.opacity = '1';
+                        }
+                    });
+                });
+
+                // Close info box when clicking elsewhere
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.system-part') && !event.target.closest('#system-info')) {
+                        systemInfo.classList.add('hidden');
+                        systemParts.forEach(p => p.style.opacity = '1');
+                    }
+                });
+
+                // Autonomic simulation
+                const simulateButton = document.getElementById('simulate-autonomic-btn');
+                const simulationDiv = document.getElementById('autonomic-simulation');
+                const autonomicSlider = document.getElementById('autonomic-slider');
+
+                if (simulateButton && simulationDiv && autonomicSlider) {
+                    simulateButton.addEventListener('click', () => {
+                        simulationDiv.classList.toggle('hidden');
+
+                        if (!simulationDiv.classList.contains('hidden')) {
+                            updateAutonomicSimulation(parseInt(autonomicSlider.value));
+
+                            // Clear any existing interval
+                            if (autonomicInterval) {
+                                clearInterval(autonomicInterval);
+                            }
+
+                            // Set up slider interaction
+                            autonomicSlider.addEventListener('input', () => {
+                                updateAutonomicSimulation(parseInt(autonomicSlider.value));
+                            });
+                        } else {
+                            // Clear interval when hiding
+                            if (autonomicInterval) {
+                                clearInterval(autonomicInterval);
+                                autonomicInterval = null;
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error setting up nervous system interaction:", error);
+            }
+        }
+
+        function updateAutonomicSimulation(value) {
+            try {
+                // Update UI elements based on slider value
+                const heartRate = document.getElementById('heart-rate');
+                const heartRateBar = document.getElementById('heart-rate-bar');
+                const pupilSize = document.getElementById('pupil-size');
+                const pupilSizeBar = document.getElementById('pupil-size-bar');
+                const digestion = document.getElementById('digestion-rate');
+                const digestionBar = document.getElementById('digestion-bar');
+                const breathingRate = document.getElementById('breathing-rate');
+                const breathingBar = document.getElementById('breathing-bar');
+                const message = document.getElementById('autonomic-message');
+
+                if (!heartRate || !heartRateBar || !pupilSize || !pupilSizeBar ||
+                    !digestion || !digestionBar || !breathingRate || !breathingBar || !message) {
+                    console.error("Autonomic simulation elements not found");
+                    return;
+                }
+
+                // Calculate values based on slider position
+                const baseHeartRate = 75;
+                const currentHeartRate = Math.round(baseHeartRate + ((value - 50) * 0.7));
+                heartRate.textContent = currentHeartRate;
+                heartRateBar.style.width = `${value}%`;
+
+                // Pupil size
+                if (value < 30) {
+                    pupilSize.textContent = "Constricted";
+                    pupilSizeBar.style.width = "30%";
+                } else if (value > 70) {
+                    pupilSize.textContent = "Dilated";
+                    pupilSizeBar.style.width = "90%";
+                } else {
+                    pupilSize.textContent = "Normal";
+                    pupilSizeBar.style.width = "50%";
+                }
+
+                // Digestion
+                if (value < 40) {
+                    digestion.textContent = "Active";
+                    digestionBar.style.width = "80%";
+                } else if (value > 60) {
+                    digestion.textContent = "Slowed";
+                    digestionBar.style.width = "30%";
+                } else {
+                    digestion.textContent = "Normal";
+                    digestionBar.style.width = "50%";
+                }
+
+                // Breathing rate
+                const baseBreathingRate = 12;
+                const currentBreathingRate = Math.round(baseBreathingRate + ((value - 50) * 0.2));
+                breathingRate.textContent = currentBreathingRate;
+                breathingBar.style.width = `${value}%`;
+
+                // Update message
+                if (value < 30) {
+                    message.textContent = "Parasympathetic dominance: The body is in 'rest and digest' mode. Digestion is active, heart rate is lower, and pupils are constricted.";
+                } else if (value > 70) {
+                    message.textContent = "Sympathetic dominance: The body is in 'fight or flight' mode. Heart rate is elevated, pupils are dilated, and digestion is slowed.";
+                } else {
+                    message.textContent = "The body is in a balanced state between sympathetic and parasympathetic activity.";
+                }
+            } catch (error) {
+                console.error("Error updating autonomic simulation:", error);
+            }
+        }
+
+        // Cranial Nerves Tab
+        function setupCranialNervesInteraction() {
+            try {
+                const nerveParts = document.querySelectorAll('.nerve-part');
+                const nerveInfo = document.getElementById('nerve-info');
+                const nerveTitle = document.getElementById('nerve-title');
+                const nerveDescription = document.getElementById('nerve-description');
+                const nerveSelector = document.getElementById('nerve-selector');
+                const nerveDetails = document.getElementById('nerve-details');
+
+                if (!nerveParts || !nerveInfo || !nerveTitle || !nerveDescription || !nerveSelector || !nerveDetails) {
+                    console.error("Cranial nerves interaction elements not found");
+                    return;
+                }
+
+                const nerveData = {
+                    1: {
+                        name: 'I - Olfactory Nerve',
+                        type: 'Sensory',
+                        function: 'Primary sensory nerve for smell (olfaction).',
+                        details: 'The olfactory nerve consists of sensory fibers that extend from the olfactory epithelium in the nasal cavity to the olfactory bulb in the brain. It is the only cranial nerve that connects directly to the cerebrum rather than the brainstem.'
+                    },
+                    2: {
+                        name: 'II - Optic Nerve',
+                        type: 'Sensory',
+                        function: 'Transmits visual information from the retina to the brain.',
+                        details: 'The optic nerve is actually a tract of the brain rather than a true peripheral nerve. It carries visual information from the retina to the lateral geniculate nucleus in the thalamus.'
+                    },
+                    3: {
+                        name: 'III - Oculomotor Nerve',
+                        type: 'Motor',
+                        function: 'Controls most eye movements, eyelid opening, and pupil constriction.',
+                        details: 'The oculomotor nerve innervates four of the six extraocular muscles (superior, medial, and inferior rectus muscles and the inferior oblique muscle). It also innervates the levator palpebrae superioris muscle that raises the eyelid and carries parasympathetic fibers that control pupil constriction.'
+                    },
+                    4: {
+                        name: 'IV - Trochlear Nerve',
+                        type: 'Motor',
+                        function: 'Innervates the superior oblique muscle of the eye for rotational movement.',
+                        details: 'The trochlear nerve is the smallest cranial nerve and has the longest intracranial course. It is the only cranial nerve that exits from the dorsal aspect of the brainstem and crosses to the opposite side before reaching its target.'
+                    },
+                    5: {
+                        name: 'V - Trigeminal Nerve',
+                        type: 'Mixed',
+                        function: 'Provides sensation to the face and controls muscles for chewing.',
+                        details: 'The trigeminal nerve has three major branches: ophthalmic (V1), maxillary (V2), and mandibular (V3). The first two branches are purely sensory, while the mandibular branch has both sensory and motor functions for the muscles of mastication.'
+                    },
+                    6: {
+                        name: 'VI - Abducens Nerve',
+                        type: 'Motor',
+                        function: 'Controls the lateral rectus muscle for outward eye movement.',
+                        details: 'The abducens nerve innervates only one muscle - the lateral rectus - which abducts the eye (turns it outward). Damage to this nerve results in medial strabismus, where the affected eye turns inward.'
+                    },
+                    7: {
+                        name: 'VII - Facial Nerve',
+                        type: 'Mixed',
+                        function: 'Controls facial expressions, taste from anterior 2/3 of tongue, and some salivary glands.',
+                        details: 'The facial nerve has five major branches in the face: temporal, zygomatic, buccal, mandibular, and cervical. It also carries parasympathetic fibers to the lacrimal, submandibular, and sublingual glands, and taste fibers from the anterior two-thirds of the tongue.'
+                    },
+                    8: {
+                        name: 'VIII - Vestibulocochlear Nerve',
+                        type: 'Sensory',
+                        function: 'Transmits sound and balance information from the inner ear.',
+                        details: 'The vestibulocochlear nerve has two components: the vestibular nerve for balance and spatial orientation, and the cochlear nerve for hearing. Disorders of this nerve can cause vertigo, hearing loss, or tinnitus.'
+                    },
+                    9: {
+                        name: 'IX - Glossopharyngeal Nerve',
+                        type: 'Mixed',
+                        function: 'Involved in swallowing, taste from posterior 1/3 of tongue, and monitoring blood pressure.',
+                        details: 'The glossopharyngeal nerve provides sensory innervation to the posterior third of the tongue, the tonsils, and part of the pharynx. It also innervates the stylopharyngeus muscle and carries parasympathetic fibers to the parotid gland.'
+                    },
+                    10: {
+                        name: 'X - Vagus Nerve',
+                        type: 'Mixed',
+                        function: 'Innervates organs in the chest and abdomen, including the heart and digestive tract.',
+                        details: 'The vagus nerve has the widest distribution of all cranial nerves, extending from the brain to the abdomen. It provides parasympathetic control to most organs and is involved in heart rate, digestion, speech, and many other functions.'
+                    },
+                    11: {
+                        name: 'XI - Accessory Nerve',
+                        type: 'Motor',
+                        function: 'Controls the sternocleidomastoid and trapezius muscles for head and shoulder movement.',
+                        details: 'The accessory nerve has a cranial and a spinal component. The spinal component innervates the sternocleidomastoid and trapezius muscles, which are important for head rotation and shoulder elevation.'
+                    },
+                    12: {
+                        name: 'XII - Hypoglossal Nerve',
+                        type: 'Motor',
+                        function: 'Controls tongue movements for speech and swallowing.',
+                        details: 'The hypoglossal nerve innervates all the intrinsic and most of the extrinsic muscles of the tongue. Damage to this nerve causes the tongue to deviate toward the affected side when protruded.'
+                    }
+                };
+
+                // Set up nerve part click interaction
+                nerveParts.forEach(part => {
+                    part.addEventListener('click', () => {
+                        const nerveNumber = part.getAttribute('data-nerve');
+                        const nerve = nerveData[nerveNumber];
+
+                        if (nerve) {
+                            nerveTitle.textContent = nerve.name;
+                            nerveDescription.textContent = `${nerve.type} nerve: ${nerve.function}`;
+                            nerveInfo.classList.remove('hidden');
+
+                            // Update selector to match
+                            nerveSelector.value = nerveNumber;
+                            updateNerveDetails(nerveNumber);
+                        }
+                    });
+                });
+
+                // Close info box when clicking elsewhere
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.nerve-part') && !event.target.closest('#nerve-info')) {
+                        nerveInfo.classList.add('hidden');
+                    }
+                });
+
+                // Set up nerve selector
+                nerveSelector.addEventListener('change', () => {
+                    const nerveNumber = nerveSelector.value;
+                    updateNerveDetails(nerveNumber);
+                });
+
+                function updateNerveDetails(nerveNumber) {
+                    if (nerveNumber === "0") {
+                        // Overview
+                        nerveDetails.innerHTML = `
+                            <h4 class="font-semibold text-blue-700 mb-2">Cranial Nerves Overview</h4>
+                            <p class="text-sm mb-3">The 12 pairs of cranial nerves are numbered with Roman numerals based on their order of emergence from the brain, from front to back.</p>
+                            
+                            <p class="text-sm mb-2">A helpful mnemonic to remember their functions:</p>
+                            <p class="font-medium text-center mb-3">"Some Say Mary Money, But My Brother Says Big Brains Matter Most"</p>
+                            
+                            <ul class="text-sm space-y-1">
+                                <li><strong>S</strong> = Sensory only (I, II, VIII)</li>
+                                <li><strong>M</strong> = Motor only (III, IV, VI, XI, XII)</li>
+                                <li><strong>B</strong> = Both sensory and motor (V, VII, IX, X)</li>
+                            </ul>
+                        `;
+                    } else {
+                        const nerve = nerveData[nerveNumber];
+                        if (nerve) {
+                            let typeClass = 'text-purple-700';
+                            if (nerve.type === 'Sensory') typeClass = 'text-blue-700';
+                            if (nerve.type === 'Motor') typeClass = 'text-green-700';
+
+                            nerveDetails.innerHTML = `
+                                <h4 class="font-semibold text-blue-700 mb-2">${nerve.name}</h4>
+                                <p class="font-medium ${typeClass} mb-2">Type: ${nerve.type}</p>
+                                <p class="text-sm mb-3"><strong>Function:</strong> ${nerve.function}</p>
+                                <p class="text-sm">${nerve.details}</p>
+                            `;
+                        }
+                    }
+                }
+
+                // Set up quiz
+                const quizQuestion = document.getElementById('quiz-question');
+                const quizAnswer = document.getElementById('quiz-answer');
+                const checkButton = document.getElementById('check-answer');
+                const quizResult = document.getElementById('quiz-result');
+
+                if (quizQuestion && quizAnswer && checkButton && quizResult) {
+                    const answers = {
+                        'smell': 1,
+                        'vision': 2,
+                        'eye-movement': 3,
+                        'face-sensation': 5,
+                        'facial-expression': 7,
+                        'hearing': 8,
+                        'tongue': 12,
+                        'vagus': 10
+                    };
+
+                    checkButton.addEventListener('click', () => {
+                        const question = quizQuestion.value;
+                        const answer = parseInt(quizAnswer.value);
+
+                        if (answer === 0) {
+                            quizResult.textContent = "Please select a cranial nerve.";
+                            quizResult.className = "mt-3 p-3 rounded bg-yellow-100 text-yellow-800";
+                            quizResult.classList.remove('hidden');
+                            return;
+                        }
+
+                        if (answers[question] === answer) {
+                            quizResult.textContent = "Correct! That's the right cranial nerve.";
+                            quizResult.className = "mt-3 p-3 rounded bg-green-100 text-green-800";
+                        } else {
+                            const correctNerve = nerveData[answers[question]].name;
+                            quizResult.textContent = `Incorrect. The correct answer is ${correctNerve}.`;
+                            quizResult.className = "mt-3 p-3 rounded bg-red-100 text-red-800";
+                        }
+
+                        quizResult.classList.remove('hidden');
+                    });
+                }
+            } catch (error) {
+                console.error("Error setting up cranial nerves interaction:", error);
+            }
+        }
+
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                console.log("Initializing Interactive Nervous System Explorer...");
+
+                // Set up tab navigation
+                setupTabs();
+
+                // Initialize tab-specific interactions
+                setupNeuronInteraction();
+                setupNeuronTypesInteraction();
+                setupNervousSystemInteraction();
+                setupCranialNervesInteraction();
+
+                // Initialize the action potential chart for the first time
+                setTimeout(() => {
+                    if (document.getElementById('content-action').classList.contains('active')) {
+                        initActionPotentialChart();
+                    }
+                }, 100);
+
+                console.log("Interactive Nervous System Explorer initialized successfully!");
+            } catch (error) {
+                console.error("Error during initialization:", error);
+            }
+        });
     </script>
     <script>window.parent.postMessage({ action: "ready" }, "*");
 
@@ -1555,12 +1968,11 @@
                                         return arg;
                                     }
                                 })
-                            });
+                            }, '*');
                         }
                     });
                 }
-
-                return Reflect.get(target, prop);
+                return target[prop];
             }
         });
     </script>
