@@ -5,69 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CNS Orientation Explorer</title>
+    <!-- Brain emoji favicon for consistency -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text
+        y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.min.js"></script>
     <style>
-        .brain-model {
+        .chart-container {
             position: relative;
-            width: 100%;
-            height: 400px;
-            margin: 0 auto;
-            max-width: 400px;
-            background: #f8fafc;
-            overflow: hidden;
-        }
-
-        @media (max-width: 800px) {
-            .brain-model {
-                height: 220px;
-                max-width: 100vw;
-            }
-        }
-
-        .brain-part {
-            position: absolute;
-            transition: all 0.3s ease;
-            min-width: 0;
-            min-height: 0;
-        }
-
-        .direction-arrow {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .section-plane {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.3);
-            border: 2px dashed #ff6b6b;
-            transform-origin: center;
-            transition: all 0.5s ease;
-            z-index: 5;
-        }
-
-        .highlight {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-            }
+            min-height: 250px;
+            max-height: 400px;
+            margin-bottom: 1rem;
         }
 
         .tab-content {
@@ -78,1186 +28,1640 @@
             display: block;
         }
 
-        .chart-container {
-            height: 300px;
-            width: 100%;
+        .brain-model-container {
             position: relative;
+            min-height: 350px;
+            max-height: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .plane-indicator {
+            position: absolute;
+            border: 2px solid;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .direction-arrow {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .direction-arrow:hover {
+            transform: scale(1.1);
+        }
+
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            background-color: #f0f9ff;
+        }
+
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        #brain-section-display {
+            max-width: 500px;
+            max-height: 350px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        #brain-section-display canvas {
+            display: block;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 0.5rem;
+        }
+
+        #sagittal-plane-illustration,
+        #coronal-plane-illustration,
+        #horizontal-plane-illustration {
+            width: 300px !important;
+            height: 200px !important;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .quiz-option.bg-blue-100 {
+            background-color: #2563eb !important;
+            /* Tailwind blue-600 */
+            color: #fff !important;
+            border: 2px solid #1d4ed8 !important;
+            /* Tailwind blue-700 */
+        }
+
+        @media (max-width: 800px) {
+
+            header,
+            main,
+            footer,
+            .container {
+                padding-left: 0.5em !important;
+                padding-right: 0.5em !important;
+            }
+
+            .rounded-lg,
+            .rounded,
+            .shadow-md,
+            .shadow-lg {
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .max-w-6xl {
+                max-width: 100vw !important;
+            }
+
+            .brain-model-container,
+            #brain-section-display,
+            .aspect-w-4,
+            .aspect-h-3,
+            .aspect-w-1,
+            .aspect-h-1 {
+                min-width: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-height: 180px !important;
+                max-height: 260px !important;
+                height: 180px !important;
+            }
+
+            #brain-section-display canvas,
+            #sagittal-plane-illustration,
+            #coronal-plane-illustration,
+            #horizontal-plane-illustration {
+                width: 100% !important;
+                height: 120px !important;
+                min-width: 0 !important;
+                min-height: 0 !important;
+                max-width: 100vw !important;
+                max-height: 160px !important;
+            }
+
+            .tab-link,
+            .plane-button,
+            .direction-button,
+            .imaging-plane-button,
+            select,
+            button,
+            input[type="range"] {
+                font-size: 1em !important;
+                padding: 0.5em 0.7em !important;
+            }
+
+            .grid-cols-2,
+            .md\:grid-cols-2,
+            .grid-cols-3,
+            .lg\:grid-cols-2,
+            .lg\:grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+
+            .flex,
+            .md\:flex-row {
+                flex-direction: column !important;
+            }
+
+            .quiz-option {
+                font-size: 0.95em !important;
+                padding: 0.5em 0.7em !important;
+            }
+
+            h1 {
+                font-size: 1.4em !important;
+            }
+
+            h2,
+            h3 {
+                font-size: 1.1em !important;
+            }
+
+            .mb-8 {
+                margin-bottom: 1.5em !important;
+            }
+
+            .p-6 {
+                padding: 1em !important;
+            }
+
+            .py-8 {
+                padding-top: 1em !important;
+                padding-bottom: 1em !important;
+            }
+
+            .px-4 {
+                padding-left: 0.5em !important;
+                padding-right: 0.5em !important;
+            }
         }
     </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
-    <header class="mb-8 px-2 pt-4 flex flex-col items-center relative md:flex-row md:justify-center md:items-center">
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- Sticky Home button for navigation -->
+    <nav class="w-full flex items-center px-2 py-3 bg-white border-b border-gray-200 sticky top-0 z-30">
         <a href="index.html"
-            class="text-gray-500 hover:text-blue-600 text-sm absolute left-2 top-2 md:static md:mr-4 md:mb-0 mb-2 order-1 md:order-none">
-            ← Home
+            class="flex items-center text-blue-700 font-semibold text-base md:text-lg hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded transition">
+            <span class="mr-2 text-xl md:text-2xl">←</span>
+            <span class="hidden xs:inline md:inline">Home</span>
         </a>
-        <div class="flex flex-col items-center w-full md:w-auto">
-            <h1 class="text-2xl md:text-3xl font-bold text-blue-800 mb-1 text-center">Explorable Explanation: CNS
-                Orientation</h1>
-            <p class="text-base md:text-lg text-gray-600 text-center">Understanding directional terms and planes of
-                section in the human central nervous system</p>
+    </nav>
+
+    <!-- Consistent colored header -->
+    <header class="bg-blue-700 text-white p-6 shadow-md mb-8">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold mb-2">CNS Orientation Explorer</h1>
+            <p class="text-xl">An interactive guide to orientation and planes in the human central nervous system
+            </p>
         </div>
     </header>
-    <div class="container mx-auto px-2 py-4 max-w-6xl">
-        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
-            <h2 class="text-2xl font-bold text-blue-700 mb-2">The Challenge of CNS Orientation</h2>
-            <p class="text-gray-700 mb-2">
-                <span class="font-bold">What if the brain wasn't aligned with the body?</span> Unlike most body systems,
-                the central nervous system has a flexure (bend) that creates a unique challenge for describing locations
-                and directions.
-            </p>
-            <p class="text-gray-700 mb-2">
-                This simulation will help you understand how directional terms change meaning across different parts of
-                the CNS, and how the three standard planes of section intersect the brain.
-            </p>
-            <div class="text-blue-700 text-sm mb-1">Click a direction or plane to highlight it on the model.</div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow-lg p-4 col-span-1 md:col-span-2">
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Interactive CNS Model</h2>
-                <div class="flex mb-2 flex-wrap gap-2">
-                    <button id="viewToggle"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2 mb-2">
-                        Toggle View (Side/Front)
-                    </button>
-                    <button id="resetView"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mb-2">
-                        Reset View
-                    </button>
-                </div>
-                <div class="brain-model border border-gray-300 rounded-lg bg-gray-50" id="brainContainer"></div>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <button
-                        class="plane-button bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="horizontal">Horizontal/Axial Plane</button>
-                    <button
-                        class="plane-button bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="coronal">Coronal/Frontal Plane</button>
-                    <button
-                        class="plane-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="sagittal">Sagittal Plane</button>
-                    <button
-                        class="plane-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm"
-                        data-plane="none">Hide Planes</button>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-lg p-4">
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Direction Controls</h2>
-                <p class="text-gray-700 mb-2">Select a directional term to highlight its orientation in the CNS:</p>
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <button
-                        class="direction-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-3 rounded"
-                        data-direction="anterior">Anterior</button>
-                    <button
-                        class="direction-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-3 rounded"
-                        data-direction="posterior">Posterior</button>
-                    <button
-                        class="direction-button bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 px-3 rounded"
-                        data-direction="rostral">Rostral</button>
-                    <button
-                        class="direction-button bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 px-3 rounded"
-                        data-direction="caudal">Caudal</button>
-                    <button
-                        class="direction-button bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium py-2 px-3 rounded"
-                        data-direction="superior">Superior</button>
-                    <button
-                        class="direction-button bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium py-2 px-3 rounded"
-                        data-direction="inferior">Inferior</button>
-                    <button
-                        class="direction-button bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 px-3 rounded"
-                        data-direction="dorsal">Dorsal</button>
-                    <button
-                        class="direction-button bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 px-3 rounded"
-                        data-direction="ventral">Ventral</button>
-                    <button
-                        class="direction-button bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium py-2 px-3 rounded"
-                        data-direction="medial">Medial</button>
-                    <button
-                        class="direction-button bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium py-2 px-3 rounded"
-                        data-direction="lateral">Lateral</button>
-                </div>
-                <button id="clearDirections"
-                    class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
-                    Clear All Directions
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4">What makes the human CNS orientation unique?</h2>
+            <p class="mb-4">The human central nervous system has a unique feature that can make understanding its
+                orientation challenging: <strong>a flexure of approximately 120 degrees</strong> between the hindbrain
+                and forebrain.</p>
+            <p class="mb-4">This flexure creates a situation where directional terms can mean different things depending
+                on which part of the brain you're referring to. Let's explore how this works!</p>
+            <div class="flex justify-center my-6">
+                <button id="start-exploration"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                    Begin Interactive Exploration
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Learning Modules</h2>
+        <div id="main-explorer" class="hidden">
+            <!-- Tab Navigation -->
+            <div class="mb-6 border-b border-gray-200">
+                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+                    <li class="mr-2">
+                        <a href="#"
+                            class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-blue-600 hover:border-blue-600 active"
+                            data-tab="3d-model">3D Brain Model</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#"
+                            class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-blue-600 hover:border-blue-600"
+                            data-tab="directional-terms">Directional Terms</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#"
+                            class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-blue-600 hover:border-blue-600"
+                            data-tab="section-planes">Planes of Section</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#"
+                            class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-blue-600 hover:border-blue-600"
+                            data-tab="quiz">Test Your Knowledge</a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="mb-4">
-                <div class="flex border-b border-gray-200">
-                    <button class="tab-button py-2 px-4 font-medium text-blue-600 border-b-2 border-blue-600"
-                        data-tab="directional-terms">
-                        Directional Terms
-                    </button>
-                    <button class="tab-button py-2 px-4 font-medium text-gray-500 hover:text-gray-700"
-                        data-tab="planes-section">
-                        Planes of Section
-                    </button>
-                    <button class="tab-button py-2 px-4 font-medium text-gray-500 hover:text-gray-700"
-                        data-tab="clinical-applications">
-                        Clinical Applications
-                    </button>
-                    <button class="tab-button py-2 px-4 font-medium text-gray-500 hover:text-gray-700" data-tab="quiz">
-                        Quiz Yourself
-                    </button>
+            <!-- Tab Content -->
+            <div class="tab-content active" id="3d-model-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Interactive 3D Brain Model</h2>
+                    <p class="mb-4">Explore the human brain in 3D to understand its orientation and the flexure between
+                        the hindbrain and forebrain. Rotate the model using your mouse and use the controls below to
+                        highlight different planes and directions.</p>
+
+                    <div class="brain-model-container mb-6" id="brain-model">
+                        <!-- 3D model will be rendered here -->
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Highlight Plane:</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    class="plane-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded"
+                                    data-plane="sagittal">Sagittal</button>
+                                <button
+                                    class="plane-button bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 px-4 rounded"
+                                    data-plane="coronal">Coronal</button>
+                                <button
+                                    class="plane-button bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium py-2 px-4 rounded"
+                                    data-plane="horizontal">Horizontal</button>
+                                <button
+                                    class="plane-button bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded"
+                                    data-plane="none">Clear All</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Highlight Direction:</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    class="direction-button bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 px-4 rounded"
+                                    data-direction="rostral-caudal">Rostral-Caudal</button>
+                                <button
+                                    class="direction-button bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium py-2 px-4 rounded"
+                                    data-direction="dorsal-ventral">Dorsal-Ventral</button>
+                                <button
+                                    class="direction-button bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded"
+                                    data-direction="anterior-posterior">Anterior-Posterior</button>
+                                <button
+                                    class="direction-button bg-pink-100 hover:bg-pink-200 text-pink-800 font-medium py-2 px-4 rounded"
+                                    data-direction="medial-lateral">Medial-Lateral</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Key Observation:</h3>
+                        <p>Notice how the ~120° flexure between the hindbrain and forebrain affects the directional
+                            terms. This is why terms like "dorsal" and "ventral" point in different directions depending
+                            on whether you're referring to the forebrain or hindbrain.</p>
+                    </div>
                 </div>
             </div>
 
-            <div id="directional-terms" class="tab-content active">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">Understanding Directional Terms in the CNS</h3>
-                <p class="text-gray-700 mb-4">
-                    Due to the ~120° flexure between the hindbrain and forebrain, directional terms can be confusing.
-                    Some terms reference the body's axis, while others reference the CNS axis.
-                </p>
+            <div class="tab-content" id="directional-terms-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Directional Terms in the CNS</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-2">Body-Referenced Terms</h4>
-                        <ul class="list-disc pl-5 text-gray-700">
-                            <li><strong>Anterior/Posterior</strong>: Front/back of the body</li>
-                            <li><strong>Superior/Inferior</strong>: Above/below relative to body position</li>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+                        <div>
+                            <h3 class="text-xl font-medium text-blue-600 mb-3">Terms Relative to Body Axis</h3>
+                            <p class="mb-3">These terms maintain the same direction throughout the CNS because they
+                                reference the straight body axis:</p>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="bg-blue-50 p-3 rounded-lg">
+                                    <h4 class="font-semibold">Anterior / Posterior</h4>
+                                    <p><strong>Anterior:</strong> Toward the front of the body</p>
+                                    <p><strong>Posterior:</strong> Toward the back of the body</p>
+                                </div>
+
+                                <div class="bg-green-50 p-3 rounded-lg">
+                                    <h4 class="font-semibold">Superior / Inferior</h4>
+                                    <p><strong>Superior:</strong> Toward the top of the body</p>
+                                    <p><strong>Inferior:</strong> Toward the bottom of the body</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-medium text-blue-600 mb-3">Terms Relative to CNS Axis</h3>
+                            <p class="mb-3">These terms follow the curved axis of the CNS and change direction at the
+                                flexure:</p>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="bg-red-50 p-3 rounded-lg">
+                                    <h4 class="font-semibold">Rostral / Caudal</h4>
+                                    <p><strong>Rostral:</strong> Toward the nose (forebrain) or top of head (hindbrain)
+                                    </p>
+                                    <p><strong>Caudal:</strong> Toward the tail/coccyx</p>
+                                </div>
+
+                                <div class="bg-yellow-50 p-3 rounded-lg">
+                                    <h4 class="font-semibold">Dorsal / Ventral</h4>
+                                    <p><strong>Dorsal:</strong> Toward the back (hindbrain) or top of head (forebrain)
+                                    </p>
+                                    <p><strong>Ventral:</strong> Toward the belly/gut</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-blue-600 mb-3">Additional Important Terms</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <h4 class="font-semibold">Medial / Lateral</h4>
+                                <p><strong>Medial:</strong> Toward the midline of the CNS</p>
+                                <p><strong>Lateral:</strong> Away from the midline, toward the side</p>
+                            </div>
+
+                            <div class="bg-indigo-50 p-3 rounded-lg">
+                                <h4 class="font-semibold">Ipsilateral / Contralateral</h4>
+                                <p><strong>Ipsilateral:</strong> On the same side (as another structure)</p>
+                                <p><strong>Contralateral:</strong> On the opposite side</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Interactive Exploration:</h3>
+                        <p class="mb-3">Use the slider below to see how directional terms change across different parts
+                            of the CNS due to the flexure.</p>
+
+                        <div class="mb-4">
+                            <label for="cns-region-slider" class="block text-sm font-medium text-gray-700 mb-1">Select
+                                CNS Region:</label>
+                            <input type="range" id="cns-region-slider" min="0" max="2" step="1" value="1"
+                                class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-600 mt-1">
+                                <span>Spinal Cord</span>
+                                <span>Hindbrain</span>
+                                <span>Forebrain</span>
+                            </div>
+                        </div>
+
+                        <div class="relative h-64 border border-gray-300 rounded-lg bg-white overflow-hidden"
+                            id="direction-visualization">
+                            <!-- Direction arrows will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="section-planes-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Standard Planes of Section</h2>
+                    <p class="mb-4">The brain is commonly viewed and sectioned in three standard orthogonal planes.
+                        Understanding these planes is crucial for interpreting brain images and sections.</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-2">Sagittal Plane</h3>
+                            <div class="aspect-w-4 aspect-h-3 mb-3">
+                                <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+                                    <canvas id="sagittal-plane-illustration" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                            <p><strong>Definition:</strong> Divides the brain into left and right portions</p>
+                            <p><strong>Orientation:</strong> Parallel to the midline</p>
+                            <p><strong>View:</strong> Shows structures as they would appear from the side</p>
+                            <p><strong>Mnemonic:</strong> Think of Sagittarius (the archer) shooting an arrow from side
+                                to side</p>
+                        </div>
+
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-green-800 mb-2">Coronal (Frontal) Plane</h3>
+                            <div class="aspect-w-4 aspect-h-3 mb-3">
+                                <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+                                    <canvas id="coronal-plane-illustration" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                            <p><strong>Definition:</strong> Divides the brain into anterior and posterior portions</p>
+                            <p><strong>Orientation:</strong> Perpendicular to the sagittal plane</p>
+                            <p><strong>View:</strong> Shows structures as they would appear from the front or back</p>
+                            <p><strong>Mnemonic:</strong> Think of a crown (corona) worn on the front of the head</p>
+                        </div>
+
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-purple-800 mb-2">Horizontal (Axial) Plane</h3>
+                            <div class="aspect-w-4 aspect-h-3 mb-3">
+                                <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+                                    <canvas id="horizontal-plane-illustration" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                            <p><strong>Definition:</strong> Divides the brain into superior and inferior portions</p>
+                            <p><strong>Orientation:</strong> Parallel to the ground (when standing)</p>
+                            <p><strong>View:</strong> Shows structures as they would appear from above or below</p>
+                            <p><strong>Mnemonic:</strong> Think of the horizon (horizontal)</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-blue-600 mb-3">Plane Selection in Medical Imaging</h3>
+                        <p class="mb-4">In medical imaging (MRI, CT), the choice of plane is important for visualizing
+                            different structures. Use the interactive tool below to see how different planes reveal
+                            different aspects of brain anatomy.</p>
+
+                        <div class="bg-gray-100 p-6 rounded-lg mb-8">
+                            <div class="flex flex-wrap gap-3 mb-6">
+                                <button
+                                    class="imaging-plane-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded active"
+                                    data-plane="sagittal">Sagittal View</button>
+                                <button
+                                    class="imaging-plane-button bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+                                    data-plane="coronal">Coronal View</button>
+                                <button
+                                    class="imaging-plane-button bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded"
+                                    data-plane="horizontal">Horizontal View</button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <div class="aspect-w-1 aspect-h-1 mb-4">
+                                        <div class="w-full h-64 bg-black rounded flex items-center justify-center">
+                                            <div id="brain-section-display" class="w-full h-full"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2 mt-4 mb-4">
+                                        <span class="text-sm text-gray-600" id="section-position-label">Position:
+                                            Mid-brain</span>
+                                        <input type="range" id="section-position-slider" min="0" max="100" value="50"
+                                            class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-lg shadow mb-4">
+                                    <h4 class="font-semibold mb-3" id="plane-description-title">Sagittal Plane Features
+                                    </h4>
+                                    <ul class="list-disc pl-5 space-y-2" id="plane-description-list">
+                                        <li>Best for visualizing midline structures</li>
+                                        <li>Shows the lateral ventricles and third ventricle</li>
+                                        <li>Clearly displays the corpus callosum</li>
+                                        <li>Reveals the brainstem's relationship to the cerebrum</li>
+                                        <li>Demonstrates the brain flexure between hindbrain and forebrain</li>
+                                    </ul>
+                                    <div class="mt-5">
+                                        <h5 class="font-medium">Clinical Applications:</h5>
+                                        <p id="plane-clinical-applications">Sagittal MRI is often used to evaluate
+                                            midline structures, pituitary abnormalities, and corpus callosum
+                                            development.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded-lg mt-10 mb-8">
+                        <h3 class="text-lg font-semibold text-yellow-800 mb-2">Important Note on Cross-Sections:</h3>
+                        <p>Due to the flexure in the CNS, the standard planes have different relationships to the neural
+                            axis in different regions:</p>
+                        <ul class="list-disc pl-5 mt-2">
+                            <li><strong>Forebrain:</strong> Coronal sections are closest to cross-sections
+                                (perpendicular to the long axis)</li>
+                            <li><strong>Brainstem:</strong> Horizontal sections are closest to cross-sections</li>
+                            <li>This difference is important when interpreting neuroanatomical images and sections</li>
                         </ul>
-                        <p class="mt-2 text-gray-700">These terms maintain the same direction throughout the CNS,
-                            regardless of the flexure.</p>
                     </div>
-
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-2">CNS-Referenced Terms</h4>
-                        <ul class="list-disc pl-5 text-gray-700">
-                            <li><strong>Dorsal/Ventral</strong>: Back/belly side of the CNS axis</li>
-                            <li><strong>Rostral/Caudal</strong>: Toward the nose/tail along the CNS axis</li>
-                        </ul>
-                        <p class="mt-2 text-gray-700">These terms follow the bend in the CNS, changing their orientation
-                            relative to the body.</p>
-                    </div>
-                </div>
-
-                <div class="chart-container mb-4">
-                    <canvas id="directionalChart"></canvas>
-                </div>
-
-                <div class="bg-blue-50 p-4 rounded-lg">
-                    <h4 class="font-bold text-blue-800 mb-2">Key Insight</h4>
-                    <p class="text-blue-800">
-                        In the spinal cord and brainstem, "ventral" and "anterior" refer to the same direction. However,
-                        in the forebrain, they refer to different directions due to the flexure!
-                    </p>
                 </div>
             </div>
 
-            <div id="planes-section" class="tab-content">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">The Three Standard Planes of Section</h3>
-                <p class="text-gray-700 mb-4">
-                    Understanding how the brain is sectioned is crucial for interpreting neuroanatomical images and
-                    clinical scans like MRI and CT.
-                </p>
+            <div class="tab-content" id="quiz-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Test Your Knowledge</h2>
+                    <p class="mb-6">Apply what you've learned about CNS orientation and planes of section by answering
+                        these questions.</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <h4 class="font-bold text-purple-800 mb-2">Horizontal/Axial Plane</h4>
-                        <p class="text-purple-800 mb-2">
-                            Divides the brain into superior and inferior portions.
-                        </p>
-                        <p class="text-purple-800">
-                            <strong>Hint:</strong> Think "horizon" - parallel to the ground.
-                        </p>
-                    </div>
+                    <div class="space-y-8">
+                        <div class="quiz-question bg-blue-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-3">Question 1: Directional Terms</h3>
+                            <p class="mb-4">In the forebrain, which of the following pairs of directional terms point in
+                                the SAME direction?</p>
 
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <h4 class="font-bold text-green-800 mb-2">Coronal/Frontal Plane</h4>
-                        <p class="text-green-800 mb-2">
-                            Divides the brain into anterior and posterior portions.
-                        </p>
-                        <p class="text-green-800">
-                            <strong>Hint:</strong> Think "crown" or "corona" - like wearing a tiara.
-                        </p>
-                    </div>
-
-                    <div class="bg-yellow-50 p-4 rounded-lg">
-                        <h4 class="font-bold text-yellow-800 mb-2">Sagittal Plane</h4>
-                        <p class="text-yellow-800 mb-2">
-                            Divides the brain into left and right portions.
-                        </p>
-                        <p class="text-yellow-800">
-                            <strong>Hint:</strong> Think "Sagittarius" - the archer's plane.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 class="font-bold text-gray-800 mb-2">Important Consideration</h4>
-                    <p class="text-gray-700">
-                        Due to the CNS flexure, coronal sections are closest to cross-sections of the forebrain, while
-                        horizontal sections are closest to cross-sections of the brainstem.
-                    </p>
-                </div>
-
-                <div class="chart-container">
-                    <canvas id="planesChart"></canvas>
-                </div>
-            </div>
-
-            <div id="clinical-applications" class="tab-content">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">Clinical Applications</h3>
-                <p class="text-gray-700 mb-4">
-                    Understanding CNS orientation is crucial for interpreting clinical findings and neuroimaging
-                    results.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Neuroimaging Interpretation</h4>
-                        <p class="text-gray-700 mb-2">
-                            MRI and CT scans are typically acquired in standard planes (axial, coronal, sagittal).
-                        </p>
-                        <p class="text-gray-700">
-                            When a radiologist describes a lesion as "anterior to the fourth ventricle," they're using
-                            directional terms that must be properly understood in the context of CNS orientation.
-                        </p>
-                    </div>
-
-                    <div class="bg-white border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Neurological Examination</h4>
-                        <p class="text-gray-700 mb-2">
-                            Neurological deficits are often described in terms of their anatomical location.
-                        </p>
-                        <p class="text-gray-700">
-                            For example, a "ventral root lesion" in the spinal cord affects motor function, while a
-                            "dorsal root lesion" affects sensory function.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-                    <h4 class="font-bold text-gray-800 mb-2">Case Example: Thalamic Nuclei Naming</h4>
-                    <p class="text-gray-700 mb-4">
-                        The thalamus contains nuclei with compound directional names, such as the "ventral anterior
-                        nucleus."
-                    </p>
-                    <p class="text-gray-700">
-                        In the forebrain, "ventral" and "anterior" specify different directions, so this name is not
-                        redundant. The nucleus is both ventral (toward the bottom of the thalamus) and anterior (toward
-                        the front of the thalamus).
-                    </p>
-                </div>
-
-                <div class="chart-container">
-                    <canvas id="clinicalChart"></canvas>
-                </div>
-            </div>
-
-            <div id="quiz" class="tab-content">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">Test Your Understanding</h3>
-                <p class="text-gray-700 mb-4">
-                    Answer these questions to check your comprehension of CNS orientation.
-                </p>
-
-                <div id="quizContainer" class="space-y-6">
-                    <div class="quiz-question bg-white border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Question 1:</h4>
-                        <p class="text-gray-700 mb-3">
-                            In conventional human radiological imaging (e.g., MRI, PET, CT) of the head, the axial plane
-                            is synonymous with the horizontal plane. Which of the following statements about this plane
-                            is most accurate?
-                        </p>
-                        <div class="space-y-2">
-                            <div class="flex items-start">
-                                <input type="radio" id="q1a" name="q1" value="A" class="mt-1 mr-2">
-                                <label for="q1a" class="text-gray-700">A. The axial plane is parallel to the coronal
-                                    plane.</label>
+                            <div class="space-y-2" id="q1-options">
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">A. Rostral and Posterior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">B. Dorsal and Ventral</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="true">
+                                    <span class="font-medium">C. Dorsal and Superior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">D. Caudal and Anterior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">E. Ventral and Superior</span>
+                                </div>
                             </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q1b" name="q1" value="B" class="mt-1 mr-2">
-                                <label for="q1b" class="text-gray-700">B. The axial plane is parallel to the sagittal
-                                    plane.</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q1c" name="q1" value="C" class="mt-1 mr-2">
-                                <label for="q1c" class="text-gray-700">C. The axial plane is parallel to the floor of
-                                    the cranium.</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q1d" name="q1" value="D" class="mt-1 mr-2">
-                                <label for="q1d" class="text-gray-700">D. The axial plane is in the plane of the
-                                    face.</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q1e" name="q1" value="E" class="mt-1 mr-2">
-                                <label for="q1e" class="text-gray-700">E. The long axis of the spinal cord is in the
-                                    axial plane of the cranium.</label>
+
+                            <div class="mt-4 hidden" id="q1-explanation">
+                                <h4 class="font-semibold text-blue-800">Explanation:</h4>
+                                <p>In the forebrain, dorsal points toward the top of the head, and superior also points
+                                    toward the top of the head. Therefore, these terms point in the same direction in
+                                    the forebrain region.</p>
                             </div>
                         </div>
-                        <div class="answer-feedback mt-3 hidden"></div>
-                    </div>
 
-                    <div class="quiz-question bg-white border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Question 2:</h4>
-                        <p class="text-gray-700 mb-3">
-                            Of the following pairs of directional terms, which pair contains terms that define
-                            PERPENDICULAR (orthogonal) directions when applied to the identified region of the central
-                            nervous system?
-                        </p>
-                        <div class="space-y-2">
-                            <div class="flex items-start">
-                                <input type="radio" id="q2a" name="q2" value="A" class="mt-1 mr-2">
-                                <label for="q2a" class="text-gray-700">A. In the forebrain, rostral & anterior</label>
+                        <div class="quiz-question bg-green-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-3">Question 2: Planes of Section</h3>
+                            <p class="mb-4">In conventional human radiological imaging (e.g., MRI, PET, CT) of the head,
+                                which of the following statements about the axial plane is most accurate?</p>
+
+                            <div class="space-y-2" id="q2-options">
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">A. The axial plane is parallel to the coronal
+                                        plane.</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">B. The axial plane is parallel to the sagittal
+                                        plane.</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="true">
+                                    <span class="font-medium">C. The axial plane is parallel to the floor of the
+                                        cranium.</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">D. The axial plane is in the plane of the face.</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">E. The long axis of the spinal cord is in the axial plane
+                                        of the cranium.</span>
+                                </div>
                             </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q2b" name="q2" value="B" class="mt-1 mr-2">
-                                <label for="q2b" class="text-gray-700">B. In the forebrain, dorsal & superior</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q2c" name="q2" value="C" class="mt-1 mr-2">
-                                <label for="q2c" class="text-gray-700">C. In the forebrain, ventral & inferior</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q2d" name="q2" value="D" class="mt-1 mr-2">
-                                <label for="q2d" class="text-gray-700">D. In the brainstem, ventral & anterior</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q2e" name="q2" value="E" class="mt-1 mr-2">
-                                <label for="q2e" class="text-gray-700">E. In the spinal cord, caudal & posterior</label>
+
+                            <div class="mt-4 hidden" id="q2-explanation">
+                                <h4 class="font-semibold text-green-800">Explanation:</h4>
+                                <p>The axial (horizontal) plane in radiological imaging is typically oriented parallel
+                                    to the floor of the cranium. This is the standard orientation for axial MRI and CT
+                                    scans of the brain.</p>
                             </div>
                         </div>
-                        <div class="answer-feedback mt-3 hidden"></div>
-                    </div>
 
-                    <div class="quiz-question bg-white border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Question 3:</h4>
-                        <p class="text-gray-700 mb-3">
-                            Which plane of section would best display both hemispheres of the cerebrum simultaneously in
-                            a single image?
-                        </p>
-                        <div class="space-y-2">
-                            <div class="flex items-start">
-                                <input type="radio" id="q3a" name="q3" value="A" class="mt-1 mr-2">
-                                <label for="q3a" class="text-gray-700">A. Midsagittal plane</label>
+                        <div class="quiz-question bg-purple-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-3">Question 3: Perpendicular Directions</h3>
+                            <p class="mb-4">Of the following pairs of directional terms, which pair contains terms that
+                                define PERPENDICULAR (orthogonal) directions when applied to the identified region of
+                                the central nervous system?</p>
+
+                            <div class="space-y-2" id="q3-options">
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">A. In the forebrain, rostral & anterior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="true">
+                                    <span class="font-medium">B. In the forebrain, dorsal & anterior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">C. In the forebrain, ventral & inferior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">D. In the brainstem, ventral & anterior</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">E. In the spinal cord, caudal & posterior</span>
+                                </div>
                             </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q3b" name="q3" value="B" class="mt-1 mr-2">
-                                <label for="q3b" class="text-gray-700">B. Parasagittal plane</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q3c" name="q3" value="C" class="mt-1 mr-2">
-                                <label for="q3c" class="text-gray-700">C. Coronal plane</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q3d" name="q3" value="D" class="mt-1 mr-2">
-                                <label for="q3d" class="text-gray-700">D. Horizontal plane</label>
-                            </div>
-                            <div class="flex items-start">
-                                <input type="radio" id="q3e" name="q3" value="E" class="mt-1 mr-2">
-                                <label for="q3e" class="text-gray-700">E. Both C and D</label>
+
+                            <div class="mt-4 hidden" id="q3-explanation">
+                                <h4 class="font-semibold text-purple-800">Explanation:</h4>
+                                <p>In the forebrain, dorsal points toward the top of the head, while anterior points
+                                    toward the face. These directions are perpendicular to each other in the forebrain
+                                    due to the flexure in the CNS.</p>
                             </div>
                         </div>
-                        <div class="answer-feedback mt-3 hidden"></div>
+
+                        <div class="quiz-question bg-red-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-3">Question 4: Brain Flexure</h3>
+                            <p class="mb-4">The flexure in the human CNS occurs at which junction?</p>
+
+                            <div class="space-y-2" id="q4-options">
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">A. Between the cerebrum and cerebellum</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="true">
+                                    <span class="font-medium">B. Between the midbrain and diencephalon</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">C. Between the medulla and spinal cord</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">D. Between the pons and medulla</span>
+                                </div>
+                                <div class="quiz-option border border-gray-300 rounded-lg p-3 cursor-pointer"
+                                    data-correct="false">
+                                    <span class="font-medium">E. Between the two cerebral hemispheres</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 hidden" id="q4-explanation">
+                                <h4 class="font-semibold text-red-800">Explanation:</h4>
+                                <p>The flexure in the human CNS occurs at the junction of the midbrain and diencephalon.
+                                    This creates an approximately 120-degree angle between the long axes of the
+                                    hindbrain and forebrain.</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <button id="checkAnswers"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Check Answers
-                    </button>
+                    <div class="mt-8 text-center">
+                        <button id="check-answers"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300">
+                            Check Answers
+                        </button>
+                        <button id="reset-quiz"
+                            class="ml-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 hidden">
+                            Reset Quiz
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+    </main>
 
-        <div class="bg-white rounded-lg shadow-lg p-4">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Key Takeaways</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Directional Terms</h3>
-                    <ul class="list-disc pl-5 text-gray-700">
-                        <li>The CNS has a ~120° flexure between the hindbrain and forebrain</li>
-                        <li>Body-referenced terms (anterior/posterior, superior/inferior) maintain consistent directions
-                            throughout the CNS</li>
-                        <li>CNS-referenced terms (dorsal/ventral, rostral/caudal) follow the bend in the CNS axis</li>
-                        <li>In the spinal cord, ventral = anterior, but in the forebrain, these directions differ</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Planes of Section</h3>
-                    <ul class="list-disc pl-5 text-gray-700">
-                        <li>Horizontal/Axial plane: divides into superior and inferior portions</li>
-                        <li>Coronal/Frontal plane: divides into anterior and posterior portions</li>
-                        <li>Sagittal plane: divides into left and right portions</li>
-                        <li>Due to the CNS flexure, coronal sections are closest to cross-sections of the forebrain,
-                            while horizontal sections are closest to cross-sections of the brainstem</li>
-                    </ul>
-                </div>
-            </div>
+    <!-- Consistent dark footer -->
+    <footer class="bg-gray-800 text-white p-6 mt-8">
+        <div class="container mx-auto">
+            <p class="text-center">CNS Orientation Explorer | Educational Simulation</p>
         </div>
-    </div>
-
-    <footer class="text-center text-gray-500 text-xs mt-8 mb-2">
+    </footer>
+    <!-- Custom footer as in other chapters -->
+    <footer style="text-align:center; color:#888; font-size:0.9em; margin-top:2em;">
         Made by Mario Athanasiou • <a href="https://www.linkedin.com/in/mario-athanasiou/"
-            class="text-blue-600 hover:underline">Connect on LinkedIn</a>
+            style="color:#457b9d;">Connect on LinkedIn</a>
     </footer>
 
     <script>
-        // Initialize the brain model and simulation
+        // Main initialization
         document.addEventListener('DOMContentLoaded', function () {
-            try {
-                // Brain model setup
-                const brainContainer = document.getElementById('brainContainer');
-                let sideView = true;
+            // Show main explorer when start button is clicked
+            document.getElementById('start-exploration').addEventListener('click', function () {
+                document.getElementById('main-explorer').classList.remove('hidden');
+                this.parentElement.parentElement.classList.add('hidden');
 
-                // Brain parts with their positions
-                const brainParts = [
-                    { id: 'forebrain', name: 'Forebrain', color: '#ff9f43', sideX: 200, sideY: 100, frontX: 200, frontY: 100, width: 120, height: 100 },
-                    { id: 'midbrain', name: 'Midbrain', color: '#ee5253', sideX: 160, sideY: 180, frontX: 200, frontY: 180, width: 80, height: 40 },
-                    { id: 'hindbrain', name: 'Hindbrain', color: '#0abde3', sideX: 120, sideY: 220, frontX: 200, frontY: 220, width: 100, height: 60 },
-                    { id: 'spinalcord', name: 'Spinal Cord', color: '#10ac84', sideX: 120, sideY: 280, frontX: 200, frontY: 280, width: 40, height: 100 }
-                ];
-
-                // Direction arrows with their positions
-                const directions = [
-                    { id: 'anterior', name: 'Anterior', color: '#1e88e5', sideX: 280, sideY: 150, frontX: 320, frontY: 150, rotation: sideView ? 0 : 0 },
-                    { id: 'posterior', name: 'Posterior', color: '#1e88e5', sideX: 40, sideY: 150, frontX: 80, frontY: 150, rotation: sideView ? 180 : 180 },
-                    { id: 'rostral', name: 'Rostral', color: '#43a047', sideX: 240, sideY: 50, frontX: 200, frontY: 50, rotation: sideView ? 315 : 270 },
-                    { id: 'caudal', name: 'Caudal', color: '#43a047', sideX: 80, sideY: 350, frontX: 200, frontY: 350, rotation: sideView ? 135 : 90 },
-                    { id: 'superior', name: 'Superior', color: '#fb8c00', sideX: 200, sideY: 30, frontX: 200, frontY: 30, rotation: sideView ? 270 : 270 },
-                    { id: 'inferior', name: 'Inferior', color: '#fb8c00', sideX: 200, sideY: 370, frontX: 200, frontY: 370, rotation: sideView ? 90 : 90 },
-                    { id: 'dorsal', name: 'Dorsal', color: '#e53935', sideX: 260, sideY: 80, frontX: 140, frontY: 150, rotation: sideView ? 315 : 180 },
-                    { id: 'ventral', name: 'Ventral', color: '#e53935', sideX: 60, sideY: 220, frontX: 260, frontY: 150, rotation: sideView ? 135 : 0 },
-                    { id: 'medial', name: 'Medial', color: '#8e24aa', sideX: 160, sideY: 150, frontX: 200, frontY: 150, rotation: sideView ? 180 : 0 },
-                    { id: 'lateral', name: 'Lateral', color: '#8e24aa', sideX: 160, sideY: 150, frontX: 320, frontY: 150, rotation: sideView ? 0 : 0 }
-                ];
-
-                // Section planes
-                const planes = [
-                    { id: 'horizontal', name: 'Horizontal/Axial', color: 'rgba(156, 39, 176, 0.3)', width: 300, height: 2, sideX: 50, sideY: 150, frontX: 50, frontY: 150, rotation: 0 },
-                    { id: 'coronal', name: 'Coronal/Frontal', color: 'rgba(76, 175, 80, 0.3)', width: 2, height: 300, sideX: 160, sideY: 50, frontX: 200, frontY: 50, rotation: 0 },
-                    { id: 'sagittal', name: 'Sagittal', color: 'rgba(255, 193, 7, 0.3)', width: 300, height: 300, sideX: 50, sideY: 50, frontX: 200, frontY: 50, rotation: 90 }
-                ];
-
-                // Create brain parts
-                function createBrainParts() {
-                    brainContainer.innerHTML = '';
-
-                    // Add brain parts
-                    brainParts.forEach(part => {
-                        const element = document.createElement('div');
-                        element.id = part.id;
-                        element.className = 'brain-part';
-                        element.style.backgroundColor = part.color;
-                        element.style.width = `${part.width}px`;
-                        element.style.height = `${part.height}px`;
-                        element.style.left = `${sideView ? part.sideX : part.frontX}px`;
-                        element.style.top = `${sideView ? part.sideY : part.frontY}px`;
-                        element.style.borderRadius = '10px';
-                        element.style.transform = sideView ? 'translateX(-50%)' : 'translateX(-50%)';
-
-                        const label = document.createElement('div');
-                        label.className = 'text-center text-xs font-bold text-white p-1';
-                        label.textContent = part.name;
-                        element.appendChild(label);
-
-                        brainContainer.appendChild(element);
-                    });
-
-                    // Connect brain parts with a curve to show the flexure
-                    const flexure = document.createElement('div');
-                    flexure.className = 'brain-part';
-                    flexure.style.backgroundColor = 'transparent';
-                    flexure.style.width = '2px';
-                    flexure.style.height = '200px';
-                    flexure.style.left = `${sideView ? 160 : 200}px`;
-                    flexure.style.top = '100px';
-                    flexure.style.borderLeft = '2px solid #666';
-                    flexure.style.borderRadius = sideView ? '0 0 0 50px' : '0';
-                    brainContainer.appendChild(flexure);
-
-                    // Add a label for the flexure
-                    if (sideView) {
-                        const flexureLabel = document.createElement('div');
-                        flexureLabel.className = 'direction-arrow';
-                        flexureLabel.style.left = '130px';
-                        flexureLabel.style.top = '160px';
-                        flexureLabel.style.backgroundColor = 'rgba(102, 102, 102, 0.7)';
-                        flexureLabel.style.color = 'white';
-                        flexureLabel.textContent = '~120° Flexure';
-                        brainContainer.appendChild(flexureLabel);
-                    }
-                }
-
-                // Create direction arrows
-                function createDirectionArrows() {
-                    directions.forEach(dir => {
-                        const arrow = document.createElement('div');
-                        arrow.id = `arrow-${dir.id}`;
-                        arrow.className = 'direction-arrow';
-                        arrow.style.left = `${sideView ? dir.sideX : dir.frontX}px`;
-                        arrow.style.top = `${sideView ? dir.sideY : dir.frontY}px`;
-                        arrow.style.backgroundColor = `${dir.color}`;
-                        arrow.style.color = 'white';
-                        arrow.style.transform = `translate(-50%, -50%) rotate(${sideView ? dir.rotation : dir.rotation}deg)`;
-                        arrow.style.display = 'none'; // Hidden by default
-                        arrow.textContent = dir.name;
-                        brainContainer.appendChild(arrow);
-                    });
-                }
-
-                // Create section planes
-                function createSectionPlanes() {
-                    planes.forEach(plane => {
-                        const element = document.createElement('div');
-                        element.id = `plane-${plane.id}`;
-                        element.className = 'section-plane';
-                        element.style.width = `${plane.width}px`;
-                        element.style.height = `${plane.height}px`;
-                        element.style.left = `${sideView ? plane.sideX : plane.frontX}px`;
-                        element.style.top = `${sideView ? plane.sideY : plane.frontY}px`;
-                        element.style.backgroundColor = plane.color;
-                        element.style.borderColor = plane.color.replace('0.3', '1');
-                        element.style.transform = `rotate(${sideView && plane.id === 'sagittal' ? 0 : plane.rotation}deg)`;
-                        element.style.display = 'none'; // Hidden by default
-
-                        const label = document.createElement('div');
-                        label.className = 'text-xs font-bold p-1 absolute top-0 left-0';
-                        label.textContent = plane.name;
-                        label.style.color = plane.color.replace('0.3', '1').replace('rgba', 'rgb');
-                        element.appendChild(label);
-
-                        brainContainer.appendChild(element);
-                    });
-                }
-
-                // Initialize the brain model
-                function initBrainModel() {
-                    createBrainParts();
-                    createDirectionArrows();
-                    createSectionPlanes();
-                }
-
-                // Toggle view between side and front
-                document.getElementById('viewToggle').addEventListener('click', function () {
-                    sideView = !sideView;
-                    initBrainModel();
-                    this.textContent = `Toggle View (${sideView ? 'Side' : 'Front'}/Front)`;
-
-                    // Update any visible directions or planes
-                    document.querySelectorAll('.direction-button.active').forEach(button => {
-                        const direction = button.dataset.direction;
-                        showDirection(direction);
-                    });
-
-                    document.querySelectorAll('.plane-button.active').forEach(button => {
-                        const plane = button.dataset.plane;
-                        if (plane !== 'none') {
-                            showPlane(plane);
-                        }
-                    });
-                });
-
-                // Reset view
-                document.getElementById('resetView').addEventListener('click', function () {
-                    // Clear all active states
-                    document.querySelectorAll('.direction-button.active').forEach(button => {
-                        button.classList.remove('active');
-                    });
-
-                    document.querySelectorAll('.plane-button.active').forEach(button => {
-                        button.classList.remove('active');
-                    });
-
-                    // Hide all direction arrows
-                    directions.forEach(dir => {
-                        const arrow = document.getElementById(`arrow-${dir.id}`);
-                        if (arrow) {
-                            arrow.style.display = 'none';
-                            arrow.classList.remove('highlight');
-                        }
-                    });
-
-                    // Hide all planes
-                    planes.forEach(plane => {
-                        const element = document.getElementById(`plane-${plane.id}`);
-                        if (element) {
-                            element.style.display = 'none';
-                        }
-                    });
-
-                    // Reset to side view if not already
-                    if (!sideView) {
-                        sideView = true;
-                        document.getElementById('viewToggle').textContent = 'Toggle View (Side/Front)';
-                        initBrainModel();
-                    }
-                });
-
-                // Show direction arrow
-                function showDirection(direction) {
-                    // Hide all other direction arrows first
-                    directions.forEach(dir => {
-                        const arrow = document.getElementById(`arrow-${dir.id}`);
-                        if (arrow && dir.id !== direction) {
-                            arrow.style.display = 'none';
-                            arrow.classList.remove('highlight');
-                        }
-                    });
-
-                    // Show the selected direction arrow
-                    const arrow = document.getElementById(`arrow-${direction}`);
-                    if (arrow) {
-                        arrow.style.display = 'block';
-                        arrow.classList.add('highlight');
-                    }
-
-                    // Update button active states
-                    document.querySelectorAll('.direction-button').forEach(button => {
-                        if (button.dataset.direction === direction) {
-                            button.classList.add('active');
-                            button.classList.remove('bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-red-100', 'bg-purple-100');
-                            button.classList.add('bg-gray-300');
-                        } else {
-                            button.classList.remove('active');
-
-                            // Restore original color based on direction type
-                            const dir = button.dataset.direction;
-                            if (dir === 'anterior' || dir === 'posterior') {
-                                button.classList.add('bg-blue-100');
-                            } else if (dir === 'rostral' || dir === 'caudal') {
-                                button.classList.add('bg-green-100');
-                            } else if (dir === 'superior' || dir === 'inferior') {
-                                button.classList.add('bg-yellow-100');
-                            } else if (dir === 'dorsal' || dir === 'ventral') {
-                                button.classList.add('bg-red-100');
-                            } else if (dir === 'medial' || dir === 'lateral') {
-                                button.classList.add('bg-purple-100');
-                            }
-                        }
-                    });
-                }
-
-                // Show section plane
-                function showPlane(planeId) {
-                    // Hide all planes first
-                    planes.forEach(plane => {
-                        const element = document.getElementById(`plane-${plane.id}`);
-                        if (element) {
-                            element.style.display = 'none';
-                        }
-                    });
-
-                    // Show the selected plane if not 'none'
-                    if (planeId !== 'none') {
-                        const plane = document.getElementById(`plane-${planeId}`);
-                        if (plane) {
-                            plane.style.display = 'block';
-                        }
-                    }
-
-                    // Update button active states
-                    document.querySelectorAll('.plane-button').forEach(button => {
-                        if (button.dataset.plane === planeId) {
-                            button.classList.add('active');
-                        } else {
-                            button.classList.remove('active');
-                        }
-                    });
-                }
-
-                // Direction button click handlers
-                document.querySelectorAll('.direction-button').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const direction = this.dataset.direction;
-                        showDirection(direction);
-                    });
-                });
-
-                // Clear all directions button
-                document.getElementById('clearDirections').addEventListener('click', function () {
-                    directions.forEach(dir => {
-                        const arrow = document.getElementById(`arrow-${dir.id}`);
-                        if (arrow) {
-                            arrow.style.display = 'none';
-                            arrow.classList.remove('highlight');
-                        }
-                    });
-
-                    document.querySelectorAll('.direction-button').forEach(button => {
-                        button.classList.remove('active');
-
-                        // Restore original color based on direction type
-                        const dir = button.dataset.direction;
-                        if (dir === 'anterior' || dir === 'posterior') {
-                            button.classList.add('bg-blue-100');
-                        } else if (dir === 'rostral' || dir === 'caudal') {
-                            button.classList.add('bg-green-100');
-                        } else if (dir === 'superior' || dir === 'inferior') {
-                            button.classList.add('bg-yellow-100');
-                        } else if (dir === 'dorsal' || dir === 'ventral') {
-                            button.classList.add('bg-red-100');
-                        } else if (dir === 'medial' || dir === 'lateral') {
-                            button.classList.add('bg-purple-100');
-                        }
-                    });
-                });
-
-                // Plane button click handlers
-                document.querySelectorAll('.plane-button').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const plane = this.dataset.plane;
-                        showPlane(plane);
-                    });
-                });
-
-                // Tab switching functionality
-                document.querySelectorAll('.tab-button').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const tabId = this.dataset.tab;
-
-                        // Update tab buttons
-                        document.querySelectorAll('.tab-button').forEach(btn => {
-                            if (btn.dataset.tab === tabId) {
-                                btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-                                btn.classList.remove('text-gray-500');
-                            } else {
-                                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-                                btn.classList.add('text-gray-500');
-                            }
-                        });
-
-                        // Update tab content
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            if (content.id === tabId) {
-                                content.classList.add('active');
-                            } else {
-                                content.classList.remove('active');
-                            }
-                        });
-
-                        // Initialize charts if needed
-                        if (tabId === 'directional-terms' && !directionalChartInitialized) {
-                            setTimeout(() => {
-                                initDirectionalChart();
-                                directionalChartInitialized = true;
-                            }, 100);
-                        } else if (tabId === 'planes-section' && !planesChartInitialized) {
-                            setTimeout(() => {
-                                initPlanesChart();
-                                planesChartInitialized = true;
-                            }, 100);
-                        } else if (tabId === 'clinical-applications' && !clinicalChartInitialized) {
-                            setTimeout(() => {
-                                initClinicalChart();
-                                clinicalChartInitialized = true;
-                            }, 100);
-                        }
-                    });
-                });
-
-                // Quiz functionality
-                document.getElementById('checkAnswers').addEventListener('click', function () {
-                    const answers = {
-                        q1: 'C',
-                        q2: 'A',
-                        q3: 'E'
-                    };
-
-                    const explanations = {
-                        q1: 'The axial plane is parallel to the floor of the cranium. It divides the brain into superior and inferior portions.',
-                        q2: 'In the forebrain, rostral (toward the nose along the CNS axis) and anterior (toward the front of the body) are perpendicular due to the CNS flexure.',
-                        q3: 'Both coronal and horizontal planes display both hemispheres simultaneously. The sagittal plane divides the brain into left and right portions.'
-                    };
-
-                    // Check each question
-                    Object.keys(answers).forEach(question => {
-                        const selectedAnswer = document.querySelector(`input[name="${question}"]:checked`);
-                        const feedbackDiv = document.querySelector(`[name="${question}"]`).closest('.quiz-question').querySelector('.answer-feedback');
-
-                        feedbackDiv.classList.remove('hidden');
-
-                        if (selectedAnswer) {
-                            if (selectedAnswer.value === answers[question]) {
-                                feedbackDiv.textContent = `Correct! ${explanations[question]}`;
-                                feedbackDiv.classList.add('text-green-600');
-                                feedbackDiv.classList.remove('text-red-600');
-                            } else {
-                                feedbackDiv.textContent = `Incorrect. The correct answer is ${answers[question]}. ${explanations[question]}`;
-                                feedbackDiv.classList.add('text-red-600');
-                                feedbackDiv.classList.remove('text-green-600');
-                            }
-                        } else {
-                            feedbackDiv.textContent = 'Please select an answer.';
-                            feedbackDiv.classList.add('text-yellow-600');
-                            feedbackDiv.classList.remove('text-green-600', 'text-red-600');
-                        }
-                    });
-                });
-
-                // Chart initialization flags
-                let directionalChartInitialized = false;
-                let planesChartInitialized = false;
-                let clinicalChartInitialized = false;
-
-                // Initialize directional terms chart
-                function initDirectionalChart() {
-                    try {
-                        const ctx = document.getElementById('directionalChart').getContext('2d');
-
-                        // Destroy existing chart if it exists
-                        if (window.directionalChart) {
-                            window.directionalChart.destroy();
-                        }
-
-                        window.directionalChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['Forebrain', 'Midbrain', 'Hindbrain', 'Spinal Cord'],
-                                datasets: [
-                                    {
-                                        label: 'Anterior = Ventral',
-                                        data: [0, 0.5, 1, 1],
-                                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'Rostral = Superior',
-                                        data: [0, 0.5, 1, 1],
-                                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                                        borderColor: 'rgba(255, 99, 132, 1)',
-                                        borderWidth: 1
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: true,
-                                aspectRatio: 2,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        max: 1,
-                                        title: {
-                                            display: true,
-                                            text: 'Directional Term Alignment'
-                                        },
-                                        ticks: {
-                                            callback: function (value) {
-                                                if (value === 0) return 'Different';
-                                                if (value === 0.5) return 'Partial Alignment';
-                                                if (value === 1) return 'Same Direction';
-                                            }
-                                        }
-                                    }
-                                },
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Directional Term Relationships Across CNS Regions',
-                                        font: {
-                                            size: 16
-                                        }
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function (context) {
-                                                const value = context.raw;
-                                                let status = '';
-
-                                                if (value === 0) status = 'Different directions';
-                                                if (value === 0.5) status = 'Partially aligned';
-                                                if (value === 1) status = 'Same direction';
-
-                                                return `${context.dataset.label}: ${status}`;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Error initializing directional chart:', error);
-                    }
-                }
-
-                // Initialize planes of section chart
-                function initPlanesChart() {
-                    try {
-                        const ctx = document.getElementById('planesChart').getContext('2d');
-
-                        // Destroy existing chart if it exists
-                        if (window.planesChart) {
-                            window.planesChart.destroy();
-                        }
-
-                        window.planesChart = new Chart(ctx, {
-                            type: 'radar',
-                            data: {
-                                labels: ['Visualizes Left/Right Structures', 'Visualizes Anterior/Posterior Structures', 'Visualizes Superior/Inferior Structures', 'Used in Clinical MRI', 'Shows Brain Symmetry', 'Shows Cross-Sectional Anatomy'],
-                                datasets: [
-                                    {
-                                        label: 'Horizontal/Axial Plane',
-                                        data: [5, 5, 2, 5, 4, 4],
-                                        backgroundColor: 'rgba(156, 39, 176, 0.2)',
-                                        borderColor: 'rgba(156, 39, 176, 1)',
-                                        pointBackgroundColor: 'rgba(156, 39, 176, 1)',
-                                        pointBorderColor: '#fff',
-                                        pointHoverBackgroundColor: '#fff',
-                                        pointHoverBorderColor: 'rgba(156, 39, 176, 1)'
-                                    },
-                                    {
-                                        label: 'Coronal/Frontal Plane',
-                                        data: [5, 2, 5, 4, 5, 4],
-                                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                                        borderColor: 'rgba(76, 175, 80, 1)',
-                                        pointBackgroundColor: 'rgba(76, 175, 80, 1)',
-                                        pointBorderColor: '#fff',
-                                        pointHoverBackgroundColor: '#fff',
-                                        pointHoverBorderColor: 'rgba(76, 175, 80, 1)'
-                                    },
-                                    {
-                                        label: 'Sagittal Plane',
-                                        data: [1, 5, 5, 5, 2, 4],
-                                        backgroundColor: 'rgba(255, 193, 7, 0.2)',
-                                        borderColor: 'rgba(255, 193, 7, 1)',
-                                        pointBackgroundColor: 'rgba(255, 193, 7, 1)',
-                                        pointBorderColor: '#fff',
-                                        pointHoverBackgroundColor: '#fff',
-                                        pointHoverBorderColor: 'rgba(255, 193, 7, 1)'
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: true,
-                                aspectRatio: 1.5,
-                                scales: {
-                                    r: {
-                                        angleLines: {
-                                            display: true
-                                        },
-                                        suggestedMin: 0,
-                                        suggestedMax: 5
-                                    }
-                                },
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Comparison of Section Planes',
-                                        font: {
-                                            size: 16
-                                        }
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function (context) {
-                                                const value = context.raw;
-                                                let rating = '';
-
-                                                if (value <= 1) rating = 'Poor';
-                                                else if (value <= 2) rating = 'Fair';
-                                                else if (value <= 3) rating = 'Good';
-                                                else if (value <= 4) rating = 'Very Good';
-                                                else rating = 'Excellent';
-
-                                                return `${context.dataset.label}: ${rating} (${value}/5)`;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Error initializing planes chart:', error);
-                    }
-                }
-
-                // Initialize clinical applications chart
-                function initClinicalChart() {
-                    try {
-                        const ctx = document.getElementById('clinicalChart').getContext('2d');
-
-                        // Destroy existing chart if it exists
-                        if (window.clinicalChart) {
-                            window.clinicalChart.destroy();
-                        }
-
-                        window.clinicalChart = new Chart(ctx, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['MRI - Axial', 'MRI - Coronal', 'MRI - Sagittal', 'CT Scan', 'PET Scan', 'Anatomical Sections'],
-                                datasets: [{
-                                    data: [30, 25, 20, 15, 5, 5],
-                                    backgroundColor: [
-                                        'rgba(156, 39, 176, 0.7)',
-                                        'rgba(76, 175, 80, 0.7)',
-                                        'rgba(255, 193, 7, 0.7)',
-                                        'rgba(3, 169, 244, 0.7)',
-                                        'rgba(233, 30, 99, 0.7)',
-                                        'rgba(96, 125, 139, 0.7)'
-                                    ],
-                                    borderColor: [
-                                        'rgba(156, 39, 176, 1)',
-                                        'rgba(76, 175, 80, 1)',
-                                        'rgba(255, 193, 7, 1)',
-                                        'rgba(3, 169, 244, 1)',
-                                        'rgba(233, 30, 99, 1)',
-                                        'rgba(96, 125, 139, 1)'
-                                    ],
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: true,
-                                aspectRatio: 1.5,
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Common Clinical Neuroimaging Modalities',
-                                        font: {
-                                            size: 16
-                                        }
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function (context) {
-                                                const value = context.raw;
-                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                const percentage = Math.round((value / total) * 100);
-                                                return `${context.label}: ${percentage}% of clinical neuroimaging`;
-                                            }
-                                        }
-                                    },
-                                    legend: {
-                                        position: 'right'
-                                    }
-                                }
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Error initializing clinical chart:', error);
-                    }
-                }
-
-                // Initialize the brain model
+                // Initialize the 3D model
                 initBrainModel();
 
-                // Initialize the first chart
-                setTimeout(() => {
-                    initDirectionalChart();
-                    directionalChartInitialized = true;
-                }, 100);
+                // Initialize the plane illustrations
+                initPlaneIllustrations();
 
-                // Handle window resize for charts
-                window.addEventListener('resize', function () {
-                    try {
-                        if (window.directionalChart && document.getElementById('directional-terms').classList.contains('active')) {
-                            window.directionalChart.resize();
-                        }
+                // Initialize the brain section display
+                initBrainSectionDisplay();
 
-                        if (window.planesChart && document.getElementById('planes-section').classList.contains('active')) {
-                            window.planesChart.resize();
-                        }
-
-                        if (window.clinicalChart && document.getElementById('clinical-applications').classList.contains('active')) {
-                            window.clinicalChart.resize();
-                        }
-                    } catch (error) {
-                        console.error('Error resizing charts:', error);
-                    }
-                });
-
-            } catch (error) {
-                console.error('Error initializing simulation:', error);
-                alert('An error occurred while initializing the simulation. Please check the console for details.');
-            }
-        });
-
-        // Responsive brain part positions and sizes
-        function getResponsiveBrainParts() {
-            // Use viewport width for scaling
-            const isMobile = window.innerWidth <= 800;
-            if (isMobile) {
-                // Positions and sizes as percentages for mobile
-                return [
-                    { id: 'forebrain', name: 'Forebrain', color: '#ff9f43', left: '55%', top: '15%', width: '30%', height: '30%' },
-                    { id: 'midbrain', name: 'Midbrain', color: '#ee5253', left: '45%', top: '45%', width: '20%', height: '12%' },
-                    { id: 'hindbrain', name: 'Hindbrain', color: '#0abde3', left: '30%', top: '60%', width: '25%', height: '18%' },
-                    { id: 'spinalcord', name: 'Spinal Cord', color: '#10ac84', left: '30%', top: '80%', width: '10%', height: '30%' }
-                ];
-            } else {
-                // Original desktop positions (in px, but converted to % for consistency)
-                return [
-                    { id: 'forebrain', name: 'Forebrain', color: '#ff9f43', left: '50%', top: '25%', width: '30%', height: '25%' },
-                    { id: 'midbrain', name: 'Midbrain', color: '#ee5253', left: '40%', top: '45%', width: '20%', height: '10%' },
-                    { id: 'hindbrain', name: 'Hindbrain', color: '#0abde3', left: '30%', top: '60%', width: '25%', height: '15%' },
-                    { id: 'spinalcord', name: 'Spinal Cord', color: '#10ac84', left: '30%', top: '80%', width: '10%', height: '25%' }
-                ];
-            }
-        }
-
-        // Update createBrainParts to use percentages
-        function createBrainParts() {
-            brainContainer.innerHTML = '';
-            const brainParts = getResponsiveBrainParts();
-
-            brainParts.forEach(part => {
-                const element = document.createElement('div');
-                element.id = part.id;
-                element.className = 'brain-part';
-                element.style.backgroundColor = part.color;
-                element.style.width = part.width;
-                element.style.height = part.height;
-                element.style.left = part.left;
-                element.style.top = part.top;
-                element.style.borderRadius = '10px';
-                element.style.transform = 'translate(-50%, 0)';
-
-                // For percentage units, set width/height as percentages of parent
-                element.style.position = 'absolute';
-                element.style.width = part.width;
-                element.style.height = part.height;
-
-                const label = document.createElement('div');
-                label.className = 'text-center text-xs font-bold text-white p-1';
-                label.textContent = part.name;
-                element.appendChild(label);
-
-                brainContainer.appendChild(element);
+                // Initialize the direction visualization
+                initDirectionVisualization();
             });
 
-            // Connect brain parts with a curve to show the flexure
-            const flexure = document.createElement('div');
-            flexure.className = 'brain-part';
-            flexure.style.backgroundColor = 'transparent';
-            flexure.style.width = '2px';
-            flexure.style.height = '200px';
-            flexure.style.left = `${sideView ? 160 : 200}px`;
-            flexure.style.top = '100px';
-            flexure.style.borderLeft = '2px solid #666';
-            flexure.style.borderRadius = sideView ? '0 0 0 50px' : '0';
-            brainContainer.appendChild(flexure);
+            // Tab navigation
+            document.querySelectorAll('.tab-link').forEach(function (tab) {
+                tab.addEventListener('click', function (e) {
+                    e.preventDefault();
 
-            // Add a label for the flexure
-            if (sideView) {
-                const flexureLabel = document.createElement('div');
-                flexureLabel.className = 'direction-arrow';
-                flexureLabel.style.left = '130px';
-                flexureLabel.style.top = '160px';
-                flexureLabel.style.backgroundColor = 'rgba(102, 102, 102, 0.7)';
-                flexureLabel.style.color = 'white';
-                flexureLabel.textContent = '~120° Flexure';
-                brainContainer.appendChild(flexureLabel);
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-link').forEach(function (t) {
+                        t.classList.remove('active', 'text-blue-600', 'border-blue-600');
+                        t.classList.add('border-transparent');
+                    });
+
+                    // Add active class to clicked tab
+                    this.classList.add('active', 'text-blue-600', 'border-blue-600');
+                    this.classList.remove('border-transparent');
+
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(function (content) {
+                        content.classList.remove('active');
+                    });
+
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-content').classList.add('active');
+                });
+            });
+
+            // Quiz functionality
+            document.querySelectorAll('.quiz-option').forEach(function (option) {
+                option.addEventListener('click', function () {
+                    // Toggle selection within the question group
+                    const questionGroup = this.closest('.quiz-question');
+                    questionGroup.querySelectorAll('.quiz-option').forEach(function (opt) {
+                        opt.classList.remove('bg-blue-100');
+                    });
+                    this.classList.add('bg-blue-100');
+                });
+            });
+
+            document.getElementById('check-answers').addEventListener('click', function () {
+                let score = 0;
+                const totalQuestions = document.querySelectorAll('.quiz-question').length;
+
+                document.querySelectorAll('.quiz-question').forEach(function (question, index) {
+                    const selectedOption = question.querySelector('.quiz-option.bg-blue-100');
+                    const options = question.querySelectorAll('.quiz-option');
+
+                    options.forEach(function (option) {
+                        option.classList.remove('correct', 'incorrect');
+
+                        if (option.getAttribute('data-correct') === 'true') {
+                            option.classList.add('correct');
+                        }
+                    });
+
+                    if (selectedOption) {
+                        if (selectedOption.getAttribute('data-correct') === 'true') {
+                            score++;
+                        } else {
+                            selectedOption.classList.add('incorrect');
+                        }
+                    }
+
+                    // Show explanation
+                    document.getElementById(`q${index + 1}-explanation`).classList.remove('hidden');
+                });
+
+                // Show reset button and hide check button
+                this.classList.add('hidden');
+                document.getElementById('reset-quiz').classList.remove('hidden');
+
+                // Show score in the page
+                const resultBox = document.getElementById('quiz-result-box');
+                if (resultBox) resultBox.remove();
+
+                let newResultBox = document.createElement('div');
+                newResultBox.id = 'quiz-result-box';
+                newResultBox.className = 'mt-6 mb-4 p-4 rounded-lg text-lg font-semibold text-center';
+                newResultBox.textContent = `You scored ${score} out of ${totalQuestions}!`;
+                newResultBox.style.background = score === totalQuestions ? '#dcfce7' : '#fef9c3';
+                newResultBox.style.color = score === totalQuestions ? '#166534' : '#92400e';
+                this.parentElement.insertBefore(newResultBox, this);
+            });
+
+            document.getElementById('reset-quiz').addEventListener('click', function () {
+                document.querySelectorAll('.quiz-option').forEach(function (option) {
+                    option.classList.remove('bg-blue-100', 'correct', 'incorrect');
+                });
+
+                document.querySelectorAll('[id$="-explanation"]').forEach(function (explanation) {
+                    explanation.classList.add('hidden');
+                });
+
+                // Hide reset button and show check button
+                this.classList.add('hidden');
+                document.getElementById('check-answers').classList.remove('hidden');
+            });
+
+            // Imaging plane buttons
+            document.querySelectorAll('.imaging-plane-button').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    document.querySelectorAll('.imaging-plane-button').forEach(function (btn) {
+                        btn.classList.remove('active', 'bg-blue-700', 'bg-green-700', 'bg-purple-700');
+
+                        if (btn.getAttribute('data-plane') === 'sagittal') {
+                            btn.classList.add('bg-blue-600');
+                        } else if (btn.getAttribute('data-plane') === 'coronal') {
+                            btn.classList.add('bg-green-600');
+                        } else if (btn.getAttribute('data-plane') === 'horizontal') {
+                            btn.classList.add('bg-purple-600');
+                        }
+                    });
+
+                    const plane = this.getAttribute('data-plane');
+                    this.classList.add('active');
+
+                    if (plane === 'sagittal') {
+                        this.classList.add('bg-blue-700');
+                        document.getElementById('plane-description-title').textContent = 'Sagittal Plane Features';
+                        document.getElementById('plane-description-list').innerHTML = `
+                            <li>Best for visualizing midline structures</li>
+                            <li>Shows the lateral ventricles and third ventricle</li>
+                            <li>Clearly displays the corpus callosum</li>
+                            <li>Reveals the brainstem's relationship to the cerebrum</li>
+                            <li>Demonstrates the brain flexure between hindbrain and forebrain</li>
+                        `;
+                        document.getElementById('plane-clinical-applications').textContent = 'Sagittal MRI is often used to evaluate midline structures, pituitary abnormalities, and corpus callosum development.';
+                    } else if (plane === 'coronal') {
+                        this.classList.add('bg-green-700');
+                        document.getElementById('plane-description-title').textContent = 'Coronal Plane Features';
+                        document.getElementById('plane-description-list').innerHTML = `
+                            <li>Best for visualizing bilateral structures</li>
+                            <li>Shows both hemispheres simultaneously</li>
+                            <li>Clearly displays the basal ganglia and thalamus</li>
+                            <li>Useful for evaluating the ventricular system</li>
+                            <li>Good for assessing brain symmetry</li>
+                        `;
+                        document.getElementById('plane-clinical-applications').textContent = 'Coronal MRI is particularly useful for evaluating temporal lobe structures, hippocampus, and pituitary gland.';
+                    } else if (plane === 'horizontal') {
+                        this.classList.add('bg-purple-700');
+                        document.getElementById('plane-description-title').textContent = 'Horizontal Plane Features';
+                        document.getElementById('plane-description-list').innerHTML = `
+                            <li>Most commonly used plane in clinical imaging</li>
+                            <li>Best for visualizing the ventricular system</li>
+                            <li>Shows the relationship between cortical and subcortical structures</li>
+                            <li>Ideal for evaluating the brainstem</li>
+                            <li>Provides cross-sectional view of the cerebellum</li>
+                        `;
+                        document.getElementById('plane-clinical-applications').textContent = 'Horizontal (axial) MRI is the standard for routine brain evaluation, stroke assessment, and tumor localization.';
+                    }
+
+                    updateBrainSectionDisplay(plane);
+                });
+            });
+
+            // Section position slider
+            document.getElementById('section-position-slider').addEventListener('input', function () {
+                const position = this.value;
+                const plane = document.querySelector('.imaging-plane-button.active').getAttribute('data-plane');
+
+                let positionLabel = '';
+                if (position < 25) {
+                    positionLabel = plane === 'sagittal' ? 'Left lateral' : (plane === 'coronal' ? 'Anterior' : 'Superior');
+                } else if (position < 50) {
+                    positionLabel = plane === 'sagittal' ? 'Left parasagittal' : (plane === 'coronal' ? 'Anterior-mid' : 'Superior-mid');
+                } else if (position === '50') {
+                    positionLabel = plane === 'sagittal' ? 'Midline' : (plane === 'coronal' ? 'Mid-brain' : 'Mid-brain');
+                } else if (position < 75) {
+                    positionLabel = plane === 'sagittal' ? 'Right parasagittal' : (plane === 'coronal' ? 'Posterior-mid' : 'Inferior-mid');
+                } else {
+                    positionLabel = plane === 'sagittal' ? 'Right lateral' : (plane === 'coronal' ? 'Posterior' : 'Inferior');
+                }
+
+                document.getElementById('section-position-label').textContent = `Position: ${positionLabel}`;
+                updateBrainSectionDisplay(plane, position);
+            });
+
+            // CNS region slider for directional terms
+            document.getElementById('cns-region-slider').addEventListener('input', function () {
+                updateDirectionVisualization(parseInt(this.value));
+            });
+
+            // Re-initialize the brain section display on resize
+            window.addEventListener('resize', function () {
+                if (document.getElementById('main-explorer') && !document.getElementById('main-explorer').classList.contains('hidden')) {
+                    initBrainSectionDisplay();
+                }
+            });
+        });
+
+        // 3D Brain Model
+        function initBrainModel() {
+            try {
+                const container = document.getElementById('brain-model');
+
+                // Create scene
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xf8fafc);
+
+                // Create camera
+                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                camera.position.z = 5;
+
+                // Create renderer
+                const renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+
+                // Create a simple brain model
+                const brainGeometry = new THREE.Group();
+
+                // Forebrain (cerebrum)
+                const forebrainGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+                const forebrainMaterial = new THREE.MeshLambertMaterial({ color: 0xe0e0e0 });
+                const forebrain = new THREE.Mesh(forebrainGeometry, forebrainMaterial);
+                forebrain.position.set(0, 0.5, 0);
+                forebrain.scale.set(1, 0.8, 1);
+                brainGeometry.add(forebrain);
+
+                // Midbrain
+                const midbrainGeometry = new THREE.CylinderGeometry(0.4, 0.5, 0.8, 32);
+                const midbrainMaterial = new THREE.MeshLambertMaterial({ color: 0xd0d0d0 });
+                const midbrain = new THREE.Mesh(midbrainGeometry, midbrainMaterial);
+                midbrain.position.set(0, -0.5, 0);
+                midbrain.rotation.x = Math.PI / 6; // Slight angle to show flexure
+                brainGeometry.add(midbrain);
+
+                // Hindbrain (cerebellum and brainstem)
+                const hindbrainGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+                const hindbrainMaterial = new THREE.MeshLambertMaterial({ color: 0xc0c0c0 });
+                const hindbrain = new THREE.Mesh(hindbrainGeometry, hindbrainMaterial);
+                hindbrain.position.set(0, -1.2, -0.3);
+                hindbrain.scale.set(1, 0.7, 1);
+                brainGeometry.add(hindbrain);
+
+                // Brainstem
+                const brainstemGeometry = new THREE.CylinderGeometry(0.3, 0.2, 1.2, 32);
+                const brainstemMaterial = new THREE.MeshLambertMaterial({ color: 0xb0b0b0 });
+                const brainstem = new THREE.Mesh(brainstemGeometry, brainstemMaterial);
+                brainstem.position.set(0, -2, -0.5);
+                brainstem.rotation.x = Math.PI / 3; // Angle to show flexure
+                brainGeometry.add(brainstem);
+
+                // Add the brain to the scene
+                scene.add(brainGeometry);
+
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0x404040);
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+                directionalLight2.position.set(-1, -1, -1);
+                scene.add(directionalLight2);
+
+                // Add planes
+                const sagittalPlane = createPlane(0x3b82f6, 0.01, 4, 4);
+                sagittalPlane.rotation.y = Math.PI / 2;
+                sagittalPlane.visible = false;
+                scene.add(sagittalPlane);
+
+                const coronalPlane = createPlane(0x22c55e, 0.01, 4, 4);
+                coronalPlane.visible = false;
+                scene.add(coronalPlane);
+
+                const horizontalPlane = createPlane(0xa855f7, 0.01, 4, 4);
+                horizontalPlane.rotation.x = Math.PI / 2;
+                horizontalPlane.visible = false;
+                scene.add(horizontalPlane);
+
+                // Add direction arrows (keys match data-direction attributes)
+                const arrows = {
+                    'rostral-caudal': createArrowGroup(0xff0000, 'R', 'C', [0, 0, 2.5], [0, -2.5, -1]),
+                    'dorsal-ventral': createArrowGroup(0xffaa00, 'D', 'V', [0, 2, 0], [0, -0.5, -2]),
+                    'anterior-posterior': createArrowGroup(0x0066ff, 'A', 'P', [0, 0, 2.5], [0, 0, -2.5]),
+                    'medial-lateral': createArrowGroup(0xff00ff, 'M', 'L', [0, 0, 0], [2.5, 0, 0])
+                };
+
+                Object.values(arrows).forEach(arrow => {
+                    arrow.visible = false;
+                    scene.add(arrow);
+                });
+
+                // Add controls
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.25;
+
+                // Handle window resize
+                window.addEventListener('resize', function () {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
+
+                // Animation loop
+                function animate() {
+                    requestAnimationFrame(animate);
+                    controls.update();
+                    renderer.render(scene, camera);
+                }
+
+                animate();
+
+                // Plane button handlers
+                document.querySelectorAll('.plane-button').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const plane = this.getAttribute('data-plane');
+
+                        sagittalPlane.visible = plane === 'sagittal';
+                        coronalPlane.visible = plane === 'coronal';
+                        horizontalPlane.visible = plane === 'horizontal';
+
+                        if (plane === 'none') {
+                            sagittalPlane.visible = false;
+                            coronalPlane.visible = false;
+                            horizontalPlane.visible = false;
+                        }
+                    });
+                });
+
+                // Direction button handlers
+                document.querySelectorAll('.direction-button').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const direction = this.getAttribute('data-direction');
+
+                        Object.keys(arrows).forEach(key => {
+                            arrows[key].visible = key === direction;
+                        });
+                    });
+                });
+
+                // Helper function to create a plane
+                function createPlane(color, thickness, width, height) {
+                    const geometry = new THREE.BoxGeometry(width, height, thickness);
+                    const material = new THREE.MeshBasicMaterial({
+                        color: color,
+                        transparent: true,
+                        opacity: 0.5,
+                        side: THREE.DoubleSide
+                    });
+                    return new THREE.Mesh(geometry, material);
+                }
+
+                // Helper function to create arrow group
+                function createArrowGroup(color, startLabel, endLabel, startPos, endPos) {
+                    const group = new THREE.Group();
+
+                    // Create arrow line
+                    const points = [
+                        new THREE.Vector3(...startPos),
+                        new THREE.Vector3(...endPos)
+                    ];
+
+                    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const lineMaterial = new THREE.LineBasicMaterial({ color: color, linewidth: 3 });
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    group.add(line);
+
+                    // Create arrow heads (cones)
+                    const headGeometry = new THREE.ConeGeometry(0.1, 0.3, 32);
+                    const headMaterial = new THREE.MeshBasicMaterial({ color: color });
+
+                    const startHead = new THREE.Mesh(headGeometry, headMaterial);
+                    startHead.position.set(...startPos);
+
+                    const endHead = new THREE.Mesh(headGeometry, headMaterial);
+                    endHead.position.set(...endPos);
+                    endHead.rotation.x = Math.PI;
+
+                    group.add(startHead);
+                    group.add(endHead);
+
+                    return group;
+                }
+            } catch (error) {
+                console.error("Error initializing brain model:", error);
+                document.getElementById('brain-model').innerHTML = `
+                    <div class="flex items-center justify-center h-full bg-red-50 text-red-800 p-4 rounded-lg">
+                        <p>Error loading 3D model. Please try refreshing the page.</p>
+                    </div>
+                `;
             }
         }
 
-        // Initialize the brain model
-        initBrainModel();
+        // Plane Illustrations
+        function initPlaneIllustrations() {
+            // For each canvas:
+            ['sagittal', 'coronal', 'horizontal'].forEach(id => {
+                const canvas = document.getElementById(id + '-plane-illustration');
+                if (canvas) {
+                    canvas.width = 300;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, 300, 200);
 
-        // Add a resize event to re-render the model on orientation change or resize
-        window.addEventListener('resize', function () {
-            initBrainModel();
-        });
+                    // Brain outline (side view)
+                    ctx.beginPath();
+                    ctx.ellipse(150, 110, 80, 60, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = '#e0e0e0';
+                    ctx.fill();
+                    ctx.strokeStyle = id === 'sagittal' ? '#3b82f6' : (id === 'coronal' ? '#22c55e' : '#a855f7');
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Plane (vertical or horizontal line)
+                    ctx.beginPath();
+                    if (id === 'sagittal') {
+                        ctx.moveTo(150, 40);
+                        ctx.lineTo(150, 180);
+                    } else if (id === 'coronal') {
+                        ctx.moveTo(60, 100);
+                        ctx.lineTo(240, 100);
+                    } else {
+                        ctx.moveTo(70, 100);
+                        ctx.lineTo(230, 100);
+                    }
+                    ctx.strokeStyle = id === 'sagittal' ? '#3b82f6' : (id === 'coronal' ? '#22c55e' : '#a855f7');
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+
+                    // Labels
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillStyle = id === 'sagittal' ? '#3b82f6' : (id === 'coronal' ? '#22c55e' : '#a855f7');
+                    ctx.textAlign = 'center';
+                    ctx.fillText(id.charAt(0).toUpperCase() + id.slice(1) + ' Plane', 150, 30);
+                    ctx.fillStyle = '#222';
+                    if (id === 'sagittal') {
+                        ctx.fillText('Anterior', 230, 70);
+                        ctx.fillText('Posterior', 70, 70);
+                        ctx.fillText('Dorsal', 150, 55);
+                        ctx.fillText('Ventral', 150, 185);
+                    } else if (id === 'coronal') {
+                        ctx.fillText('Left', 70, 110);
+                        ctx.fillText('Right', 230, 110);
+                        ctx.fillText('Dorsal', 150, 55);
+                        ctx.fillText('Ventral', 150, 185);
+                    } else {
+                        ctx.fillText('Anterior', 150, 55);
+                        ctx.fillText('Posterior', 150, 185);
+                        ctx.fillText('Left', 70, 110);
+                        ctx.fillText('Right', 230, 110);
+                    }
+                }
+            });
+        }
+
+        // Brain Section Display
+        function initBrainSectionDisplay() {
+            const display = document.getElementById('brain-section-display');
+            display.innerHTML = '';
+            const width = 500,
+                height = 350;
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            display.appendChild(canvas);
+            updateBrainSectionDisplay('sagittal');
+        }
+
+        function updateBrainSectionDisplay(plane, position = 50) {
+            try {
+                const display = document.getElementById('brain-section-display');
+                if (!display) return;
+
+                const canvas = display.querySelector('canvas');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Black MRI-like background
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Margins for safe drawing area (increase slightly)
+                const marginX = canvas.width * 0.12;
+                const marginY = canvas.height * 0.12;
+                const drawW = canvas.width - marginX * 2;
+                const drawH = canvas.height - marginY * 2;
+
+                // Normalize position to 0-1
+                const normalizedPosition = position / 100;
+
+                // Helper for white outline
+                function drawOutlineEllipse(cx, cy, rx, ry) {
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.shadowColor = '#222';
+                    ctx.shadowBlur = 8;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#bbb';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Helper for label
+                function drawLabel(text, x, y, color = '#fff', size = 15, align = 'center') {
+                    ctx.font = `bold ${size}px Arial`;
+                    ctx.fillStyle = color;
+                    ctx.textAlign = align;
+                    ctx.fillText(text, x, y);
+                }
+
+                if (plane === 'sagittal') {
+                    // Brain outline (side view) - slightly smaller radii
+                    drawOutlineEllipse(
+                        marginX + drawW * 0.5,
+                        marginY + drawH * 0.52,
+                        drawW * 0.35, // was 0.38
+                        drawH * 0.38  // was 0.42
+                    );
+
+                    // Corpus callosum (midline only)
+                    if (Math.abs(normalizedPosition - 0.5) < 0.12) {
+                        ctx.beginPath();
+                        ctx.moveTo(marginX + drawW * 0.38, marginY + drawH * 0.45);
+                        ctx.bezierCurveTo(
+                            marginX + drawW * 0.45, marginY + drawH * 0.35,
+                            marginX + drawW * 0.62, marginY + drawH * 0.35,
+                            marginX + drawW * 0.62, marginY + drawH * 0.48
+                        );
+                        ctx.strokeStyle = '#ff9999';
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+
+                        // Third ventricle
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            marginX + drawW * 0.5,
+                            marginY + drawH * 0.54,
+                            drawW * 0.045,
+                            drawH * 0.045,
+                            0, 0, Math.PI * 2
+                        );
+                        ctx.fillStyle = '#111';
+                        ctx.fill();
+
+                        // Brainstem
+                        ctx.beginPath();
+                        ctx.moveTo(marginX + drawW * 0.44, marginY + drawH * 0.7);
+                        ctx.bezierCurveTo(
+                            marginX + drawW * 0.46, marginY + drawH * 0.8,
+                            marginX + drawW * 0.54, marginY + drawH * 0.8,
+                            marginX + drawW * 0.56, marginY + drawH * 0.7
+                        );
+                        ctx.lineWidth = 8;
+                        ctx.strokeStyle = '#ccc';
+                        ctx.stroke();
+
+                        // Flexure arrow
+                        ctx.save();
+                        ctx.strokeStyle = '#ff3333';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(marginX + drawW * 0.44, marginY + drawH * 0.7);
+                        ctx.lineTo(marginX + drawW * 0.35, marginY + drawH * 0.62);
+                        ctx.stroke();
+                        ctx.restore();
+
+                        drawLabel('120° Flexure', marginX + drawW * 0.28, marginY + drawH * 0.62, '#ff3333', 13, 'left');
+                    } else {
+                        // Lateral ventricle (off-midline)
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            marginX + drawW * 0.55,
+                            marginY + drawH * 0.48,
+                            drawW * 0.06,
+                            drawH * 0.03,
+                            0, 0, Math.PI * 2
+                        );
+                        ctx.fillStyle = '#111';
+                        ctx.fill();
+                    }
+
+                    // Direction labels
+                    drawLabel('Anterior', marginX + drawW * 0.92, marginY + drawH * 0.18);
+                    drawLabel('Posterior', marginX + drawW * 0.08, marginY + drawH * 0.18);
+                    drawLabel('Dorsal', marginX + drawW * 0.5, marginY + drawH * 0.08);
+                    drawLabel('Ventral', marginX + drawW * 0.5, marginY + drawH * 0.98);
+
+                    // Key structure labels
+                    drawLabel('Corpus Callosum', marginX + drawW * 0.7, marginY + drawH * 0.38, '#ff9999', 13, 'left');
+                    drawLabel('Brainstem', marginX + drawW * 0.6, marginY + drawH * 0.8, '#ccc', 13, 'left');
+                    drawLabel('Ventricle', marginX + drawW * 0.55, marginY + drawH * 0.57, '#fff', 13, 'left');
+
+                } else if (plane === 'coronal') {
+                    // Brain outline (frontal view) - slightly smaller radii
+                    drawOutlineEllipse(
+                        marginX + drawW * 0.5,
+                        marginY + drawH * 0.5,
+                        drawW * 0.36, // was 0.42
+                        drawH * 0.33  // was 0.38
+                    );
+
+                    // Midline
+                    ctx.beginPath();
+                    ctx.moveTo(marginX + drawW * 0.5, marginY + drawH * 0.15);
+                    ctx.lineTo(marginX + drawW * 0.5, marginY + drawH * 0.85);
+                    ctx.strokeStyle = '#bbb';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Lateral ventricles
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.35,
+                        marginY + drawH * 0.5,
+                        drawW * 0.06,
+                        drawH * 0.08,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#111';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.65,
+                        marginY + drawH * 0.5,
+                        drawW * 0.06,
+                        drawH * 0.08,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#111';
+                    ctx.fill();
+
+                    // Thalamus (center)
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.5,
+                        marginY + drawH * 0.6,
+                        drawW * 0.07,
+                        drawH * 0.04,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#ccc';
+                    ctx.fill();
+
+                    // Brainstem (if posterior)
+                    if (normalizedPosition > 0.5) {
+                        ctx.beginPath();
+                        ctx.rect(
+                            marginX + drawW * 0.43,
+                            marginY + drawH * 0.85,
+                            drawW * 0.14,
+                            drawH * 0.12
+                        );
+                        ctx.fillStyle = '#ddd';
+                        ctx.fill();
+                    }
+
+                    // Direction labels
+                    drawLabel('Right', marginX + drawW * 0.08, marginY + drawH * 0.5);
+                    drawLabel('Left', marginX + drawW * 0.92, marginY + drawH * 0.5);
+                    drawLabel('Superior', marginX + drawW * 0.5, marginY + drawH * 0.08);
+                    drawLabel('Inferior', marginX + drawW * 0.5, marginY + drawH * 0.98);
+
+                    // Key structure labels
+                    drawLabel('Lateral Ventricle', marginX + drawW * 0.28, marginY + drawH * 0.45, '#fff', 13, 'left');
+                    drawLabel('Thalamus', marginX + drawW * 0.5, marginY + drawH * 0.68, '#ccc', 13, 'center');
+                    drawLabel('Brainstem', marginX + drawW * 0.5, marginY + drawH * 0.98, '#ddd', 13, 'center');
+
+                } else if (plane === 'horizontal') {
+                    // Brain outline (axial view) - slightly smaller radii
+                    drawOutlineEllipse(
+                        marginX + drawW * 0.5,
+                        marginY + drawH * 0.5,
+                        drawW * 0.33, // was 0.38
+                        drawH * 0.28  // was 0.32
+                    );
+
+                    // Lateral ventricles
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.4,
+                        marginY + drawH * 0.5,
+                        drawW * 0.06,
+                        drawH * 0.09,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#111';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.6,
+                        marginY + drawH * 0.5,
+                        drawW * 0.06,
+                        drawH * 0.09,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#111';
+                    ctx.fill();
+
+                    // Third ventricle (center)
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        marginX + drawW * 0.5,
+                        marginY + drawH * 0.5,
+                        drawW * 0.03,
+                        drawH * 0.04,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = '#222';
+                    ctx.fill();
+
+                    // Cerebellum (inferior)
+                    if (normalizedPosition > 0.6) {
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            marginX + drawW * 0.5,
+                            marginY + drawH * 0.7,
+                            drawW * 0.16,
+                            drawH * 0.08,
+                            0, 0, Math.PI * 2
+                        );
+                        ctx.fillStyle = '#ddd';
+                        ctx.fill();
+
+                        // Vermis
+                        ctx.beginPath();
+                        ctx.moveTo(marginX + drawW * 0.5, marginY + drawH * 0.62);
+                        ctx.lineTo(marginX + drawW * 0.5, marginY + drawH * 0.78);
+                        ctx.strokeStyle = '#bbb';
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                    }
+
+                    // Direction labels
+                    drawLabel('Anterior', marginX + drawW * 0.92, marginY + drawH * 0.5);
+                    drawLabel('Posterior', marginX + drawW * 0.08, marginY + drawH * 0.5);
+                    drawLabel('Left', marginX + drawW * 0.5, marginY + drawH * 0.08);
+                    drawLabel('Right', marginX + drawW * 0.5, marginY + drawH * 0.98);
+
+                    // Key structure labels
+                    drawLabel('Lateral Ventricle', marginX + drawW * 0.28, marginY + drawH * 0.45, '#fff', 13, 'left');
+                    drawLabel('Third Ventricle', marginX + drawW * 0.5, marginY + drawH * 0.57, '#fff', 13, 'center');
+                    if (normalizedPosition > 0.6) {
+                        drawLabel('Cerebellum', marginX + drawW * 0.5, marginY + drawH * 0.8, '#ddd', 13, 'center');
+                    }
+                }
+
+                // Plane indicator
+                drawLabel(
+                    plane.charAt(0).toUpperCase() + plane.slice(1) + ' Section',
+                    canvas.width * 0.5,
+                    canvas.height - marginY * 0.3,
+                    plane === 'sagittal' ? '#3b82f6' : (plane === 'coronal' ? '#22c55e' : '#a855f7'),
+                    17,
+                    'center'
+                );
+            } catch (error) {
+                console.error("Error updating brain section display:", error);
+            }
+        }
+
+        // Direction Visualization
+        function initDirectionVisualization() {
+            try {
+                updateDirectionVisualization(1); // Start with hindbrain
+            } catch (error) {
+                console.error("Error initializing direction visualization:", error);
+                if (document.getElementById('direction-visualization')) {
+                    document.getElementById('direction-visualization').innerHTML = `
+                        <div class="flex items-center justify-center h-full bg-red-50 text-red-800 p-4 rounded-lg">
+                            <p>Error loading direction visualization. Please try refreshing the page.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function updateDirectionVisualization(region) {
+            try {
+                const container = document.getElementById('direction-visualization');
+                if (!container) return;
+
+                // Clear previous arrows
+                container.innerHTML = '';
+
+                // Draw brain outline based on region
+                const brainOutline = document.createElement('div');
+                brainOutline.className = 'absolute inset-0 flex items-center justify-center';
+
+                if (region === 0) { // Spinal cord
+                    brainOutline.innerHTML = `
+                        <div class="w-1/4 h-3/4 bg-gray-200 rounded-lg border-2 border-gray-400 flex items-center justify-center">
+                            <span class="text-gray-600 font-bold">Spinal Cord</span>
+                        </div>
+                    `;
+                } else if (region === 1) { // Hindbrain
+                    brainOutline.innerHTML = `
+                        <div class="relative">
+                            <div class="w-32 h-32 bg-gray-200 rounded-full border-2 border-gray-400 flex items-center justify-center">
+                                <span class="text-gray-600 font-bold">Hindbrain</span>
+                            </div>
+                            <div class="w-8 h-24 bg-gray-300 rounded-b-lg border-2 border-gray-400 mx-auto -mt-2">
+                            </div>
+                        </div>
+                    `;
+                } else { // Forebrain
+                    brainOutline.innerHTML = `
+                        <div class="relative">
+                            <div class="w-48 h-40 bg-gray-200 rounded-3xl border-2 border-gray-400 flex items-center justify-center">
+                                <span class="text-gray-600 font-bold">Forebrain</span>
+                            </div>
+                            <div class="w-8 h-16 bg-gray-300 rounded-b-lg border-2 border-gray-400 mx-auto -mt-2 rotate-90 origin-top">
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.appendChild(brainOutline);
+
+                // Add direction arrows
+                const directions = [
+                    { name: 'Rostral', color: 'bg-red-500', opposite: 'Caudal' },
+                    { name: 'Dorsal', color: 'bg-yellow-500', opposite: 'Ventral' },
+                    { name: 'Anterior', color: 'bg-blue-500', opposite: 'Posterior' },
+                    { name: 'Superior', color: 'bg-green-500', opposite: 'Inferior' }
+                ];
+
+                // Position arrows based on region
+                if (region === 0) { // Spinal cord
+                    addDirectionArrow(container, 'Rostral', 'bg-red-500', '50%', '10%', 'Caudal', '50%', '90%');
+                    addDirectionArrow(container, 'Dorsal', 'bg-yellow-500', '10%', '50%', 'Ventral', '90%', '50%');
+                    addDirectionArrow(container, 'Superior', 'bg-green-500', '50%', '10%', 'Inferior', '50%', '90%');
+                    addDirectionArrow(container, 'Posterior', 'bg-blue-500', '10%', '50%', 'Anterior', '90%', '50%');
+                } else if (region === 1) { // Hindbrain
+                    addDirectionArrow(container, 'Rostral', 'bg-red-500', '50%', '10%', 'Caudal', '50%', '90%');
+                    addDirectionArrow(container, 'Dorsal', 'bg-yellow-500', '10%', '50%', 'Ventral', '90%', '50%');
+                    addDirectionArrow(container, 'Superior', 'bg-green-500', '50%', '10%', 'Inferior', '50%', '90%');
+                    addDirectionArrow(container, 'Posterior', 'bg-blue-500', '10%', '50%', 'Anterior', '90%', '50%');
+                } else { // Forebrain
+                    addDirectionArrow(container, 'Rostral', 'bg-red-500', '90%', '50%', 'Caudal', '10%', '50%');
+                    addDirectionArrow(container, 'Dorsal', 'bg-yellow-500', '50%', '10%', 'Ventral', '50%', '90%');
+                    addDirectionArrow(container, 'Anterior', 'bg-blue-500', '90%', '50%', 'Posterior', '10%', '50%');
+                    addDirectionArrow(container, 'Superior', 'bg-green-500', '50%', '10%', 'Inferior', '50%', '90%');
+                }
+
+                // Add region label
+                const regionLabel = document.createElement('div');
+                regionLabel.className = 'absolute bottom-2 left-0 right-0 text-center text-gray-700 font-bold';
+                regionLabel.textContent = region === 0 ? 'Spinal Cord' : (region === 1 ? 'Hindbrain' : 'Forebrain');
+                container.appendChild(regionLabel);
+
+                // Add note about the flexure if showing forebrain
+                if (region === 2) {
+                    const flexureNote = document.createElement('div');
+                    flexureNote.className = 'absolute top-2 left-0 right-0 text-center text-red-600 text-sm font-medium';
+                    flexureNote.textContent = 'Note how rostral/caudal direction changes due to the flexure!';
+                    container.appendChild(flexureNote);
+                }
+            } catch (error) {
+                console.error("Error updating direction visualization:", error);
+            }
+        }
+
+        function addDirectionArrow(container, name, color, startX, startY, oppositeName, endX, endY) {
+            try {
+                // Start arrow
+                const startArrow = document.createElement('div');
+                startArrow.className = `direction-arrow ${color} text-white`;
+                startArrow.style.left = startX;
+                startArrow.style.top = startY;
+                startArrow.style.transform = 'translate(-50%, -50%)';
+                startArrow.textContent = name.charAt(0);
+                startArrow.title = name;
+                container.appendChild(startArrow);
+
+                // End arrow
+                const endArrow = document.createElement('div');
+                endArrow.className = `direction-arrow ${color} text-white`;
+                endArrow.style.left = endX;
+                endArrow.style.top = endY;
+                endArrow.style.transform = 'translate(-50%, -50%)';
+                endArrow.textContent = oppositeName.charAt(0);
+                endArrow.title = oppositeName;
+                container.appendChild(endArrow);
+
+                // Line connecting arrows
+                const line = document.createElement('div');
+                line.className = `absolute ${color}`;
+
+                // Calculate line position and dimensions
+                const isHorizontal = startY === endY;
+
+                if (isHorizontal) {
+                    line.style.height = '2px';
+                    line.style.width = `calc(${endX} - ${startX})`;
+                    line.style.left = startX;
+                    line.style.top = startY;
+                    line.style.transform = 'translateY(-50%)';
+                } else {
+                    line.style.width = '2px';
+                    line.style.height = `calc(${endY} - ${startY})`;
+                    line.style.left = startX;
+                    line.style.top = startY;
+                    line.style.transform = 'translateX(-50%)';
+                }
+
+                container.appendChild(line);
+            } catch (error) {
+                console.error("Error adding direction arrow:", error);
+            }
+        }
     </script>
     <script>window.parent.postMessage({ action: "ready" }, "*");
 
